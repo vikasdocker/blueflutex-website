@@ -3,81 +3,84 @@
    ═══════════════════════════════════ */
 
 /* ── STAR FIELD ── */
-const canvas = document.getElementById('stars');
-const ctx    = canvas.getContext('2d');
-let W, H, stars = [];
+(function(){
+  const canvas = document.getElementById('stars');
+  if (!canvas || !canvas.getContext) return; // guard when canvas is absent
+  const ctx    = canvas.getContext('2d');
+  let W, H, stars = [];
 
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-
-class Star {
-  constructor() { this.init(); }
-  init() {
-    this.x  = Math.random() * W;
-    this.y  = Math.random() * H;
-    this.r  = Math.random() * 1.2 + 0.2;
-    this.vx = (Math.random() - 0.5) * 0.15;
-    this.vy = (Math.random() - 0.5) * 0.15;
-    this.a  = Math.random() * 0.6 + 0.1;
-    this.flicker = Math.random() * Math.PI * 2;
-    this.flickerSpeed = 0.01 + Math.random() * 0.015;
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
-  draw() {
-    this.flicker += this.flickerSpeed;
-    const alpha = this.a * (0.7 + 0.3 * Math.sin(this.flicker));
-    this.x += this.vx; this.y += this.vy;
-    if (this.x < 0) this.x = W;
-    if (this.x > W) this.x = 0;
-    if (this.y < 0) this.y = H;
-    if (this.y > H) this.y = 0;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = Math.random() > 0.9 ? '#00D4FF' : '#8CB8FF';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+
+  class Star {
+    constructor() { this.init(); }
+    init() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.r  = Math.random() * 1.2 + 0.2;
+      this.vx = (Math.random() - 0.5) * 0.15;
+      this.vy = (Math.random() - 0.5) * 0.15;
+      this.a  = Math.random() * 0.6 + 0.1;
+      this.flicker = Math.random() * Math.PI * 2;
+      this.flickerSpeed = 0.01 + Math.random() * 0.015;
+    }
+    draw() {
+      this.flicker += this.flickerSpeed;
+      const alpha = this.a * (0.7 + 0.3 * Math.sin(this.flicker));
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0) this.x = W;
+      if (this.x > W) this.x = 0;
+      if (this.y < 0) this.y = H;
+      if (this.y > H) this.y = 0;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = Math.random() > 0.9 ? '#00D4FF' : '#8CB8FF';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
-}
 
-function initStars(n = 160) {
-  stars = Array.from({ length: n }, () => new Star());
-}
+  function initStars(n = 160) {
+    stars = Array.from({ length: n }, () => new Star());
+  }
 
-function drawLines() {
-  for (let i = 0; i < stars.length; i++) {
-    for (let j = i + 1; j < stars.length; j++) {
-      const dx = stars[i].x - stars[j].x;
-      const dy = stars[i].y - stars[j].y;
-      const d  = Math.sqrt(dx*dx + dy*dy);
-      if (d < 80) {
-        ctx.save();
-        ctx.globalAlpha = (1 - d/80) * 0.04;
-        ctx.strokeStyle = '#00D4FF';
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(stars[i].x, stars[i].y);
-        ctx.lineTo(stars[j].x, stars[j].y);
-        ctx.stroke();
-        ctx.restore();
+  function drawLines() {
+    for (let i = 0; i < stars.length; i++) {
+      for (let j = i + 1; j < stars.length; j++) {
+        const dx = stars[i].x - stars[j].x;
+        const dy = stars[i].y - stars[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < 80) {
+          ctx.save();
+          ctx.globalAlpha = (1 - d/80) * 0.04;
+          ctx.strokeStyle = '#00D4FF';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(stars[i].x, stars[i].y);
+          ctx.lineTo(stars[j].x, stars[j].y);
+          ctx.stroke();
+          ctx.restore();
+        }
       }
     }
   }
-}
 
-function loop() {
-  ctx.clearRect(0, 0, W, H);
-  stars.forEach(s => s.draw());
-  drawLines();
-  requestAnimationFrame(loop);
-}
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => s.draw());
+    drawLines();
+    requestAnimationFrame(loop);
+  }
 
-resize();
-initStars();
-loop();
-window.addEventListener('resize', () => { resize(); initStars(); });
+  resize();
+  initStars();
+  loop();
+  window.addEventListener('resize', () => { resize(); initStars(); });
+})();
 
 /* ── NAVBAR SCROLL ── */
 const nav = document.getElementById('nav');
