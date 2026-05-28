@@ -191,7 +191,74 @@ cf.addEventListener('submit', e => {
 
 /* ── CURSOR GLOW (desktop only) ── */
 if (window.matchMedia('(pointer:fine)').matches) {
-  const cur = document.createElement('div');
+  const cursor = document.createElement('div'); cursor.className='cursor-glow'; document.body.appendChild(cursor);
+  document.addEventListener('mousemove', (e)=>{ cursor.style.transform = `translate3d(${e.clientX-18}px,${e.clientY-18}px,0)` });
+  const css=`.cursor-glow{position:fixed;width:36px;height:36px;border-radius:50%;pointer-events:none;z-index:150;mix-blend-mode:screen;box-shadow:0 0 28px rgba(0,212,255,.32),0 0 60px rgba(124,58,237,.18);transform:translate3d(-999px,-999px,0);transition:transform .06s linear;border:1px solid rgba(255,255,255,.04);}`;
+  const s=document.createElement('style'); s.textContent=css; document.head.appendChild(s);
+  window.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  // Futuristic interaction script: background particles, cursor glow, parallax, reveal, magnetic buttons
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width = innerWidth;
+  let h = canvas.height = innerHeight;
+  const DPR = Math.max(1, devicePixelRatio || 1);
+  canvas.width = w * DPR; canvas.height = h * DPR; canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; ctx.scale(DPR, DPR);
+
+  // particle system
+  const particles = [];
+  const COUNT = Math.min(120, Math.floor((w*h)/70000));
+  for(let i=0;i<COUNT;i++) particles.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+0.2, vx:(Math.random()-.5)/30, vy:(Math.random()-.5)/60, hue:200+Math.random()*120});
+
+  function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;canvas.width = w*DPR;canvas.height = h*DPR;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
+  addEventListener('resize', () => { resize(); });
+
+  let last=0;
+  function tick(t){
+    const dt = Math.min(40, t-last); last = t;
+    ctx.clearRect(0,0,w,h);
+    // subtle gradient
+    const g = ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,'rgba(8,12,20,0.6)'); g.addColorStop(1,'rgba(2,6,12,0.6)'); ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+
+    // stars/particles
+    for(let p of particles){
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      if(p.x < -10) p.x = w+10; if(p.x > w+10) p.x = -10; if(p.y < -10) p.y = h+10; if(p.y > h+10) p.y = -10;
+      ctx.beginPath(); ctx.fillStyle = 'rgba(180,220,255,0.08)'; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+
+    // soft larger glows
+    ctx.beginPath(); ctx.fillStyle = 'rgba(0,212,255,0.03)'; ctx.ellipse(w*0.85,h*0.15,w*0.25*h/w*60, w*0.25,0,0,Math.PI*2); ctx.fill();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    for(const e of entries){ if(e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); } }
+  },{threshold:0.12});
+  document.querySelectorAll('.section, .service, .project, .mcard, .hero-left').forEach(el=>io.observe(el));
+
+  // magnetic buttons
+  document.querySelectorAll('.btn-magnetic').forEach(btn=>{
+    btn.addEventListener('pointermove', (ev)=>{
+      const r = btn.getBoundingClientRect(); const dx = ev.clientX - (r.left + r.width/2); const dy = ev.clientY - (r.top + r.height/2); btn.style.transform = `translate(${dx*0.12}px, ${dy*0.08}px) scale(1.02)`;
+    });
+    btn.addEventListener('pointerleave', ()=>{ btn.style.transform = ''; });
+  });
+
+  // project hover parallax
+  document.querySelectorAll('.project').forEach(p=>{
+    p.addEventListener('mousemove', e=>{ const r=p.getBoundingClientRect(); const rx = (e.clientX - r.left)/r.width - .5; const ry = (e.clientY - r.top)/r.height - .5; p.style.transform = `translate(${rx*8}px, ${ry*8}px) scale(1.03)` });
+    p.addEventListener('mouseleave', ()=>{ p.style.transform = ''; });
+  });
+
+  // simple contact handler (placeholder)
+  const form = document.getElementById('contact-form'); if(form) form.addEventListener('submit', e=>{ e.preventDefault(); alert('Thanks — we\'ll get back to you.'); form.reset(); });
+
+})();
   cur.style.cssText = `
     position:fixed;pointer-events:none;z-index:9999;
     width:280px;height:280px;border-radius:50%;
