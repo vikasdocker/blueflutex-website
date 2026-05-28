@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BlueFluteX — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ══════ RESET & BASE ══════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080C18; --bg2:#0D1228; --bg3:#111830;
+  --c:#00D4FF; --c2:#2563EB; --green:#22C55E; --red:#EF4444; --yellow:#F59E0B;
+  --txt:#E8F0FF; --txt2:#8899BB; --txt3:#4A5878;
+  --bdr:rgba(255,255,255,0.07); --bdr2:rgba(0,212,255,0.2);
+  --r:12px; --r2:18px;
+  --fD:'Syne',sans-serif; --fB:'Inter',sans-serif;
+}
+html{font-size:15px}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:var(--fB); font-weight:400;
+  min-height:100vh; display:flex;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,textarea,select{font-family:var(--fB)}
+
+/* ══════ SCROLLBAR ══════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+
+/* ══════ LOGIN SCREEN ══════ */
+#login-screen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-box{
+  background:var(--bg2);
+  border:1px solid var(--bdr);
+  border-radius:var(--r2);
+  padding:2.5rem;
+  width:380px;
+  text-align:center;
+}
+.login-box img{width:140px;margin-bottom:1.5rem}
+.login-box h2{font-family:var(--fD);font-size:1.4rem;margin-bottom:.3rem}
+.login-box p{font-size:.82rem;color:var(--txt2);margin-bottom:2rem}
+.login-field{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1px solid var(--bdr);border-radius:var(--r);
+  padding:.75rem 1rem;color:var(--txt);font-size:.9rem;
+  margin-bottom:.85rem;outline:none;transition:border .2s;
+}
+.login-field:focus{border-color:var(--bdr2)}
+.login-btn{
+  width:100%;background:linear-gradient(135deg,var(--c),var(--c2));
+  color:#fff;font-family:var(--fD);font-weight:700;
+  font-size:.9rem;padding:.8rem;border-radius:100px;
+  box-shadow:0 0 24px rgba(0,212,255,.25);
+  transition:all .25s;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 0 36px rgba(0,212,255,.4)}
+.login-err{color:var(--red);font-size:.78rem;margin-top:.6rem;display:none}
+
+/* ══════ LAYOUT ══════ */
+#sidebar{
+  width:240px;min-height:100vh;
+  background:var(--bg2);
+  border-right:1px solid var(--bdr);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;
+  z-index:100;
+}
+#main{
+  margin-left:240px;flex:1;
+  min-height:100vh;
+  background:var(--bg);
+}
+
+/* ══════ SIDEBAR ══════ */
+.sb-logo{
+  padding:1.5rem 1.25rem 1rem;
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;gap:.6rem;
+}
+.sb-logo img{height:32px;border-radius:6px}
+.sb-logo-txt{font-family:var(--fD);font-weight:700;font-size:1rem;
+  background:linear-gradient(130deg,#fff,var(--c));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-subtitle{font-size:.68rem;color:var(--txt3);margin-top:1rem;padding:0 1.25rem .6rem;
+  letter-spacing:.12em;text-transform:uppercase}
+.sb-nav{flex:1;overflow-y:auto;padding:.4rem .6rem}
+.sb-item{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.6rem .8rem;border-radius:9px;
+  font-size:.84rem;color:var(--txt2);
+  transition:all .2s;cursor:pointer;
+  margin-bottom:.15rem;
+}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--txt)}
+.sb-item.active{background:rgba(0,212,255,.1);color:var(--c);border:1px solid rgba(0,212,255,.15)}
+.sb-item .ico{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;background:rgba(255,255,255,.04);flex-shrink:0;
+}
+.sb-item.active .ico{background:rgba(0,212,255,.12)}
+.sb-bottom{
+  padding:1rem;border-top:1px solid var(--bdr);
+}
+.preview-btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;padding:.65rem;border-radius:var(--r);
+  background:linear-gradient(135deg,var(--c),var(--c2));
+  color:#fff;font-family:var(--fD);font-weight:600;
+  font-size:.82rem;
+  box-shadow:0 0 18px rgba(0,212,255,.2);
+  transition:all .25s;
+}
+.preview-btn:hover{box-shadow:0 0 28px rgba(0,212,255,.35);transform:translateY(-1px)}
+.logout-btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;padding:.55rem;border-radius:var(--r);
+  color:var(--txt3);font-size:.8rem;margin-top:.5rem;
+  transition:color .2s;
+}
+.logout-btn:hover{color:var(--red)}
+
+/* ══════ TOPBAR ══════ */
+#topbar{
+  height:60px;border-bottom:1px solid var(--bdr);
+  background:rgba(8,12,24,.9);backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-family:var(--fD);font-size:1rem;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:1rem}
+.save-all-btn{
+  display:flex;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--green),#16A34A);
+  color:#fff;font-family:var(--fD);font-weight:600;
+  font-size:.82rem;padding:.5rem 1.1rem;border-radius:100px;
+  box-shadow:0 0 16px rgba(34,197,94,.2);
+  transition:all .25s;
+}
+.save-all-btn:hover{box-shadow:0 0 24px rgba(34,197,94,.35);transform:translateY(-1px)}
+.saved-badge{
+  background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);
+  color:var(--green);font-size:.75rem;padding:.3rem .7rem;border-radius:100px;
+  display:none;
+}
+
+/* ══════ CONTENT AREA ══════ */
+#content{padding:2rem}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ══════ SECTION CARDS ══════ */
+.edit-section{
+  background:var(--bg2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:1.75rem;margin-bottom:1.5rem;
+}
+.edit-section-hdr{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:1.5rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--bdr);
+}
+.esh-ico{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;background:rgba(0,212,255,.08);
+  border:1px solid rgba(0,212,255,.12);flex-shrink:0;
+}
+.esh-title{font-family:var(--fD);font-size:.95rem;font-weight:700}
+.esh-sub{font-size:.75rem;color:var(--txt3);margin-top:1px}
+
+/* ══════ FORM FIELDS ══════ */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.field-row.single{grid-template-columns:1fr}
+.field-row.triple{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field label{
+  font-size:.72rem;font-weight:500;color:var(--txt2);
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.field input,.field textarea,.field select{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--bdr);border-radius:9px;
+  padding:.65rem .9rem;color:var(--txt);font-size:.88rem;
+  outline:none;transition:all .2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:var(--bdr2);background:rgba(0,212,255,.03);
+  box-shadow:0 0 0 3px rgba(0,212,255,.07);
+}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field select option{background:var(--bg2)}
+.char-count{font-size:.68rem;color:var(--txt3);text-align:right;margin-top:2px}
+
+/* ══════ SERVICE CARDS EDITOR ══════ */
+.svc-cards{display:flex;flex-direction:column;gap:.85rem}
+.svc-card-edit{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--bdr);border-radius:var(--r);
+  overflow:hidden;
+}
+.svc-card-hdr{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.8rem 1rem;cursor:pointer;
+  background:rgba(255,255,255,.02);
+  transition:background .2s;user-select:none;
+}
+.svc-card-hdr:hover{background:rgba(255,255,255,.04)}
+.svc-num{
+  font-family:var(--fD);font-size:.7rem;font-weight:700;
+  color:var(--c);width:20px;
+}
+.svc-name{font-size:.88rem;font-weight:500;flex:1}
+.svc-toggle{
+  font-size:.7rem;color:var(--txt3);
+  transition:transform .25s;
+}
+.svc-card-edit.open .svc-toggle{transform:rotate(180deg)}
+.svc-card-body{
+  display:none;padding:1rem;
+  border-top:1px solid var(--bdr);
+}
+.svc-card-edit.open .svc-card-body{display:block}
+
+/* ══════ TECH PILLS EDITOR ══════ */
+.tech-pills-edit{
+  display:flex;flex-wrap:wrap;gap:.6rem;
+  padding:.5rem 0;
+}
+.tpe{
+  display:flex;align-items:center;gap:.4rem;
+  background:rgba(10,15,32,.6);
+  border:1px solid var(--bdr);border-radius:100px;
+  padding:.35rem .75rem;font-size:.8rem;
+}
+.tpe input{
+  background:transparent!important;border:none!important;
+  padding:0!important;width:90px;
+  color:var(--txt)!important;font-size:.8rem!important;
+  outline:none!important;box-shadow:none!important;
+}
+.tpe-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;cursor:pointer;
+}
+.tpe-del{
+  color:var(--txt3);font-size:.75rem;cursor:pointer;margin-left:.2rem;
+  transition:color .15s;line-height:1;
+}
+.tpe-del:hover{color:var(--red)}
+.add-pill-btn{
+  display:flex;align-items:center;gap:.4rem;
+  background:rgba(0,212,255,.06);border:1px dashed rgba(0,212,255,.2);
+  border-radius:100px;padding:.35rem .85rem;
+  font-size:.78rem;color:var(--c);cursor:pointer;transition:all .2s;
+}
+.add-pill-btn:hover{background:rgba(0,212,255,.12)}
+
+/* ══════ STAT EDITOR ══════ */
+.stat-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+}
+.stat-box{
+  background:rgba(0,212,255,.04);
+  border:1px solid rgba(0,212,255,.1);
+  border-radius:var(--r);padding:1rem;text-align:center;
+}
+.stat-box .field{align-items:center}
+.stat-box input{text-align:center;font-family:var(--fD);font-weight:700;font-size:1.2rem;color:var(--c)}
+
+/* ══════ COLOR PICKER FIELD ══════ */
+.color-field{display:flex;align-items:center;gap:.6rem}
+.color-field input[type=color]{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--bdr);
+  cursor:pointer;padding:2px;background:transparent;
+}
+.color-hex{
+  flex:1;background:rgba(255,255,255,.04);
+  border:1px solid var(--bdr);border-radius:8px;
+  padding:.4rem .7rem;color:var(--txt);font-size:.82rem;
+  font-family:monospace;outline:none;
+}
+.color-hex:focus{border-color:var(--bdr2)}
+
+/* ══════ SOCIAL LINKS ══════ */
+.social-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:.75rem;
+}
+.social-item{
+  display:flex;align-items:center;gap:.6rem;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--bdr);border-radius:var(--r);
+  padding:.65rem .9rem;
+}
+.social-ico{font-size:1rem;width:24px;text-align:center;flex-shrink:0}
+.social-item input{
+  background:transparent;border:none;outline:none;
+  color:var(--txt);font-size:.84rem;flex:1;
+}
+
+/* ══════ FEATURES EDITOR ══════ */
+.feat-list{display:flex;flex-direction:column;gap:.65rem}
+.feat-item{
+  display:flex;gap:.75rem;align-items:flex-start;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--bdr);border-radius:var(--r);
+  padding:.9rem;
+}
+.feat-num-badge{
+  font-family:var(--fD);font-size:.68rem;font-weight:700;
+  color:var(--c);min-width:22px;padding-top:2px;
+}
+.feat-inputs{flex:1;display:flex;flex-direction:column;gap:.5rem}
+.feat-inputs input,.feat-inputs textarea{
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:8px;padding:.5rem .75rem;color:var(--txt);
+  font-size:.84rem;outline:none;transition:border .2s;
+}
+.feat-inputs input:focus,.feat-inputs textarea:focus{border-color:var(--bdr2)}
+.feat-inputs textarea{resize:none;height:52px;line-height:1.5}
+
+/* ══════ ABOUT CARDS EDITOR ══════ */
+.about-cards-edit{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.acard-edit{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--bdr);border-radius:var(--r);padding:1rem;
+}
+.emoji-picker-btn{
+  font-size:1.5rem;cursor:pointer;
+  width:48px;height:48px;border-radius:var(--r);
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:.75rem;transition:background .2s;
+}
+.emoji-picker-btn:hover{background:rgba(255,255,255,.08)}
+
+/* ══════ SETTINGS ══════ */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.setting-card{
+  background:var(--bg2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:1.5rem;
+}
+.setting-card h3{
+  font-family:var(--fD);font-size:.9rem;margin-bottom:1rem;
+  color:var(--txt);display:flex;align-items:center;gap:.5rem;
+}
+
+/* ══════ DASHBOARD ══════ */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.dash-card{
+  background:var(--bg2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:1.25rem;
+}
+.dash-card h4{font-size:.72rem;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem}
+.dash-card .dv{font-family:var(--fD);font-size:1.8rem;font-weight:700;color:var(--c)}
+.dash-card .dd{font-size:.75rem;color:var(--txt3);margin-top:.2rem}
+.quick-links{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+.ql{
+  display:flex;align-items:center;gap:.75rem;
+  background:rgba(255,255,255,.03);border:1px solid var(--bdr);
+  border-radius:var(--r);padding:1rem;
+  transition:all .2s;cursor:pointer;
+}
+.ql:hover{border-color:var(--bdr2);background:rgba(0,212,255,.04)}
+.ql-ico{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;background:rgba(0,212,255,.08);flex-shrink:0;
+}
+.ql-txt h5{font-family:var(--fD);font-size:.84rem;margin-bottom:.1rem}
+.ql-txt p{font-size:.72rem;color:var(--txt3)}
+
+/* ══════ TOAST ══════ */
+#toast{
+  position:fixed;bottom:2rem;right:2rem;z-index:999;
+  background:var(--bg2);border:1px solid var(--bdr2);
+  border-radius:var(--r);padding:.85rem 1.25rem;
+  display:flex;align-items:center;gap:.65rem;
+  font-size:.85rem;color:var(--txt);
+  box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 20px rgba(0,212,255,.1);
+  transform:translateY(20px);opacity:0;transition:all .35s;
+  pointer-events:none;
+}
+#toast.show{transform:none;opacity:1}
+#toast .t-ico{font-size:1.1rem}
+
+/* ══════ CHANGE INDICATOR ══════ */
+.changed-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--yellow);margin-left:auto;flex-shrink:0;
+  display:none;
+}
+.sb-item.has-changes .changed-dot{display:block}
+
+/* ══════ USERS ══════ */
+.users-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.25rem;
+}
+.add-user-btn{
+  display:flex;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--c),var(--c2));
+  color:#fff;font-family:var(--fD);font-weight:600;
+  font-size:.82rem;padding:.55rem 1.1rem;border-radius:100px;
+  box-shadow:0 0 16px rgba(0,212,255,.2);transition:all .25s;
+}
+.add-user-btn:hover{box-shadow:0 0 26px rgba(0,212,255,.35);transform:translateY(-1px)}
+.users-table{width:100%;border-collapse:collapse}
+.users-table th{
+  text-align:left;font-size:.7rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--txt3);padding:.65rem 1rem;
+  border-bottom:1px solid var(--bdr);
+}
+.users-table td{
+  padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.85rem;vertical-align:middle;
+}
+.users-table tr:last-child td{border-bottom:none}
+.users-table tr:hover td{background:rgba(255,255,255,.02)}
+.user-avatar{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fD);font-weight:700;font-size:.85rem;
+  flex-shrink:0;
+}
+.user-info{display:flex;align-items:center;gap:.75rem}
+.user-name{font-weight:500;color:var(--txt)}
+.user-email{font-size:.75rem;color:var(--txt3);margin-top:1px}
+.role-badge{
+  font-size:.7rem;font-weight:600;
+  padding:.25rem .65rem;border-radius:100px;letter-spacing:.04em;
+}
+.role-admin{background:rgba(0,212,255,.1);color:var(--c);border:1px solid rgba(0,212,255,.2)}
+.role-editor{background:rgba(37,99,235,.12);color:#60A5FA;border:1px solid rgba(37,99,235,.25)}
+.role-viewer{background:rgba(100,116,139,.12);color:var(--txt2);border:1px solid rgba(100,116,139,.2)}
+.status-dot{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.78rem;
+}
+.status-dot::before{
+  content:'';width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+.status-active::before{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.5)}
+.status-inactive::before{background:var(--txt3)}
+.user-actions{display:flex;gap:.5rem;align-items:center}
+.ua-btn{
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.82rem;transition:all .2s;cursor:pointer;
+  border:1px solid var(--bdr);color:var(--txt3);
+  background:rgba(255,255,255,.03);
+}
+.ua-btn:hover{border-color:var(--bdr2);color:var(--c);background:rgba(0,212,255,.06)}
+.ua-del:hover{border-color:rgba(239,68,68,.3);color:var(--red);background:rgba(239,68,68,.06)}
+
+/* User Modal */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--bg2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:2rem;width:440px;
+  transform:translateY(16px) scale(.98);transition:transform .3s;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+}
+.modal-overlay.open .modal{transform:none}
+.modal-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--bdr);
+}
+.modal-title{font-family:var(--fD);font-size:1rem;font-weight:700}
+.modal-close{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--txt3);font-size:1rem;cursor:pointer;
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  transition:all .2s;
+}
+.modal-close:hover{color:var(--red);border-color:rgba(239,68,68,.3)}
+.modal .field{margin-bottom:.9rem}
+.modal .field label{display:block;font-size:.72rem;font-weight:500;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:.4rem}
+.modal .field input,.modal .field select{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1px solid var(--bdr);border-radius:9px;
+  padding:.65rem .9rem;color:var(--txt);font-size:.88rem;outline:none;transition:all .2s;
+}
+.modal .field input:focus,.modal .field select:focus{border-color:var(--bdr2);background:rgba(0,212,255,.03)}
+.modal .field select option{background:var(--bg2)}
+.modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--bdr)}
+.modal-cancel{
+  padding:.6rem 1.2rem;border-radius:100px;border:1px solid var(--bdr);
+  color:var(--txt2);font-size:.84rem;transition:all .2s;
+}
+.modal-cancel:hover{border-color:var(--bdr2);color:var(--txt)}
+.modal-save{
+  padding:.6rem 1.4rem;border-radius:100px;
+  background:linear-gradient(135deg,var(--c),var(--c2));
+  color:#fff;font-family:var(--fD);font-weight:600;font-size:.84rem;
+  box-shadow:0 0 14px rgba(0,212,255,.2);transition:all .25s;
+}
+.modal-save:hover{box-shadow:0 0 22px rgba(0,212,255,.35)}
+.pwd-toggle{position:relative}
+.pwd-toggle input{padding-right:2.5rem}
+.pwd-eye{
+  position:absolute;right:.75rem;top:50%;transform:translateY(-50%);
+  color:var(--txt3);cursor:pointer;font-size:.85rem;transition:color .2s;
+}
+.pwd-eye:hover{color:var(--c)}
+
+/* ══════ ACTIVITY LOG ══════ */
+.log-controls{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:1.25rem;flex-wrap:wrap;
+}
+.log-search{
+  flex:1;min-width:180px;
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--r);padding:.55rem .9rem;color:var(--txt);
+  font-size:.84rem;outline:none;transition:border .2s;
+}
+.log-search:focus{border-color:var(--bdr2)}
+.log-filter{
+  background:rgba(255,255,255,.04);border:1px solid var(--bdr);
+  border-radius:var(--r);padding:.55rem .9rem;color:var(--txt);
+  font-size:.82rem;outline:none;cursor:pointer;
+}
+.log-filter option{background:var(--bg2)}
+.clear-log-btn{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.55rem 1rem;border-radius:var(--r);
+  border:1px solid rgba(239,68,68,.2);color:var(--red);
+  font-size:.8rem;transition:all .2s;background:rgba(239,68,68,.05);
+}
+.clear-log-btn:hover{background:rgba(239,68,68,.1)}
+.export-log-btn{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.55rem 1rem;border-radius:var(--r);
+  border:1px solid var(--bdr2);color:var(--c);
+  font-size:.8rem;transition:all .2s;background:rgba(0,212,255,.05);
+}
+.export-log-btn:hover{background:rgba(0,212,255,.12)}
+.log-list{display:flex;flex-direction:column;gap:.5rem}
+.log-entry{
+  display:flex;align-items:flex-start;gap:1rem;
+  padding:.9rem 1rem;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--bdr);border-radius:var(--r);
+  transition:border-color .2s;
+}
+.log-entry:hover{border-color:rgba(255,255,255,.1)}
+.log-icon{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;
+}
+.log-icon.li-save{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.15)}
+.log-icon.li-login{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.12)}
+.log-icon.li-logout{background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.15)}
+.log-icon.li-user{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.15)}
+.log-icon.li-edit{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.15)}
+.log-icon.li-delete{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.12)}
+.log-icon.li-reset{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.15)}
+.log-body{flex:1;min-width:0}
+.log-msg{font-size:.85rem;color:var(--txt);line-height:1.4}
+.log-meta{display:flex;align-items:center;gap:.75rem;margin-top:.3rem;flex-wrap:wrap}
+.log-time{font-size:.72rem;color:var(--txt3)}
+.log-user-tag{
+  font-size:.68rem;padding:.15rem .5rem;border-radius:100px;
+  background:rgba(0,212,255,.07);color:var(--c);
+  border:1px solid rgba(0,212,255,.12);
+}
+.log-section-tag{
+  font-size:.68rem;padding:.15rem .5rem;border-radius:100px;
+  background:rgba(255,255,255,.05);color:var(--txt3);
+}
+.log-type-badge{
+  font-size:.66rem;font-weight:600;padding:.15rem .5rem;border-radius:100px;letter-spacing:.04em;
+}
+.lt-save{background:rgba(34,197,94,.1);color:var(--green)}
+.lt-login{background:rgba(0,212,255,.08);color:var(--c)}
+.lt-logout{background:rgba(100,116,139,.1);color:var(--txt2)}
+.lt-user{background:rgba(245,158,11,.1);color:var(--yellow)}
+.lt-edit{background:rgba(37,99,235,.1);color:#60A5FA}
+.lt-delete{background:rgba(239,68,68,.08);color:var(--red)}
+.lt-reset{background:rgba(124,58,237,.1);color:#A78BFA}
+.log-empty{
+  text-align:center;padding:3rem;
+  color:var(--txt3);font-size:.88rem;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+}
+/* Log date grouping */
+.log-date-group{margin-bottom:1rem}
+.log-date-hdr{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:.75rem;
+}
+.log-date-line{flex:1;height:1px;background:var(--bdr)}
+.log-date-label{
+  font-size:.72rem;font-weight:500;color:var(--txt2);
+  white-space:nowrap;letter-spacing:.04em;
+}
+.log-date-count{
+  font-size:.68rem;color:var(--txt3);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--bdr);
+  border-radius:100px;padding:.15rem .55rem;
+  white-space:nowrap;
+}
+}
+.log-empty span{font-size:2rem;display:block;margin-bottom:.75rem}
+.log-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:.75rem;margin-bottom:1.25rem;
+}
+.log-stat{
+  background:rgba(255,255,255,.02);border:1px solid var(--bdr);
+  border-radius:var(--r);padding:.9rem;text-align:center;
+}
+.log-stat .ls-num{
+  font-family:var(--fD);font-size:1.5rem;font-weight:700;
+  line-height:1;margin-bottom:.25rem;
+}
+.log-stat .ls-lbl{font-size:.7rem;color:var(--txt3)}
+
+/* ══════ RESPONSIVE ══════ */
+@media(max-width:900px){
+  #sidebar{width:200px}
+  #main{margin-left:200px}
+  .dash-grid{grid-template-columns:repeat(2,1fr)}
+  .about-cards-edit{grid-template-columns:1fr}
+  .settings-grid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  #sidebar{display:none}
+  #main{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ LOGIN ══════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <img src="logo_nav_icon.png" alt="Logo" onerror="this.style.display='none'"/>
+    <h2>Admin Panel</h2>
+    <p>Sign in to manage your BlueFluteX website</p>
+    <input class="login-field" type="text" id="uname" placeholder="Username" autocomplete="off"/>
+    <input class="login-field" type="password" id="pw" placeholder="Password" id="pw"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="login-err">❌ Incorrect credentials. Please try again.</div>
+  </div>
+</div>
+
+<!-- ══════ SIDEBAR ══════ -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <img src="logo_nav_icon.png" alt="Logo" onerror="this.style.display='none'"/>
+    <span class="sb-logo-txt">BFX Admin</span>
+  </div>
+  <div class="sb-subtitle">Sections</div>
+  <div class="sb-nav">
+    <div class="sb-item active" onclick="showPanel('dashboard')" id="sb-dashboard">
+      <div class="ico">🏠</div> Dashboard <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('hero')" id="sb-hero">
+      <div class="ico">🚀</div> Hero Section <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('services')" id="sb-services">
+      <div class="ico">⚙️</div> Services <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('technology')" id="sb-technology">
+      <div class="ico">💻</div> Technology <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('why')" id="sb-why">
+      <div class="ico">✅</div> Why Us <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('about')" id="sb-about">
+      <div class="ico">🏢</div> About <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('contact')" id="sb-contact">
+      <div class="ico">📬</div> Contact <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('footer')" id="sb-footer">
+      <div class="ico">📄</div> Footer <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('settings')" id="sb-settings">
+      <div class="ico">🎨</div> Settings <div class="changed-dot"></div>
+    </div>
+    <div style="height:1px;background:var(--bdr);margin:.5rem .6rem"></div>
+    <div class="sb-subtitle" style="margin-top:.25rem">System</div>
+    <div class="sb-item" onclick="showPanel('users')" id="sb-users">
+      <div class="ico">👥</div> Users <div class="changed-dot"></div>
+    </div>
+    <div class="sb-item" onclick="showPanel('logs')" id="sb-logs">
+      <div class="ico">📋</div> Activity Log <div class="changed-dot"></div>
+    </div>
+  </div><!-- /sb-nav -->
+  <div class="sb-bottom">
+    <a href="index.html" target="_blank" class="preview-btn">
+      <span>👁</span> Preview Website
+    </a>
+    <button class="logout-btn" onclick="doLogout()">
+      <span>🚪</span> Logout
+    </button>
+  </div>
+</div>
+
+<!-- ══════ MAIN ══════ -->
+<div id="main">
+  <!-- Topbar -->
+  <div id="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .85rem;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:100px;font-size:.78rem">
+        <span style="color:var(--txt3)">Logged in as</span>
+        <span style="color:var(--c);font-weight:600" id="topbar-user">admin</span>
+        <span style="color:var(--txt3)">·</span>
+        <span style="color:var(--txt2);font-size:.72rem;text-transform:capitalize" id="topbar-role">admin</span>
+      </div>
+      <div class="saved-badge" id="saved-badge">✓ All changes saved</div>
+      <button class="save-all-btn" onclick="saveAll()">
+        <span>💾</span> Save & Apply
+      </button>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="dash-grid">
+        <div class="dash-card"><h4>Website Status</h4><div class="dv" style="color:var(--green);font-size:1.1rem">● Live</div><div class="dd">index.html is ready</div></div>
+        <div class="dash-card"><h4>Sections</h4><div class="dv">8</div><div class="dd">Editable sections</div></div>
+        <div class="dash-card"><h4>Admin Users</h4><div class="dv" id="dash-user-count">—</div><div class="dd">Registered accounts</div></div>
+        <div class="dash-card"><h4>Log Entries</h4><div class="dv" id="dash-log-count">—</div><div class="dd">Activity events</div></div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr">
+          <div class="esh-ico">⚡</div>
+          <div><div class="esh-title">Quick Edit</div><div class="esh-sub">Click any section to start editing</div></div>
+        </div>
+        <div class="quick-links">
+          <div class="ql" onclick="showPanel('hero')"><div class="ql-ico">🚀</div><div class="ql-txt"><h5>Hero Section</h5><p>Headline, tagline, description, stats</p></div></div>
+          <div class="ql" onclick="showPanel('services')"><div class="ql-ico">⚙️</div><div class="ql-txt"><h5>Services</h5><p>Edit all 6 service cards</p></div></div>
+          <div class="ql" onclick="showPanel('technology')"><div class="ql-ico">💻</div><div class="ql-txt"><h5>Technology Stack</h5><p>Add or remove tech pills</p></div></div>
+          <div class="ql" onclick="showPanel('contact')"><div class="ql-ico">📬</div><div class="ql-txt"><h5>Contact Info</h5><p>Location, email, social links</p></div></div>
+          <div class="ql" onclick="showPanel('why')"><div class="ql-ico">✅</div><div class="ql-txt"><h5>Why Us</h5><p>Features & advantages</p></div></div>
+          <div class="ql" onclick="showPanel('settings')"><div class="ql-ico">🎨</div><div class="ql-txt"><h5>Colors & SEO</h5><p>Brand colors, page title</p></div></div>
+        </div>
+      </div>
+      <div class="edit-section" style="background:rgba(34,197,94,.04);border-color:rgba(34,197,94,.15)">
+        <div class="edit-section-hdr" style="border-color:rgba(34,197,94,.1)">
+          <div class="esh-ico" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.2)">📖</div>
+          <div><div class="esh-title">How to Use This Panel</div><div class="esh-sub">Read before editing</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:.83rem;color:var(--txt2);line-height:1.7">
+          <div>
+            <p><b style="color:var(--txt)">Step 1:</b> Click any section in the sidebar (Hero, Services, etc.)</p>
+            <p style="margin-top:.5rem"><b style="color:var(--txt)">Step 2:</b> Edit the text fields — every field corresponds directly to your website.</p>
+          </div>
+          <div>
+            <p><b style="color:var(--txt)">Step 3:</b> Click <b style="color:var(--green)">"Save & Apply"</b> button — this downloads an updated <code style="background:rgba(255,255,255,.06);padding:.1rem .3rem;border-radius:4px">index.html</code> file.</p>
+            <p style="margin-top:.5rem"><b style="color:var(--txt)">Step 4:</b> Replace the old <code style="background:rgba(255,255,255,.06);padding:.1rem .3rem;border-radius:4px">index.html</code> in your website folder with the downloaded one.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HERO ── -->
+    <div class="panel" id="panel-hero">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🏷</div><div><div class="esh-title">Badge & Headline</div><div class="esh-sub">Top of the hero section</div></div></div>
+        <div class="field-row single">
+          <div class="field"><label>Badge Text (top pill)</label><input type="text" id="hero_badge" oninput="markChanged('hero')"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Headline Line 1</label><input type="text" id="hero_h1" oninput="markChanged('hero')"/></div>
+          <div class="field"><label>Headline Line 2 (gradient)</label><input type="text" id="hero_h2" oninput="markChanged('hero')"/></div>
+        </div>
+        <div class="field-row single">
+          <div class="field"><label>Description Paragraph</label><textarea id="hero_desc" rows="3" oninput="markChanged('hero')"></textarea></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Button 1 Text</label><input type="text" id="hero_btn1" oninput="markChanged('hero')"/></div>
+          <div class="field"><label>Button 2 Text</label><input type="text" id="hero_btn2" oninput="markChanged('hero')"/></div>
+        </div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">📊</div><div><div class="esh-title">Stats Bar</div><div class="esh-sub">The 3 numbers shown below the buttons</div></div></div>
+        <div class="stat-row">
+          <div class="stat-box">
+            <div class="field"><label>Stat 1 Value</label><input type="text" id="stat1_val" oninput="markChanged('hero')"/></div>
+            <div class="field" style="margin-top:.5rem"><label>Stat 1 Label</label><input type="text" id="stat1_lbl" oninput="markChanged('hero')"/></div>
+          </div>
+          <div class="stat-box">
+            <div class="field"><label>Stat 2 Value</label><input type="text" id="stat2_val" oninput="markChanged('hero')"/></div>
+            <div class="field" style="margin-top:.5rem"><label>Stat 2 Label</label><input type="text" id="stat2_lbl" oninput="markChanged('hero')"/></div>
+          </div>
+          <div class="stat-box">
+            <div class="field"><label>Stat 3 Value</label><input type="text" id="stat3_val" oninput="markChanged('hero')"/></div>
+            <div class="field" style="margin-top:.5rem"><label>Stat 3 Label</label><input type="text" id="stat3_lbl" oninput="markChanged('hero')"/></div>
+          </div>
+        </div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🃏</div><div><div class="esh-title">Floating Chips</div><div class="esh-sub">3 floating badges on the hero visual</div></div></div>
+        <div class="field-row triple">
+          <div class="field"><label>Chip 1</label><input type="text" id="chip1" oninput="markChanged('hero')"/></div>
+          <div class="field"><label>Chip 2</label><input type="text" id="chip2" oninput="markChanged('hero')"/></div>
+          <div class="field"><label>Chip 3</label><input type="text" id="chip3" oninput="markChanged('hero')"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SERVICES ── -->
+    <div class="panel" id="panel-services">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🏷</div><div><div class="esh-title">Section Header</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>Section Tag</label><input type="text" id="svc_tag" oninput="markChanged('services')"/></div>
+          <div class="field"><label>Section Subtitle</label><input type="text" id="svc_sub" oninput="markChanged('services')"/></div>
+        </div>
+        <div class="field-row single"><div class="field"><label>Section Title</label><input type="text" id="svc_title" oninput="markChanged('services')"/></div></div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">⚙️</div><div><div class="esh-title">Service Cards</div><div class="esh-sub">Click each card to expand and edit</div></div></div>
+        <div class="svc-cards" id="svc-cards-container"></div>
+      </div>
+    </div>
+
+    <!-- ── TECHNOLOGY ── -->
+    <div class="panel" id="panel-technology">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🏷</div><div><div class="esh-title">Section Header</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>Section Tag</label><input type="text" id="tech_tag" oninput="markChanged('technology')"/></div>
+          <div class="field"><label>Section Subtitle</label><input type="text" id="tech_sub" oninput="markChanged('technology')"/></div>
+        </div>
+        <div class="field-row single"><div class="field"><label>Section Title</label><input type="text" id="tech_title" oninput="markChanged('technology')"/></div></div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">💻</div><div><div class="esh-title">Technology Pills</div><div class="esh-sub">Click color dot to change color. Click ✕ to remove.</div></div></div>
+        <div class="tech-pills-edit" id="tech-pills"></div>
+        <button class="add-pill-btn" onclick="addTechPill()" style="margin-top:.75rem">+ Add Technology</button>
+      </div>
+    </div>
+
+    <!-- ── WHY US ── -->
+    <div class="panel" id="panel-why">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🏷</div><div><div class="esh-title">Left Column</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>Section Tag</label><input type="text" id="why_tag" oninput="markChanged('why')"/></div>
+          <div class="field"><label>Button Text</label><input type="text" id="why_btn" oninput="markChanged('why')"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Headline Line 1</label><input type="text" id="why_h1" oninput="markChanged('why')"/></div>
+          <div class="field"><label>Headline Line 2 (gradient)</label><input type="text" id="why_h2" oninput="markChanged('why')"/></div>
+        </div>
+        <div class="field-row single"><div class="field"><label>Description</label><textarea id="why_desc" rows="3" oninput="markChanged('why')"></textarea></div></div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">✅</div><div><div class="esh-title">Feature Blocks</div><div class="esh-sub">5 feature items on the right</div></div></div>
+        <div class="feat-list" id="feat-list"></div>
+      </div>
+    </div>
+
+    <!-- ── ABOUT ── -->
+    <div class="panel" id="panel-about">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🏷</div><div><div class="esh-title">Section Header</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>Section Tag</label><input type="text" id="about_tag" oninput="markChanged('about')"/></div>
+          <div class="field"><label>Headline</label><input type="text" id="about_h" oninput="markChanged('about')"/></div>
+        </div>
+        <div class="field-row single"><div class="field"><label>Description Paragraph</label><textarea id="about_desc" rows="3" oninput="markChanged('about')"></textarea></div></div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🃏</div><div><div class="esh-title">About Cards</div><div class="esh-sub">3 cards at the bottom of the section</div></div></div>
+        <div class="about-cards-edit" id="about-cards"></div>
+      </div>
+    </div>
+
+    <!-- ── CONTACT ── -->
+    <div class="panel" id="panel-contact">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🏷</div><div><div class="esh-title">Section Header</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>Section Tag</label><input type="text" id="ct_tag" oninput="markChanged('contact')"/></div>
+          <div class="field"><label>Section Description</label><input type="text" id="ct_desc" oninput="markChanged('contact')"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Headline Line 1</label><input type="text" id="ct_h1" oninput="markChanged('contact')"/></div>
+          <div class="field"><label>Headline Line 2 (gradient)</label><input type="text" id="ct_h2" oninput="markChanged('contact')"/></div>
+        </div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">📍</div><div><div class="esh-title">Contact Details</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>📍 Location</label><input type="text" id="ct_location" oninput="markChanged('contact')"/></div>
+          <div class="field"><label>✉️ Email Address</label><input type="email" id="ct_email" oninput="markChanged('contact')"/></div>
+        </div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🔗</div><div><div class="esh-title">Social Media Links</div></div></div>
+        <div class="social-row">
+          <div class="social-item"><div class="social-ico">🐦</div><input type="url" id="soc_twitter" placeholder="https://twitter.com/..." oninput="markChanged('contact')"/></div>
+          <div class="social-item"><div class="social-ico">💼</div><input type="url" id="soc_linkedin" placeholder="https://linkedin.com/..." oninput="markChanged('contact')"/></div>
+          <div class="social-item"><div class="social-ico">🐙</div><input type="url" id="soc_github" placeholder="https://github.com/..." oninput="markChanged('contact')"/></div>
+          <div class="social-item"><div class="social-ico">📸</div><input type="url" id="soc_instagram" placeholder="https://instagram.com/..." oninput="markChanged('contact')"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <div class="panel" id="panel-footer">
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">📄</div><div><div class="esh-title">Footer Content</div></div></div>
+        <div class="field-row">
+          <div class="field"><label>Tagline</label><input type="text" id="ft_tagline" oninput="markChanged('footer')"/></div>
+          <div class="field"><label>Description</label><input type="text" id="ft_desc" oninput="markChanged('footer')"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Copyright Text</label><input type="text" id="ft_copy" oninput="markChanged('footer')"/></div>
+          <div class="field"><label>Right Side Text</label><input type="text" id="ft_right" oninput="markChanged('footer')"/></div>
+        </div>
+      </div>
+      <div class="edit-section">
+        <div class="edit-section-hdr"><div class="esh-ico">🗂</div><div><div class="esh-title">Footer Navigation Links</div></div></div>
+        <div class="field-row triple">
+          <div>
+            <div class="field" style="margin-bottom:.75rem"><label>Column 1 Title</label><input type="text" id="fc1_title" oninput="markChanged('footer')"/></div>
+            <textarea class="field" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:9px;padding:.6rem .8rem;color:var(--txt);font-size:.8rem;outline:none;resize:none;height:110px;line-height:1.7" id="fc1_links" placeholder="One item per line" oninput="markChanged('footer')"></textarea>
+          </div>
+          <div>
+            <div class="field" style="margin-bottom:.75rem"><label>Column 2 Title</label><input type="text" id="fc2_title" oninput="markChanged('footer')"/></div>
+            <textarea class="field" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:9px;padding:.6rem .8rem;color:var(--txt);font-size:.8rem;outline:none;resize:none;height:110px;line-height:1.7" id="fc2_links" placeholder="One item per line" oninput="markChanged('footer')"></textarea>
+          </div>
+          <div>
+            <div class="field" style="margin-bottom:.75rem"><label>Column 3 Title</label><input type="text" id="fc3_title" oninput="markChanged('footer')"/></div>
+            <textarea class="field" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:9px;padding:.6rem .8rem;color:var(--txt);font-size:.8rem;outline:none;resize:none;height:110px;line-height:1.7" id="fc3_links" placeholder="One item per line" oninput="markChanged('footer')"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-grid">
+        <div class="setting-card">
+          <h3>🎨 Brand Colors</h3>
+          <div class="field" style="margin-bottom:.85rem">
+            <label>Primary Accent (Cyan)</label>
+            <div class="color-field">
+              <input type="color" id="col_accent" oninput="syncColor('col_accent','col_accent_hex')"/>
+              <input type="text" class="color-hex" id="col_accent_hex" maxlength="7" oninput="syncHex('col_accent_hex','col_accent')"/>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:.85rem">
+            <label>Secondary Accent (Blue)</label>
+            <div class="color-field">
+              <input type="color" id="col_accent2" oninput="syncColor('col_accent2','col_accent2_hex')"/>
+              <input type="text" class="color-hex" id="col_accent2_hex" maxlength="7" oninput="syncHex('col_accent2_hex','col_accent2')"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Background Color</label>
+            <div class="color-field">
+              <input type="color" id="col_bg" oninput="syncColor('col_bg','col_bg_hex')"/>
+              <input type="text" class="color-hex" id="col_bg_hex" maxlength="7" oninput="syncHex('col_bg_hex','col_bg')"/>
+            </div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <h3>🔍 SEO & Meta</h3>
+          <div class="field" style="margin-bottom:.85rem"><label>Page Title</label><input type="text" id="seo_title" oninput="markChanged('settings')"/></div>
+          <div class="field" style="margin-bottom:.85rem"><label>Meta Description</label><textarea id="seo_desc" rows="3" oninput="markChanged('settings')"></textarea></div>
+          <div class="field"><label>Company Name (Navbar)</label><input type="text" id="seo_company" oninput="markChanged('settings')"/></div>
+        </div>
+        <div class="setting-card">
+          <h3>🧭 Navbar</h3>
+          <div class="field" style="margin-bottom:.85rem"><label>CTA Button Text</label><input type="text" id="nav_cta" oninput="markChanged('settings')"/></div>
+          <div class="field"><label>CTA Button Link</label><input type="text" id="nav_cta_link" oninput="markChanged('settings')"/></div>
+        </div>
+        <div class="setting-card">
+          <h3>📦 Export & Reset</h3>
+          <p style="font-size:.8rem;color:var(--txt2);margin-bottom:1rem;line-height:1.65">Save & Apply generates an updated <code style="background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px">index.html</code> file. Replace your existing file with the downloaded one.</p>
+          <button onclick="saveAll()" style="width:100%;background:linear-gradient(135deg,var(--green),#16A34A);color:#fff;font-family:var(--fD);font-weight:700;padding:.75rem;border-radius:var(--r);margin-bottom:.6rem;font-size:.88rem;box-shadow:0 0 16px rgba(34,197,94,.2)">💾 Save & Download index.html</button>
+          <button onclick="resetAll()" style="width:100%;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);font-family:var(--fD);font-weight:600;padding:.65rem;border-radius:var(--r);font-size:.82rem">↺ Reset to Defaults</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── USERS ── -->
+    <div class="panel" id="panel-users">
+      <!-- Stats row -->
+      <div class="dash-grid" style="margin-bottom:1.5rem" id="user-stats-row">
+        <div class="dash-card"><h4>Total Users</h4><div class="dv" id="stat-total-users">1</div><div class="dd">Admin accounts</div></div>
+        <div class="dash-card"><h4>Active</h4><div class="dv" style="color:var(--green)" id="stat-active-users">1</div><div class="dd">Currently active</div></div>
+        <div class="dash-card"><h4>Admins</h4><div class="dv" style="color:var(--c)" id="stat-admin-users">1</div><div class="dd">Full access</div></div>
+        <div class="dash-card"><h4>Last Login</h4><div class="dv" style="font-size:1rem;color:var(--txt2)" id="stat-last-login">—</div><div class="dd">Most recent</div></div>
+      </div>
+
+      <div class="edit-section">
+        <div class="edit-section-hdr">
+          <div class="esh-ico">👥</div>
+          <div><div class="esh-title">Manage Users</div><div class="esh-sub">Add, edit or remove admin panel users</div></div>
+          <div style="margin-left:auto">
+            <button class="add-user-btn" onclick="openUserModal()">+ Add User</button>
+          </div>
+        </div>
+        <!-- Search & Filter Bar -->
+        <div style="display:flex;gap:.75rem;margin-bottom:1.1rem;flex-wrap:wrap;align-items:center">
+          <input type="text" id="user-search" placeholder="🔍 Search by name, username or email..." oninput="filterUsers()"
+            style="flex:1;min-width:200px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:var(--r);padding:.55rem .9rem;color:var(--txt);font-size:.84rem;outline:none;transition:border .2s"
+            onfocus="this.style.borderColor='rgba(0,212,255,.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'"/>
+          <select id="user-role-filter" onchange="filterUsers()"
+            style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:var(--r);padding:.55rem .9rem;color:var(--txt);font-size:.82rem;outline:none;cursor:pointer">
+            <option value="">All Roles</option>
+            <option value="admin">👑 Admin</option>
+            <option value="editor">✏️ Editor</option>
+            <option value="viewer">👁 Viewer</option>
+          </select>
+          <select id="user-status-filter" onchange="filterUsers()"
+            style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:var(--r);padding:.55rem .9rem;color:var(--txt);font-size:.82rem;outline:none;cursor:pointer">
+            <option value="">All Status</option>
+            <option value="active">● Active</option>
+            <option value="inactive">○ Inactive</option>
+          </select>
+        </div>
+        <table class="users-table" id="users-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Last Login</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="edit-section" style="background:rgba(245,158,11,.04);border-color:rgba(245,158,11,.15)">
+        <div class="edit-section-hdr" style="border-color:rgba(245,158,11,.1)">
+          <div class="esh-ico" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2)">⚠️</div>
+          <div><div class="esh-title">Role Permissions</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-size:.82rem">
+          <div style="padding:.9rem;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.12);border-radius:var(--r)">
+            <div style="font-family:var(--fD);color:var(--c);margin-bottom:.5rem">👑 Admin</div>
+            <div style="color:var(--txt2);line-height:1.7">Full access · Edit all sections · Manage users · Save & export · View logs</div>
+          </div>
+          <div style="padding:.9rem;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.15);border-radius:var(--r)">
+            <div style="font-family:var(--fD);color:#60A5FA;margin-bottom:.5rem">✏️ Editor</div>
+            <div style="color:var(--txt2);line-height:1.7">Edit sections · Save & export · Cannot manage users or view logs</div>
+          </div>
+          <div style="padding:.9rem;background:rgba(100,116,139,.05);border:1px solid rgba(100,116,139,.12);border-radius:var(--r)">
+            <div style="font-family:var(--fD);color:var(--txt2);margin-bottom:.5rem">👁 Viewer</div>
+            <div style="color:var(--txt2);line-height:1.7">Read-only · Can preview content · Cannot save or edit anything</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOGS ── -->
+    <div class="panel" id="panel-logs">
+      <div class="log-stats" id="log-stats-row">
+        <div class="log-stat"><div class="ls-num" id="ls-total" style="color:var(--c)">0</div><div class="ls-lbl">Total Events</div></div>
+        <div class="log-stat"><div class="ls-num" id="ls-saves" style="color:var(--green)">0</div><div class="ls-lbl">Saves</div></div>
+        <div class="log-stat"><div class="ls-num" id="ls-logins" style="color:var(--c)">0</div><div class="ls-lbl">Logins</div></div>
+        <div class="log-stat"><div class="ls-num" id="ls-edits" style="color:#60A5FA">0</div><div class="ls-lbl">Edits</div></div>
+      </div>
+
+      <div class="edit-section">
+        <div class="edit-section-hdr">
+          <div class="esh-ico">📋</div>
+          <div><div class="esh-title">Activity Log</div><div class="esh-sub">Every action recorded with timestamp and user</div></div>
+          <div style="margin-left:auto;display:flex;gap:.5rem">
+            <button class="export-log-btn" onclick="exportLog()">⬇ Export CSV</button>
+            <button class="clear-log-btn" onclick="clearLog()">🗑 Clear Log</button>
+          </div>
+        </div>
+        <div class="log-controls">
+          <input class="log-search" type="text" placeholder="🔍  Search logs..." oninput="filterLogs()" id="log-search"/>
+          <select class="log-filter" onchange="filterLogs()" id="log-type-filter">
+            <option value="">All Types</option>
+            <option value="login">Login</option>
+            <option value="logout">Logout</option>
+            <option value="save">Save</option>
+            <option value="edit">Edit</option>
+            <option value="user">User</option>
+            <option value="delete">Delete</option>
+            <option value="reset">Reset</option>
+          </select>
+          <select class="log-filter" onchange="filterLogs()" id="log-user-filter">
+            <option value="">All Users</option>
+          </select>
+        </div>
+        <div class="log-list" id="log-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ══ USER MODAL ══ -->
+  <div class="modal-overlay" id="user-modal">
+    <div class="modal">
+      <div class="modal-hdr">
+        <div class="modal-title" id="modal-title">Add New User</div>
+        <div class="modal-close" onclick="closeUserModal()">✕</div>
+      </div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="mu-name" placeholder="e.g. Vikas Sharma"/>
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="mu-username" placeholder="e.g. vikas123" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="mu-email" placeholder="e.g. vikas@company.com"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="pwd-toggle">
+          <input type="password" id="mu-password" placeholder="Minimum 6 characters" autocomplete="new-password"/>
+          <span class="pwd-eye" onclick="togglePwd('mu-password',this)">👁</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select id="mu-role">
+          <option value="admin">👑 Admin — Full access</option>
+          <option value="editor">✏️ Editor — Can edit & save</option>
+          <option value="viewer">👁 Viewer — Read only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="mu-status">
+          <option value="active">● Active</option>
+          <option value="inactive">○ Inactive</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-cancel" onclick="closeUserModal()">Cancel</button>
+        <button class="modal-save" onclick="saveUser()">Save User</button>
+      </div>
+    </div>
+  </div>
+
+<div id="toast"><span class="t-ico">✓</span> <span id="toast-msg">Changes saved!</span></div>
+
+<!-- ══ CHANGE PASSWORD MODAL ══ -->
+<div class="modal-overlay" id="pwd-modal">
+  <div class="modal" style="width:400px">
+    <div class="modal-hdr">
+      <div class="modal-title">🔑 Change Password</div>
+      <div class="modal-close" onclick="closePwdModal()">✕</div>
+    </div>
+    <p style="font-size:.82rem;color:var(--txt2);margin-bottom:1.25rem">Changing password for: <strong id="pm-name" style="color:var(--c)"></strong></p>
+    <input type="hidden" id="pm-uid"/>
+    <div class="field" style="margin-bottom:.9rem">
+      <label>New Password</label>
+      <div class="pwd-toggle">
+        <input type="password" id="pm-new" placeholder="Min 6 characters"/>
+        <span class="pwd-eye" onclick="togglePwd('pm-new',this)">👁</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Confirm Password</label>
+      <div class="pwd-toggle">
+        <input type="password" id="pm-conf" placeholder="Repeat password"/>
+        <span class="pwd-eye" onclick="togglePwd('pm-conf',this)">👁</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closePwdModal()">Cancel</button>
+      <button class="modal-save" onclick="saveNewPwd()">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   BlueFluteX Admin Panel — script
+══════════════════════════════════════ */
+
+// ── DEFAULT DATA ──
+const DEFAULTS = {
+  hero_badge: '✦ Next-gen Software Studio · Pune, India',
+  hero_h1: 'Code with', hero_h2: 'Harmony',
+  hero_desc: 'We craft precision software that resonates — from AI-powered systems to beautiful mobile apps. BlueFluteX turns your boldest ideas into technology that endures.',
+  hero_btn1: 'Explore Services →', hero_btn2: 'Contact Us',
+  stat1_val:'50+', stat1_lbl:'Projects',
+  stat2_val:'12+', stat2_lbl:'Countries',
+  stat3_val:'99%', stat3_lbl:'Satisfaction',
+  chip1:'⚡ High Performance', chip2:'🛡 Secure by Design', chip3:'🎯 Pixel Perfect',
+  svc_tag:'What We Build',
+  svc_title:'Services for modern ambitions',
+  svc_sub:'End-to-end software delivery — every layer, every detail, every interaction.',
+  tech_tag:'Our Stack',
+  tech_title:'Technology that powers everything',
+  tech_sub:'Battle-tested tools wielded by experts who never stop learning.',
+  why_tag:'Why BlueFluteX', why_h1:'Built different.', why_h2:'Built to last.',
+  why_desc:"We don't ship mediocre software. Every project is a statement of craft — deliberate, precise, and made to endure.",
+  why_btn:'Start a Project →',
+  about_tag:'Our Story', about_h:'Software as an art form',
+  about_desc:'Founded in Pune, India — BlueFluteX was born from a simple belief: great technology should feel like music. Every component perfectly tuned, every interaction in harmony.',
+  ct_tag:'Get in Touch', ct_h1:"Let's build", ct_h2:'something great',
+  ct_desc:'Tell us about your vision. We respond within 24 hours.',
+  ct_location:'Pune, India', ct_email:'vikasshu7@gmail.com',
+  soc_twitter:'#', soc_linkedin:'#', soc_github:'#', soc_instagram:'#',
+  ft_tagline:'Code with Harmony',
+  ft_desc:'Building software that resonates — one line at a time.',
+  ft_copy:'© 2025 BlueFluteX. All rights reserved.',
+  ft_right:'Crafted with precision in Pune 🇮🇳',
+  fc1_title:'Services', fc1_links:'Android Apps\niOS Apps\nDesktop Software\nGame Dev\nIT Consulting',
+  fc2_title:'Company', fc2_links:'About Us\nWhy Us\nTechnology\nContact',
+  fc3_title:'Contact', fc3_links:'vikasshu7@gmail.com\nPune, India\nLinkedIn\nGitHub',
+  nav_cta:'Get in Touch', nav_cta_link:'#contact',
+  seo_title:'BlueFluteX — Code with Harmony',
+  seo_desc:'Premium software studio based in Pune, India. We build Android, iOS, Desktop, and AI-powered applications.',
+  seo_company:'BlueFluteX',
+  col_accent:'#00D4FF', col_accent_hex:'#00D4FF',
+  col_accent2:'#2563EB', col_accent2_hex:'#2563EB',
+  col_bg:'#080C18', col_bg_hex:'#080C18',
+};
+
+const SERVICES_DEFAULT = [
+  {name:'Android Development', desc:'Native & cross-platform Android apps engineered for performance and scale.', tag:'Kotlin · Jetpack · Flutter'},
+  {name:'iOS Development', desc:'Refined iOS apps that feel right at home on Apple — silky, precise, composed.', tag:'Swift · SwiftUI · Xcode'},
+  {name:'Desktop Software', desc:'Powerful cross-platform desktop apps trusted by professionals daily.', tag:'Electron · Tauri · .NET'},
+  {name:'Game Development', desc:'Immersive game experiences across mobile, PC & console platforms.', tag:'Unity · Unreal · Godot'},
+  {name:'IT Consulting', desc:'Strategic tech guidance aligning your digital roadmap with business goals.', tag:'Architecture · Audit · Strategy'},
+  {name:'Custom Software', desc:'Bespoke solutions built precisely to your domain — no off-the-shelf compromises.', tag:'Full-stack · SaaS · AI'},
+];
+const TECH_DEFAULT = [
+  {name:'Android',color:'#3DDC84'},{name:'iOS / Swift',color:'#aaaaaa'},
+  {name:'Python',color:'#3776AB'},{name:'JavaScript',color:'#F7DF1E'},
+  {name:'React',color:'#61DAFB'},{name:'AI / ML',color:'#00D4FF'},
+  {name:'AWS Cloud',color:'#FF9900'},{name:'Node.js',color:'#54B435'},
+  {name:'Flutter',color:'#02569B'},{name:'MySQL',color:'#4479A1'},
+  {name:'Unity',color:'#764ABC'},{name:'REST / GraphQL',color:'#2563EB'},
+];
+const FEATS_DEFAULT = [
+  {title:'Scalable Architecture', desc:'From 10 users to 10 million — without a rewrite.'},
+  {title:'Clean & Secure Code', desc:'Security-first with rigorous reviews and zero shortcuts.'},
+  {title:'Modern UI/UX Design', desc:'Interfaces that feel inevitable — accessible at every pixel.'},
+  {title:'High Performance', desc:'Sub-second loads, efficient queries, lean optimized builds.'},
+  {title:'Professional Support', desc:'Dedicated post-launch support with proactive monitoring.'},
+];
+const ABOUT_CARDS_DEFAULT = [
+  {icon:'🎯', title:'Our Mission', desc:'Making enterprise-grade quality accessible to teams of every scale.'},
+  {icon:'🌍', title:'Global Reach', desc:'Based in Pune — serving clients in 12+ countries worldwide.'},
+  {icon:'🔬', title:'Our Approach', desc:'Research-led, detail-obsessed, collaboration-first on every project.'},
+];
+
+// ── STATE ──
+let data = {};
+let services = [];
+let techs = [];
+let feats = [];
+let aboutCards = [];
+let changedSections = new Set();
+let currentUser = 'admin';
+let currentRole = 'admin';
+
+// ── LOGIN ──
+function doLogin() {
+  const u = document.getElementById('uname').value.trim();
+  const p = document.getElementById('pw').value;
+  // Check against user list
+  const users = getUsers();
+  const match = users.find(usr => usr.username === u && usr.password === p && usr.status === 'active');
+  const isDefault = (u === 'admin' && p === 'admin123');
+  if(match || isDefault) {
+    currentUser = match ? match.username : 'admin';
+    currentRole = match ? match.role : 'admin';
+    // update last login
+    if(match) {
+      match.lastLogin = new Date().toISOString();
+      saveUsers(users);
+    }
+    document.getElementById('login-screen').style.display='none';
+    // update topbar user display
+    document.getElementById('topbar-user').textContent = currentUser;
+    document.getElementById('topbar-role').textContent = currentRole;
+    addLog('login', `User "${currentUser}" logged in`, currentUser, 'System', 'li-login', 'lt-login');
+    initPanel();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    addLog('login', `Failed login attempt for username "${u}"`, '—', 'System', 'li-delete', 'lt-delete');
+  }
+}
+document.addEventListener('keydown', e => {
+  if(e.key==='Enter' && document.getElementById('login-screen').style.display!=='none') doLogin();
+});
+function doLogout(){
+  addLog('logout', `User "${currentUser}" logged out`, currentUser, 'System', 'li-logout', 'lt-logout');
+  currentUser = '';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('uname').value='';
+  document.getElementById('pw').value='';
+}
+
+// ── INIT ──
+function initPanel() {
+  const saved = localStorage.getItem('bfx_admin');
+  if(saved) {
+    const parsed = JSON.parse(saved);
+    data = parsed.data || {...DEFAULTS};
+    services = parsed.services || JSON.parse(JSON.stringify(SERVICES_DEFAULT));
+    techs = parsed.techs || JSON.parse(JSON.stringify(TECH_DEFAULT));
+    feats = parsed.feats || JSON.parse(JSON.stringify(FEATS_DEFAULT));
+    aboutCards = parsed.aboutCards || JSON.parse(JSON.stringify(ABOUT_CARDS_DEFAULT));
+  } else {
+    data = {...DEFAULTS};
+    services = JSON.parse(JSON.stringify(SERVICES_DEFAULT));
+    techs = JSON.parse(JSON.stringify(TECH_DEFAULT));
+    feats = JSON.parse(JSON.stringify(FEATS_DEFAULT));
+    aboutCards = JSON.parse(JSON.stringify(ABOUT_CARDS_DEFAULT));
+  }
+  populateFields();
+  renderServiceCards();
+  renderTechPills();
+  renderFeats();
+  renderAboutCards();
+  // dashboard live counts
+  setTimeout(()=>{
+    const uc = document.getElementById('dash-user-count');
+    const lc = document.getElementById('dash-log-count');
+    if(uc) uc.textContent = getUsers().length;
+    if(lc) lc.textContent = getLogs().length;
+  }, 100);
+}
+
+function populateFields() {
+  Object.keys(data).forEach(k => {
+    const el = document.getElementById(k);
+    if(el) el.value = data[k];
+  });
+}
+
+// ── PANEL SWITCHING ──
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('sb-'+id).classList.add('active');
+  document.getElementById('topbar-title').textContent = {
+    dashboard:'Dashboard', hero:'Hero Section', services:'Services',
+    technology:'Technology Stack', why:'Why Choose Us', about:'About',
+    contact:'Contact', footer:'Footer', settings:'Settings & Colors',
+    users:'User Management', logs:'Activity Log'
+  }[id];
+  if(id==='users') renderUsersTable();
+  if(id==='logs')  renderLogs();
+}
+
+// ── CHANGE TRACKING ──
+function markChanged(section) {
+  if(!changedSections.has(section)) {
+    addLog('edit', `Content edited in section: "${section}"`, currentUser, section, 'li-edit', 'lt-edit');
+  }
+  changedSections.add(section);
+  const el = document.getElementById('sb-'+section);
+  if(el) el.classList.add('has-changes');
+}
+function clearChanges() {
+  changedSections.clear();
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('has-changes'));
+}
+
+// ── COLLECT FIELDS ──
+function collectFields() {
+  Object.keys(DEFAULTS).forEach(k => {
+    const el = document.getElementById(k);
+    if(el) data[k] = el.value;
+  });
+  // collect services
+  services.forEach((s,i) => {
+    const n = document.getElementById(`svc_name_${i}`);
+    const d = document.getElementById(`svc_desc_${i}`);
+    const t = document.getElementById(`svc_tag_${i}`);
+    if(n) s.name = n.value;
+    if(d) s.desc = d.value;
+    if(t) s.tag  = t.value;
+  });
+  // collect feats
+  feats.forEach((f,i) => {
+    const h = document.getElementById(`feat_h_${i}`);
+    const d = document.getElementById(`feat_d_${i}`);
+    if(h) f.title = h.value;
+    if(d) f.desc  = d.value;
+  });
+  // collect about cards
+  aboutCards.forEach((c,i) => {
+    const t = document.getElementById(`acard_t_${i}`);
+    const d = document.getElementById(`acard_d_${i}`);
+    if(t) c.title = t.value;
+    if(d) c.desc  = d.value;
+  });
+  // collect tech pills from DOM
+  techs = [];
+  document.querySelectorAll('.tpe').forEach(el => {
+    const inp = el.querySelector('input');
+    const dot = el.querySelector('.tpe-dot');
+    if(inp && dot) techs.push({name:inp.value, color:dot.style.background});
+  });
+}
+
+// ── SAVE ALL ──
+function saveAll() {
+  collectFields();
+  localStorage.setItem('bfx_admin', JSON.stringify({data, services, techs, feats, aboutCards}));
+  generateAndDownload();
+  clearChanges();
+  addLog('save', 'Website content saved & index.html downloaded', currentUser, 'All Sections', 'li-save', 'lt-save');
+  showToast('✓ index.html downloaded! Replace your file.');
+  document.getElementById('saved-badge').style.display='block';
+  setTimeout(()=>document.getElementById('saved-badge').style.display='none', 3000);
+}
+
+function resetAll() {
+  if(!confirm('Reset all content to defaults?')) return;
+  data = {...DEFAULTS};
+  services = JSON.parse(JSON.stringify(SERVICES_DEFAULT));
+  techs = JSON.parse(JSON.stringify(TECH_DEFAULT));
+  feats = JSON.parse(JSON.stringify(FEATS_DEFAULT));
+  aboutCards = JSON.parse(JSON.stringify(ABOUT_CARDS_DEFAULT));
+  localStorage.removeItem('bfx_admin');
+  populateFields();
+  renderServiceCards();
+  renderTechPills();
+  renderFeats();
+  renderAboutCards();
+  addLog('reset', 'All website content reset to defaults', currentUser, 'All Sections', 'li-reset', 'lt-reset');
+  showToast('↺ Reset to defaults');
+}
+
+// ── RENDER SERVICES ──
+function renderServiceCards() {
+  const c = document.getElementById('svc-cards-container');
+  c.innerHTML = '';
+  services.forEach((s,i) => {
+    c.innerHTML += `
+    <div class="svc-card-edit" id="svc-edit-${i}">
+      <div class="svc-card-hdr" onclick="toggleSvc(${i})">
+        <div class="svc-num">0${i+1}</div>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-toggle">▼</div>
+      </div>
+      <div class="svc-card-body">
+        <div class="field-row single" style="margin-bottom:.75rem">
+          <div class="field"><label>Service Name</label>
+          <input type="text" id="svc_name_${i}" value="${s.name}"
+            oninput="document.querySelector('#svc-edit-${i} .svc-name').textContent=this.value;markChanged('services')"/></div>
+        </div>
+        <div class="field-row single" style="margin-bottom:.75rem">
+          <div class="field"><label>Description</label>
+          <textarea id="svc_desc_${i}" rows="2" oninput="markChanged('services')">${s.desc}</textarea></div>
+        </div>
+        <div class="field-row single">
+          <div class="field"><label>Tech Tags (e.g. Kotlin · Flutter)</label>
+          <input type="text" id="svc_tag_${i}" value="${s.tag}" oninput="markChanged('services')"/></div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+function toggleSvc(i) {
+  document.getElementById(`svc-edit-${i}`).classList.toggle('open');
+}
+
+// ── RENDER TECH ──
+function renderTechPills() {
+  const c = document.getElementById('tech-pills');
+  c.innerHTML = '';
+  techs.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.className = 'tpe';
+    div.innerHTML = `
+      <span class="tpe-dot" style="background:${t.color}" title="Click to change color" onclick="changeDotColor(this)"></span>
+      <input type="text" value="${t.name}" oninput="markChanged('technology')"/>
+      <span class="tpe-del" onclick="this.closest('.tpe').remove();markChanged('technology')" title="Remove">✕</span>`;
+    c.appendChild(div);
+  });
+}
+function changeDotColor(dot) {
+  const inp = document.createElement('input');
+  inp.type='color'; inp.value=dot.style.background||'#00D4FF';
+  inp.style.cssText='position:absolute;opacity:0;pointer-events:none';
+  document.body.appendChild(inp);
+  inp.click();
+  inp.oninput=()=>{ dot.style.background=inp.value; markChanged('technology'); };
+  inp.onblur=()=>inp.remove();
+}
+function addTechPill() {
+  const c = document.getElementById('tech-pills');
+  const div = document.createElement('div');
+  div.className='tpe';
+  div.innerHTML=`
+    <span class="tpe-dot" style="background:#00D4FF" onclick="changeDotColor(this)"></span>
+    <input type="text" value="New Tech" oninput="markChanged('technology')"/>
+    <span class="tpe-del" onclick="this.closest('.tpe').remove();markChanged('technology')">✕</span>`;
+  c.appendChild(div);
+  div.querySelector('input').focus();
+  div.querySelector('input').select();
+  markChanged('technology');
+}
+
+// ── RENDER FEATS ──
+function renderFeats() {
+  const c = document.getElementById('feat-list');
+  c.innerHTML = '';
+  feats.forEach((f,i) => {
+    c.innerHTML += `
+    <div class="feat-item">
+      <div class="feat-num-badge">0${i+1}</div>
+      <div class="feat-inputs">
+        <input type="text" id="feat_h_${i}" value="${f.title}" placeholder="Feature title" oninput="markChanged('why')"/>
+        <textarea id="feat_d_${i}" placeholder="Description..."  oninput="markChanged('why')">${f.desc}</textarea>
+      </div>
+    </div>`;
+  });
+}
+
+// ── RENDER ABOUT CARDS ──
+function renderAboutCards() {
+  const c = document.getElementById('about-cards');
+  c.innerHTML = '';
+  aboutCards.forEach((card,i) => {
+    c.innerHTML += `
+    <div class="acard-edit">
+      <button class="emoji-picker-btn" id="aico_${i}" onclick="pickEmoji(${i})">${card.icon}</button>
+      <div class="field" style="margin-bottom:.6rem"><label>Title</label>
+        <input type="text" id="acard_t_${i}" value="${card.title}" oninput="markChanged('about')"/></div>
+      <div class="field"><label>Description</label>
+        <textarea id="acard_d_${i}" rows="3" oninput="markChanged('about')">${card.desc}</textarea></div>
+    </div>`;
+  });
+}
+function pickEmoji(i) {
+  const emojis = ['🎯','🌍','🔬','🚀','💡','🏆','⚡','🛡','🎨','💻','🌟','🔥','🎵','🎸','🏗','🧬','🤖','💎'];
+  const em = prompt('Pick emoji (copy from this list):\n'+emojis.join('  '), aboutCards[i].icon);
+  if(em) {
+    aboutCards[i].icon = em.trim();
+    document.getElementById(`aico_${i}`).textContent = em.trim();
+    markChanged('about');
+  }
+}
+
+// ── COLOR SYNC ──
+function syncColor(colorId, hexId) {
+  document.getElementById(hexId).value = document.getElementById(colorId).value;
+  markChanged('settings');
+}
+function syncHex(hexId, colorId) {
+  const v = document.getElementById(hexId).value;
+  if(/^#[0-9A-Fa-f]{6}$/.test(v)) document.getElementById(colorId).value = v;
+  markChanged('settings');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── GENERATE HTML ──
+function generateAndDownload() {
+  const d = data;
+  // rebuild tech pills HTML
+  const techPillsHTML = techs.map(t =>
+    `    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:${t.color}"></span>${escH(t.name)}</div>`
+  ).join('\n');
+  // rebuild service cards HTML
+  const SERVICE_ICONS = [
+    `<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="5" y="2" width="18" height="24" rx="3" stroke="#00D4FF" stroke-width="1.5"/><circle cx="14" cy="22" r="1.5" fill="#00D4FF"/><rect x="10" y="6" width="8" height="1.5" rx=".75" fill="#00D4FF" opacity=".4"/></svg>`,
+    `<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="8" y="2" width="12" height="20" rx="3" stroke="#00D4FF" stroke-width="1.5"/><circle cx="14" cy="19" r="1.5" fill="#00D4FF"/><path d="M11 5h6" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>`,
+    `<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="3" y="6" width="22" height="14" rx="2" stroke="#00D4FF" stroke-width="1.5"/><path d="M10 23h8M14 20v3" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    `<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><path d="M7 22L14 7l7 15" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 18h10" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/><circle cx="20" cy="9" r="3" stroke="#00D4FF" stroke-width="1.5"/></svg>`,
+    `<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#00D4FF" stroke-width="1.5"/><path d="M9 14l4 4 6-6" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    `<svg width="28" height="28" fill="none" viewBox="0 0 28 28"><path d="M5 9l9-5 9 5v10l-9 5-9-5V9z" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 4v20M5 9l9 5 9-5" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>`,
+  ];
+  const svcCardsHTML = services.map((s,i) => `
+    <div class="card reveal-c">
+      <div class="card-ico">${SERVICE_ICONS[i]||SERVICE_ICONS[0]}</div>
+      <h3>${escH(s.name)}</h3>
+      <p>${escH(s.desc)}</p>
+      <div class="tag">${escH(s.tag)}</div>
+    </div>`).join('\n');
+
+  const featsHTML = feats.map((f,i) =>
+    `      <div class="feat reveal-c"><div class="fn">0${i+1}</div><div><h4>${escH(f.title)}</h4><p>${escH(f.desc)}</p></div></div>`
+  ).join('\n');
+
+  const aboutCardsHTML = aboutCards.map(c =>
+    `    <div class="acard reveal-c"><div class="aico">${c.icon}</div><h4>${escH(c.title)}</h4><p>${escH(c.desc)}</p></div>`
+  ).join('\n');
+
+  // footer cols
+  const mkCol = (title, links) => {
+    const rows = links.split('\n').filter(l=>l.trim()).map(l=>`        <a href="#">${escH(l.trim())}</a>`).join('\n');
+    return `      <div class="fcol"><h5>${escH(title)}</h5>\n${rows}\n      </div>`;
+  };
+
+  // color overrides
+  const colorOverrides = `
+  :root {
+    --c: ${d.col_accent};
+    --c2: ${d.col_accent2};
+    --bg: ${d.col_bg};
+  }`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>${escH(d.seo_title)}</title>
+<meta name="description" content="${escH(d.seo_desc)}"/>
+<link rel="stylesheet" href="style.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>${colorOverrides}</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<nav id="nav">
+  <div class="nav-wrap">
+    <a href="#home" class="nav-logo">
+      <img src="logo_nav_icon.png" alt="${escH(d.seo_company)} icon" class="nav-icon"/>
+      <span class="nav-name">${escH(d.seo_company)}</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#technology">Technology</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="${escH(d.nav_cta_link)}" class="nav-btn">${escH(d.nav_cta)}</a>
+    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav-mob" id="nav-mob">
+    <a href="#home">Home</a><a href="#services">Services</a>
+    <a href="#technology">Technology</a><a href="#contact">Contact</a>
+    <a href="${escH(d.nav_cta_link)}" class="mob-btn">${escH(d.nav_cta)}</a>
+  </div>
+</nav>
+
+<section id="home" class="hero">
+  <div class="hero-left">
+    <div class="pill reveal">${escH(d.hero_badge)}</div>
+    <h1 class="hero-h1 reveal">
+      <span>${escH(d.hero_h1)}</span>
+      <span class="glow-text">${escH(d.hero_h2)}</span>
+    </h1>
+    <p class="hero-p reveal">${escH(d.hero_desc)}</p>
+    <div class="hero-btns reveal">
+      <a href="#services" class="btn-primary">${escH(d.hero_btn1)}</a>
+      <a href="#contact" class="btn-outline">${escH(d.hero_btn2)}</a>
+    </div>
+    <div class="hero-stats reveal">
+      <div class="stat"><b>${escH(d.stat1_val)}</b><span>${escH(d.stat1_lbl)}</span></div>
+      <div class="sdiv"></div>
+      <div class="stat"><b>${escH(d.stat2_val)}</b><span>${escH(d.stat2_lbl)}</span></div>
+      <div class="sdiv"></div>
+      <div class="stat"><b>${escH(d.stat3_val)}</b><span>${escH(d.stat3_lbl)}</span></div>
+    </div>
+  </div>
+  <div class="hero-right reveal-r">
+    <div class="hero-glow-ring ring-a"></div>
+    <div class="hero-glow-ring ring-b"></div>
+    <div class="hero-glow-ring ring-c"></div>
+    <img src="logo_clean.png" alt="${escH(d.seo_company)}" class="hero-logo"/>
+    <div class="chip chip-1 float-a"><span>${escH(d.chip1)}</span></div>
+    <div class="chip chip-2 float-b"><span>${escH(d.chip2)}</span></div>
+    <div class="chip chip-3 float-c"><span>${escH(d.chip3)}</span></div>
+  </div>
+</section>
+
+<section id="services" class="section services">
+  <div class="sec-tag reveal">${escH(d.svc_tag)}</div>
+  <h2 class="sec-h reveal">${escH(d.svc_title)}</h2>
+  <p class="sec-p reveal">${escH(d.svc_sub)}</p>
+  <div class="cards-grid">
+${svcCardsHTML}
+  </div>
+</section>
+
+<section id="technology" class="section tech-sec">
+  <div class="sec-tag reveal">${escH(d.tech_tag)}</div>
+  <h2 class="sec-h reveal">${escH(d.tech_title)}</h2>
+  <p class="sec-p reveal">${escH(d.tech_sub)}</p>
+  <div class="tech-grid">
+${techPillsHTML}
+  </div>
+</section>
+
+<section id="why" class="section why-sec">
+  <div class="why-inner">
+    <div class="why-left">
+      <div class="sec-tag reveal">${escH(d.why_tag)}</div>
+      <h2 class="sec-h reveal">${escH(d.why_h1)}<br/><span class="g">${escH(d.why_h2)}</span></h2>
+      <p class="sec-p reveal">${escH(d.why_desc)}</p>
+      <a href="#contact" class="btn-primary reveal" style="margin-top:1.5rem;display:inline-flex">${escH(d.why_btn)}</a>
+    </div>
+    <div class="why-right">
+${featsHTML}
+    </div>
+  </div>
+</section>
+
+<section id="about" class="section about-sec">
+  <div class="sec-tag reveal" style="text-align:center">${escH(d.about_tag)}</div>
+  <h2 class="sec-h reveal" style="text-align:center"><span class="g">${escH(d.about_h)}</span></h2>
+  <p class="sec-p reveal" style="text-align:center;max-width:620px;margin:0 auto 3rem">${escH(d.about_desc)}</p>
+  <div class="about-trio">
+${aboutCardsHTML}
+  </div>
+</section>
+
+<section id="contact" class="section contact-sec">
+  <div class="contact-wrap">
+    <div class="contact-left">
+      <div class="sec-tag reveal">${escH(d.ct_tag)}</div>
+      <h2 class="sec-h reveal">${escH(d.ct_h1)}<br/><span class="g">${escH(d.ct_h2)}</span></h2>
+      <p class="sec-p reveal">${escH(d.ct_desc)}</p>
+      <div class="cinfo">
+        <div class="ci reveal"><div class="ci-ico">📍</div><div><small>Location</small><strong>${escH(d.ct_location)}</strong></div></div>
+        <div class="ci reveal"><div class="ci-ico">✉️</div><div><small>Email</small><strong>${escH(d.ct_email)}</strong></div></div>
+      </div>
+    </div>
+    <div class="contact-right reveal-c">
+      <form id="cf">
+        <div class="fg"><label>Your Name</label><input type="text" placeholder="Alex Johnson" required/></div>
+        <div class="fg"><label>Email Address</label><input type="email" placeholder="alex@company.com" required/></div>
+        <div class="fg"><label>Message</label><textarea rows="5" placeholder="Tell us about your project..." required></textarea></div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;font-size:1rem">Send Message ✦</button>
+      </form>
+      <div class="success" id="success">
+        <div class="s-ico">✓</div><h4>Message sent!</h4><p>We'll be in touch within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="footer">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <img src="logo_clean.png" alt="${escH(d.seo_company)}" class="foot-logo"/>
+      <p>${escH(d.ft_desc)}</p>
+      <div class="socials">
+        <a href="${escH(d.soc_twitter)}" aria-label="Twitter"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+        <a href="${escH(d.soc_linkedin)}" aria-label="LinkedIn"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/></svg></a>
+        <a href="${escH(d.soc_github)}" aria-label="GitHub"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+        <a href="${escH(d.soc_instagram)}" aria-label="Instagram"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+      </div>
+    </div>
+    <div class="foot-links">
+${mkCol(d.fc1_title, d.fc1_links)}
+${mkCol(d.fc2_title, d.fc2_links)}
+${mkCol(d.fc3_title, d.fc3_links)}
+    </div>
+  </div>
+  <div class="foot-bot">
+    <span>${escH(d.ft_copy)}</span>
+    <span>${escH(d.ft_right)}</span>
+  </div>
+</footer>
+
+<script src="script.js"><\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+}
+
+function escH(str) {
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ══════════════════════════════════════
+   USERS MANAGEMENT
+══════════════════════════════════════ */
+const DEFAULT_USERS = [
+  {
+    id: 'u1', name: 'Vikas Shu', username: 'admin',
+    email: 'vikasshu7@gmail.com', password: 'admin123',
+    role: 'admin', status: 'active',
+    created: new Date().toISOString(), lastLogin: new Date().toISOString()
+  }
+];
+let editingUserId = null;
+
+function getUsers() {
+  const raw = localStorage.getItem('bfx_users');
+  return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_USERS));
+}
+function saveUsers(users) {
+  localStorage.setItem('bfx_users', JSON.stringify(users));
+}
+
+function renderUsersTable() {
+  const users = getUsers();
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+
+  // Update stats
+  document.getElementById('stat-total-users').textContent = users.length;
+  document.getElementById('stat-active-users').textContent = users.filter(u=>u.status==='active').length;
+  document.getElementById('stat-admin-users').textContent = users.filter(u=>u.role==='admin').length;
+  const lastLogin = users.filter(u=>u.lastLogin).sort((a,b)=>new Date(b.lastLogin)-new Date(a.lastLogin))[0];
+  document.getElementById('stat-last-login').textContent = lastLogin ? fmtTime(lastLogin.lastLogin) : '—';
+
+  // update user filter in logs
+  const uf = document.getElementById('log-user-filter');
+  uf.innerHTML = '<option value="">All Users</option>';
+  users.forEach(u => { const o=document.createElement('option'); o.value=u.username; o.textContent=u.username; uf.appendChild(o); });
+
+  users.forEach(u => {
+    const initial = (u.name||u.username||'?')[0].toUpperCase();
+    const colors = {admin:'#00D4FF,#1e3a5f', editor:'#2563EB,#1e2d5f', viewer:'#64748B,#2a3040'};
+    const [fg,bg] = (colors[u.role]||colors.viewer).split(',');
+    const roleMap = {admin:'role-admin', editor:'role-editor', viewer:'role-viewer'};
+    const roleLabel = {admin:'👑 Admin', editor:'✏️ Editor', viewer:'👁 Viewer'};
+    const isCurrentUser = u.username === currentUser;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="user-info">
+          <div class="user-avatar" style="background:${bg};color:${fg};border:1px solid ${fg}33">${initial}</div>
+          <div>
+            <div class="user-name">${escH(u.name)} ${isCurrentUser?'<span style="font-size:.68rem;color:var(--c);background:rgba(0,212,255,.08);padding:.1rem .4rem;border-radius:6px;margin-left:.3rem">you</span>':''}</div>
+            <div class="user-email">${escH(u.email)} · @${escH(u.username)}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="role-badge ${roleMap[u.role]}">${roleLabel[u.role]}</span></td>
+      <td><span class="status-dot status-${u.status}">${u.status==='active'?'Active':'Inactive'}</span></td>
+      <td style="color:var(--txt2);font-size:.8rem">${u.lastLogin ? fmtTime(u.lastLogin) : 'Never'}</td>
+      <td style="color:var(--txt3);font-size:.78rem">${fmtDate(u.created)}</td>
+      <td>
+        <div class="user-actions">
+          <div class="ua-btn" onclick="editUser('${u.id}')" title="Edit">✏️</div>
+          <div class="ua-btn" onclick="toggleUserStatus('${u.id}')" title="${u.status==='active'?'Deactivate':'Activate'}">
+            ${u.status==='active'?'⏸':'▶️'}
+          </div>
+          ${!isCurrentUser ? `<div class="ua-btn ua-del" onclick="deleteUser('${u.id}')" title="Delete">🗑</div>` : ''}
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function openUserModal(userId=null) {
+  editingUserId = userId;
+  const modal = document.getElementById('user-modal');
+  document.getElementById('modal-title').textContent = userId ? 'Edit User' : 'Add New User';
+  if(userId) {
+    const u = getUsers().find(u=>u.id===userId);
+    if(u) {
+      document.getElementById('mu-name').value = u.name||'';
+      document.getElementById('mu-username').value = u.username||'';
+      document.getElementById('mu-email').value = u.email||'';
+      document.getElementById('mu-password').value = u.password||'';
+      document.getElementById('mu-role').value = u.role||'admin';
+      document.getElementById('mu-status').value = u.status||'active';
+    }
+  } else {
+    document.getElementById('mu-name').value='';
+    document.getElementById('mu-username').value='';
+    document.getElementById('mu-email').value='';
+    document.getElementById('mu-password').value='';
+    document.getElementById('mu-role').value='admin';
+    document.getElementById('mu-status').value='active';
+  }
+  modal.classList.add('open');
+}
+function closeUserModal() {
+  document.getElementById('user-modal').classList.remove('open');
+  editingUserId=null;
+}
+
+function saveUser() {
+  const name     = document.getElementById('mu-name').value.trim();
+  const username = document.getElementById('mu-username').value.trim();
+  const email    = document.getElementById('mu-email').value.trim();
+  const password = document.getElementById('mu-password').value;
+  const role     = document.getElementById('mu-role').value;
+  const status   = document.getElementById('mu-status').value;
+  if(!name||!username||!password) { showToast('❌ Name, username & password are required'); return; }
+  if(password.length < 6) { showToast('❌ Password must be at least 6 characters'); return; }
+  const users = getUsers();
+  if(editingUserId) {
+    const idx = users.findIndex(u=>u.id===editingUserId);
+    if(idx>-1) {
+      const old = users[idx];
+      users[idx] = {...old, name, username, email, password, role, status};
+      addLog('user', `User "${username}" updated (role: ${role})`, currentUser, 'Users', 'li-user', 'lt-user');
+    }
+  } else {
+    const dup = users.find(u=>u.username===username);
+    if(dup) { showToast('❌ Username already exists'); return; }
+    users.push({
+      id: 'u'+Date.now(), name, username, email, password, role, status,
+      created: new Date().toISOString(), lastLogin: null
+    });
+    addLog('user', `New user "${username}" created with role: ${role}`, currentUser, 'Users', 'li-user', 'lt-user');
+  }
+  saveUsers(users);
+  closeUserModal();
+  renderUsersTable();
+  showToast(editingUserId ? '✓ User updated!' : '✓ User added!');
+}
+
+function editUser(id) { openUserModal(id); }
+
+function deleteUser(id) {
+  if(!confirm('Delete this user? This cannot be undone.')) return;
+  let users = getUsers();
+  const u = users.find(u=>u.id===id);
+  users = users.filter(u=>u.id!==id);
+  saveUsers(users);
+  if(u) addLog('delete', `User "${u.username}" deleted`, currentUser, 'Users', 'li-delete', 'lt-delete');
+  renderUsersTable();
+  showToast('🗑 User deleted');
+}
+
+function toggleUserStatus(id) {
+  const users = getUsers();
+  const u = users.find(u=>u.id===id);
+  if(u) {
+    u.status = u.status==='active'?'inactive':'active';
+    saveUsers(users);
+    addLog('user', `User "${u.username}" ${u.status==='active'?'activated':'deactivated'}`, currentUser, 'Users', 'li-user', 'lt-user');
+    renderUsersTable();
+    showToast(`✓ User ${u.status}`);
+  }
+}
+
+function togglePwd(id, eye) {
+  const inp = document.getElementById(id);
+  if(inp.type==='password') { inp.type='text'; eye.textContent='🙈'; }
+  else { inp.type='password'; eye.textContent='👁'; }
+}
+
+/* ══════════════════════════════════════
+   ACTIVITY LOG
+══════════════════════════════════════ */
+const LOG_KEY = 'bfx_activity_log';
+const LOG_ICONS = { save:'💾', login:'🔑', logout:'🚪', user:'👤', edit:'✏️', delete:'🗑', reset:'↺' };
+
+function getLogs() {
+  const raw = localStorage.getItem(LOG_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+function saveLogs(logs) {
+  // keep max 500 entries
+  if(logs.length > 500) logs = logs.slice(-500);
+  localStorage.setItem(LOG_KEY, JSON.stringify(logs));
+}
+
+function addLog(type, message, user, section, iconClass, typeClass) {
+  const logs = getLogs();
+  logs.push({
+    id: Date.now(),
+    type, message, user: user||'system', section: section||'—',
+    iconClass: iconClass||'li-edit',
+    typeClass: typeClass||'lt-edit',
+    timestamp: new Date().toISOString()
+  });
+  saveLogs(logs);
+}
+
+function renderLogs() {
+  const allLogs = getLogs().reverse(); // newest first
+  const search = (document.getElementById('log-search')||{}).value||'';
+  const typeF  = (document.getElementById('log-type-filter')||{}).value||'';
+  const userF  = (document.getElementById('log-user-filter')||{}).value||'';
+
+  // stats
+  document.getElementById('ls-total').textContent = allLogs.length;
+  document.getElementById('ls-saves').textContent = allLogs.filter(l=>l.type==='save').length;
+  document.getElementById('ls-logins').textContent = allLogs.filter(l=>l.type==='login').length;
+  document.getElementById('ls-edits').textContent = allLogs.filter(l=>l.type==='edit').length;
+
+  let logs = allLogs;
+  if(search) logs = logs.filter(l=>l.message.toLowerCase().includes(search.toLowerCase())||l.user.toLowerCase().includes(search.toLowerCase()));
+  if(typeF) logs = logs.filter(l=>l.type===typeF);
+  if(userF) logs = logs.filter(l=>l.user===userF);
+
+  const container = document.getElementById('log-list');
+  if(!logs.length) {
+    container.innerHTML = '<div class="log-empty"><span>📋</span>No log entries yet. Actions you take will appear here.</div>';
+    return;
+  }
+  container.innerHTML = logs.map(l=>`
+    <div class="log-entry">
+      <div class="log-icon ${l.iconClass}">${LOG_ICONS[l.type]||'📌'}</div>
+      <div class="log-body">
+        <div class="log-msg">${escH(l.message)}</div>
+        <div class="log-meta">
+          <span class="log-time">🕐 ${fmtTimeFull(l.timestamp)}</span>
+          <span class="log-user-tag">@${escH(l.user)}</span>
+          <span class="log-section-tag">${escH(l.section)}</span>
+          <span class="log-type-badge ${l.typeClass}">${l.type.toUpperCase()}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterLogs() { renderLogs(); }
+
+function clearLog() {
+  if(!confirm('Clear all activity logs? This cannot be undone.')) return;
+  localStorage.removeItem(LOG_KEY);
+  addLog('reset', 'Activity log cleared', currentUser, 'Logs', 'li-reset', 'lt-reset');
+  renderLogs();
+  showToast('🗑 Log cleared');
+}
+
+function exportLog() {
+  const logs = getLogs();
+  if(!logs.length) { showToast('No logs to export'); return; }
+  const header = 'Timestamp,Type,User,Section,Message\n';
+  const rows = logs.map(l=>
+    `"${l.timestamp}","${l.type}","${l.user}","${l.section}","${l.message.replace(/"/g,'""')}"`
+  ).join('\n');
+  const blob = new Blob([header+rows], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bfx-activity-log-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  addLog('save', 'Activity log exported to CSV', currentUser, 'Logs', 'li-save', 'lt-save');
+  showToast('⬇ Log exported as CSV');
+}
+
+/* ══════ HELPERS ══════ */
+function fmtTime(iso) {
+  if(!iso) return '—';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if(diff < 60000) return 'Just now';
+  if(diff < 3600000) return Math.floor(diff/60000)+'m ago';
+  if(diff < 86400000) return Math.floor(diff/3600000)+'h ago';
+  return d.toLocaleDateString();
+}
+function fmtDate(iso) {
+  if(!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+function fmtTimeFull(iso) {
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
+         d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+/* ══════════════════════════════════════
+   ENHANCED USERS + LOGS — v2 additions
+══════════════════════════════════════ */
+
+// ── LIVE DASHBOARD COUNTS ──
+function updateDashCounts() {
+  const uc = document.getElementById('dash-user-count');
+  const lc = document.getElementById('dash-log-count');
+  if(uc) uc.textContent = getUsers().length;
+  if(lc) lc.textContent = getLogs().length;
+}
+
+// ── USER SEARCH ──
+function filterUsers() {
+  const q = (document.getElementById('user-search')||{}).value||'';
+  const rf = (document.getElementById('user-role-filter')||{}).value||'';
+  const sf = (document.getElementById('user-status-filter')||{}).value||'';
+  const users = getUsers();
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+
+  const filtered = users.filter(u => {
+    const matchQ = !q || u.name.toLowerCase().includes(q.toLowerCase()) ||
+                   u.username.toLowerCase().includes(q.toLowerCase()) ||
+                   (u.email||'').toLowerCase().includes(q.toLowerCase());
+    const matchR = !rf || u.role === rf;
+    const matchS = !sf || u.status === sf;
+    return matchQ && matchR && matchS;
+  });
+
+  if(!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--txt3)">No users match your search</td></tr>`;
+    return;
+  }
+
+  filtered.forEach(u => {
+    const initial = (u.name||u.username||'?')[0].toUpperCase();
+    const colors  = {admin:'#00D4FF,#0a1e3a', editor:'#60A5FA,#0f1e3a', viewer:'#94A3B8,#181e2e'};
+    const [fg,bg] = (colors[u.role]||colors.viewer).split(',');
+    const roleMap   = {admin:'role-admin', editor:'role-editor', viewer:'role-viewer'};
+    const roleLabel = {admin:'👑 Admin', editor:'✏️ Editor', viewer:'👁 Viewer'};
+    const isMe = u.username === currentUser;
+    const tr   = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="user-info">
+          <div class="user-avatar" style="background:${bg};color:${fg};border:1px solid ${fg}44">${initial}</div>
+          <div>
+            <div class="user-name">${escH(u.name||u.username)} ${isMe?'<span style="font-size:.65rem;color:var(--c);background:rgba(0,212,255,.1);padding:.1rem .45rem;border-radius:6px;margin-left:.3rem;font-family:var(--fD)">YOU</span>':''}</div>
+            <div class="user-email">${escH(u.email||'—')} · <span style="color:var(--txt2)">@${escH(u.username)}</span></div>
+          </div>
+        </div>
+      </td>
+      <td><span class="role-badge ${roleMap[u.role]}">${roleLabel[u.role]||u.role}</span></td>
+      <td><span class="status-dot status-${u.status}">${u.status==='active'?'Active':'Inactive'}</span></td>
+      <td style="color:var(--txt2);font-size:.8rem">${u.lastLogin ? fmtTime(u.lastLogin) : '<span style="color:var(--txt3)">Never</span>'}</td>
+      <td style="color:var(--txt3);font-size:.78rem">${fmtDate(u.created)}</td>
+      <td>
+        <div class="user-actions">
+          <div class="ua-btn" onclick="editUser('${u.id}')" title="Edit user">✏️</div>
+          <div class="ua-btn" onclick="openChangePwd('${u.id}')" title="Change password">🔑</div>
+          <div class="ua-btn" onclick="toggleUserStatus('${u.id}')" title="${u.status==='active'?'Deactivate':'Activate'}">${u.status==='active'?'⏸':'▶️'}</div>
+          ${!isMe ? `<div class="ua-btn ua-del" onclick="deleteUser('${u.id}')" title="Delete">🗑</div>` : ''}
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// override renderUsersTable to use filterUsers
+function renderUsersTable() {
+  const users = getUsers();
+
+  // Stats row
+  document.getElementById('stat-total-users').textContent  = users.length;
+  document.getElementById('stat-active-users').textContent = users.filter(u=>u.status==='active').length;
+  document.getElementById('stat-admin-users').textContent  = users.filter(u=>u.role==='admin').length;
+  const lastLogin = users.filter(u=>u.lastLogin).sort((a,b)=>new Date(b.lastLogin)-new Date(a.lastLogin))[0];
+  document.getElementById('stat-last-login').textContent   = lastLogin ? fmtTime(lastLogin.lastLogin) : '—';
+
+  // Populate log user filter
+  const uf = document.getElementById('log-user-filter');
+  if(uf) {
+    uf.innerHTML = '<option value="">All Users</option>';
+    users.forEach(u => { const o=document.createElement('option'); o.value=u.username; o.textContent=u.username; uf.appendChild(o); });
+  }
+
+  filterUsers();
+  updateDashCounts();
+}
+
+// ── CHANGE PASSWORD MODAL ──
+function openChangePwd(userId) {
+  const u = getUsers().find(u=>u.id===userId);
+  if(!u) return;
+  const overlay = document.getElementById('pwd-modal');
+  document.getElementById('pm-uid').value  = userId;
+  document.getElementById('pm-name').textContent = u.name || u.username;
+  document.getElementById('pm-new').value  = '';
+  document.getElementById('pm-conf').value = '';
+  overlay.classList.add('open');
+}
+function closePwdModal() {
+  document.getElementById('pwd-modal').classList.remove('open');
+}
+function saveNewPwd() {
+  const uid  = document.getElementById('pm-uid').value;
+  const np   = document.getElementById('pm-new').value;
+  const cp   = document.getElementById('pm-conf').value;
+  if(!np || np.length < 6) { showToast('❌ Password must be at least 6 characters'); return; }
+  if(np !== cp) { showToast('❌ Passwords do not match'); return; }
+  const users = getUsers();
+  const u = users.find(u=>u.id===uid);
+  if(u) {
+    u.password = np;
+    saveUsers(users);
+    addLog('user', `Password changed for user "${u.username}"`, currentUser, 'Users', 'li-user', 'lt-user');
+    closePwdModal();
+    showToast('🔑 Password updated!');
+    renderUsersTable();
+  }
+}
+
+// ── ENHANCED LOG RENDER with timeline grouping ──
+function renderLogs() {
+  const allLogs = getLogs().reverse();
+  const search = (document.getElementById('log-search')||{}).value||'';
+  const typeF  = (document.getElementById('log-type-filter')||{}).value||'';
+  const userF  = (document.getElementById('log-user-filter')||{}).value||'';
+
+  // Stats
+  const setEl = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  setEl('ls-total',  allLogs.length);
+  setEl('ls-saves',  allLogs.filter(l=>l.type==='save').length);
+  setEl('ls-logins', allLogs.filter(l=>l.type==='login').length);
+  setEl('ls-edits',  allLogs.filter(l=>l.type==='edit').length);
+
+  let logs = allLogs;
+  if(search) logs = logs.filter(l =>
+    l.message.toLowerCase().includes(search.toLowerCase()) ||
+    (l.user||'').toLowerCase().includes(search.toLowerCase()) ||
+    (l.section||'').toLowerCase().includes(search.toLowerCase())
+  );
+  if(typeF) logs = logs.filter(l=>l.type===typeF);
+  if(userF) logs = logs.filter(l=>l.user===userF);
+
+  const container = document.getElementById('log-list');
+  if(!logs.length) {
+    container.innerHTML = `
+      <div class="log-empty">
+        <span style="font-size:2rem">📋</span>
+        <p>No log entries ${search||typeF||userF ? 'match your filters' : 'yet'}.</p>
+        <p style="font-size:.75rem;margin-top:.25rem">Actions you take will be recorded here automatically.</p>
+      </div>`;
+    return;
+  }
+
+  // Group by date
+  const groups = {};
+  logs.forEach(l => {
+    const d = new Date(l.timestamp);
+    const key = d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(l);
+  });
+
+  const LOG_ICO  = { save:'💾', login:'🔑', logout:'🚪', user:'👤', edit:'✏️', delete:'🗑', reset:'↺' };
+  const COLOR_MAP = {
+    save:   {bg:'rgba(34,197,94,.08)',  bdr:'rgba(34,197,94,.15)',  txt:'var(--green)'},
+    login:  {bg:'rgba(0,212,255,.06)',  bdr:'rgba(0,212,255,.12)',  txt:'var(--c)'},
+    logout: {bg:'rgba(100,116,139,.08)',bdr:'rgba(100,116,139,.15)',txt:'var(--txt2)'},
+    user:   {bg:'rgba(245,158,11,.08)', bdr:'rgba(245,158,11,.15)', txt:'var(--yellow)'},
+    edit:   {bg:'rgba(37,99,235,.08)',  bdr:'rgba(37,99,235,.15)',  txt:'#60A5FA'},
+    delete: {bg:'rgba(239,68,68,.06)',  bdr:'rgba(239,68,68,.12)',  txt:'var(--red)'},
+    reset:  {bg:'rgba(124,58,237,.08)', bdr:'rgba(124,58,237,.15)', txt:'#A78BFA'},
+  };
+
+  container.innerHTML = Object.entries(groups).map(([date, entries]) => `
+    <div class="log-date-group">
+      <div class="log-date-hdr">
+        <span class="log-date-line"></span>
+        <span class="log-date-label">${date}</span>
+        <span class="log-date-line"></span>
+        <span class="log-date-count">${entries.length} event${entries.length>1?'s':''}</span>
+      </div>
+      ${entries.map(l => {
+        const c = COLOR_MAP[l.type] || COLOR_MAP.edit;
+        return `
+        <div class="log-entry" style="border-color:${c.bdr}">
+          <div class="log-icon ${l.iconClass||'li-edit'}" style="background:${c.bg};border-color:${c.bdr}">
+            ${LOG_ICO[l.type]||'📌'}
+          </div>
+          <div class="log-body">
+            <div class="log-msg">${escH(l.message)}</div>
+            <div class="log-meta">
+              <span class="log-time">🕐 ${fmtTimeFull(l.timestamp)}</span>
+              <span class="log-user-tag">@${escH(l.user||'system')}</span>
+              ${l.section && l.section !== '—' ? `<span class="log-section-tag">📁 ${escH(l.section)}</span>` : ''}
+              <span class="log-type-badge ${l.typeClass||'lt-edit'}" style="color:${c.txt}">${(l.type||'?').toUpperCase()}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+
+  updateDashCounts();
+}
+
+// ── LIVE LOG TICKER (auto-refresh when on logs panel) ──
+let logRefreshTimer = null;
+const _origShowPanel = showPanel;
+window.showPanel = function(id) {
+  _origShowPanel(id);
+  clearInterval(logRefreshTimer);
+  if(id === 'logs') {
+    logRefreshTimer = setInterval(renderLogs, 5000);
+  }
+};
+
+// close pwd modal on overlay click
+document.addEventListener('DOMContentLoaded', () => {
+  const pm = document.getElementById('pwd-modal');
+  if(pm) pm.addEventListener('click', e => { if(e.target===pm) closePwdModal(); });
+  const um = document.getElementById('user-modal');
+  if(um) um.addEventListener('click', e => { if(e.target===um) closeUserModal(); });
+});
+
+</script>
+</body>
+</html>

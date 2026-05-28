@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Supabase Connection Tester — BlueFluteX</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05071A;--bg2:#080B1E;--bg3:#0C1130;
+  --c:#00CFFF;--c2:#0057FF;--c3:#8B5CF6;
+  --green:#10B981;--red:#EF4444;--yellow:#F59E0B;
+  --txt:#E0EAFF;--txt2:#5B6F99;--txt3:#252E4A;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(0,207,255,.2);
+  --grd:linear-gradient(135deg,#00CFFF,#0057FF);
+  --fH:'Outfit',sans-serif;--fM:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{background:var(--bg);color:var(--txt);font-family:var(--fH);min-height:100vh;overflow-x:hidden}
+/* bg blob */
+body::before{content:'';position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,87,255,.12),transparent 70%);top:-15%;right:-10%;filter:blur(80px);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%);bottom:-10%;left:-5%;filter:blur(80px);pointer-events:none;z-index:0}
+
+/* layout */
+.page{max-width:680px;margin:0 auto;padding:3.5rem 1.5rem 5rem;position:relative;z-index:1}
+
+/* header */
+.hdr{text-align:center;margin-bottom:2.5rem}
+.hdr-badge{display:inline-flex;align-items:center;gap:.5rem;font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--c);border:1px solid rgba(0,207,255,.22);background:rgba(0,207,255,.06);padding:.3rem .9rem;border-radius:100px;margin-bottom:1.1rem}
+.hdr-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr h1{font-family:var(--fH);font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+.hdr h1 span{background:var(--grd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr p{font-size:.88rem;color:var(--txt2);line-height:1.7}
+
+/* card */
+.card{background:rgba(8,11,30,.75);border:1px solid var(--bdr);border-radius:18px;padding:1.75rem;margin-bottom:1.1rem;backdrop-filter:blur(12px)}
+.card-title{font-size:.67rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--txt2);margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem}
+.card-title::before{content:'';display:block;width:14px;height:1.5px;background:var(--grd)}
+
+/* inputs */
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.68rem;font-weight:600;color:var(--txt2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.38rem}
+.field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;padding:.7rem 1rem;color:var(--txt);font-family:var(--fM);font-size:.82rem;outline:none;transition:all .25s}
+.field input::placeholder{color:var(--txt3)}
+.field input:focus{border-color:var(--bdr2);background:rgba(0,207,255,.04);box-shadow:0 0 0 3px rgba(0,207,255,.09)}
+.hint{font-size:.7rem;color:var(--txt3);margin-top:.35rem;line-height:1.55}
+.hint a{color:var(--c);opacity:.8}
+.hint a:hover{opacity:1}
+
+/* run button */
+.run-btn{width:100%;padding:.82rem;border-radius:12px;background:var(--grd);color:#fff;font-family:var(--fH);font-weight:700;font-size:.92rem;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:.55rem;box-shadow:0 0 28px rgba(0,87,255,.35),0 4px 16px rgba(0,0,0,.4);transition:all .3s var(--ease);position:relative;overflow:hidden;margin-top:.25rem}
+.run-btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);opacity:0;transition:opacity .2s}
+.run-btn:hover{transform:translateY(-2px);box-shadow:0 0 48px rgba(0,207,255,.5)}
+.run-btn:hover::after{opacity:1}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.run-btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* results panel */
+.results{margin-top:1.25rem;display:flex;flex-direction:column;gap:.7rem}
+
+/* single test row */
+.test-row{
+  display:flex;align-items:center;gap:1rem;
+  background:rgba(8,11,30,.6);border:1px solid var(--bdr);
+  border-radius:13px;padding:1rem 1.1rem;
+  transition:border-color .3s;
+  animation:rowIn .4s var(--ease) both;
+}
+@keyframes rowIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.test-row.pass{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.04)}
+.test-row.fail{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.04)}
+.test-row.warn{border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.04)}
+.test-row.running{border-color:rgba(0,207,255,.15)}
+
+.status-ico{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;flex-shrink:0;font-weight:700;
+}
+.pass .status-ico{background:rgba(16,185,129,.12);color:var(--green)}
+.fail .status-ico{background:rgba(239,68,68,.1);color:var(--red)}
+.warn .status-ico{background:rgba(245,158,11,.1);color:var(--yellow)}
+.running .status-ico{background:rgba(0,207,255,.08)}
+.running .status-ico .mini-spin{width:14px;height:14px;border:2px solid rgba(0,207,255,.3);border-top-color:var(--c);border-radius:50%;animation:spin .7s linear infinite}
+
+.test-info{flex:1;min-width:0}
+.test-name{font-size:.85rem;font-weight:600;color:var(--txt);margin-bottom:.2rem}
+.test-detail{font-size:.76rem;color:var(--txt2);line-height:1.5;font-family:var(--fM)}
+.test-detail.err{color:var(--red);opacity:.85}
+.test-detail.ok{color:var(--green);opacity:.9}
+.test-badge{
+  font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:100px;flex-shrink:0;
+}
+.pass .test-badge{background:rgba(16,185,129,.12);color:var(--green)}
+.fail .test-badge{background:rgba(239,68,68,.1);color:var(--red)}
+.warn .test-badge{background:rgba(245,158,11,.1);color:var(--yellow)}
+.running .test-badge{background:rgba(0,207,255,.08);color:var(--c)}
+
+/* summary box */
+.summary{
+  border-radius:14px;padding:1.25rem 1.35rem;
+  display:flex;align-items:center;gap:1rem;
+  animation:rowIn .4s var(--ease) both;
+  margin-top:.25rem;
+}
+.summary.all-pass{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.22)}
+.summary.has-fail{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2)}
+.sum-ico{font-size:1.5rem;flex-shrink:0}
+.sum-title{font-family:var(--fH);font-size:.92rem;font-weight:700;color:var(--txt);margin-bottom:.2rem}
+.sum-desc{font-size:.78rem;color:var(--txt2);line-height:1.55}
+.sum-desc a{color:var(--c)}
+
+/* live count display */
+.count-display{
+  text-align:center;padding:1.5rem;
+  background:rgba(0,207,255,.04);border:1px solid rgba(0,207,255,.15);
+  border-radius:14px;margin-top:.5rem;
+}
+.count-num{font-family:var(--fH);font-size:2.8rem;font-weight:900;background:var(--grd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.count-lbl{font-size:.7rem;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem}
+
+/* steps helper */
+.steps-card{background:rgba(8,11,30,.6);border:1px solid var(--bdr);border-radius:18px;padding:1.5rem;margin-top:1.25rem}
+.steps-card h3{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.step{display:flex;gap:.9rem;margin-bottom:.85rem;align-items:flex-start}
+.step:last-child{margin-bottom:0}
+.sn{width:22px;height:22px;border-radius:6px;background:rgba(0,207,255,.1);border:1px solid rgba(0,207,255,.18);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;color:var(--c);flex-shrink:0;margin-top:1px}
+.step p{font-size:.82rem;color:var(--txt2);line-height:1.6}
+.step p strong{color:var(--txt)}
+.step code{font-family:var(--fM);font-size:.77rem;background:rgba(255,255,255,.06);padding:.12rem .4rem;border-radius:5px;color:var(--c)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-badge"><span class="dot"></span>Diagnostic Tool</div>
+    <h1>Supabase <span>Connection Tester</span></h1>
+    <p>Paste your credentials below and run all checks — the tool will show exactly what's working and what isn't.</p>
+  </div>
+
+  <!-- Credentials card -->
+  <div class="card">
+    <div class="card-title">Your Supabase Credentials</div>
+    <div class="field">
+      <label>Project URL</label>
+      <input type="text" id="sb-url" placeholder="https://abcdefghij.supabase.co"/>
+      <div class="hint">Supabase dashboard → Project Settings → API → <strong>Project URL</strong></div>
+    </div>
+    <div class="field">
+      <label>Anon / Public Key</label>
+      <input type="text" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5c..."/>
+      <div class="hint">Supabase dashboard → Project Settings → API → <strong>Project API Keys → anon public</strong><br/>✅ This key is safe to use in frontend code.</div>
+    </div>
+    <button class="run-btn" id="run-btn" onclick="runTests()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+      Run Connection Tests
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results"></div>
+
+  <!-- How to find keys -->
+  <div class="steps-card" id="how-to">
+    <h3>📖 Where to find your keys</h3>
+    <div class="step"><div class="sn">1</div><p>Go to <a href="https://supabase.com" target="_blank" style="color:var(--c)">supabase.com</a> and sign in to your account</p></div>
+    <div class="step"><div class="sn">2</div><p>Open your project (e.g. <strong>blueflutex</strong>)</p></div>
+    <div class="step"><div class="sn">3</div><p>In the left sidebar click <strong>Project Settings</strong> (gear icon at bottom)</p></div>
+    <div class="step"><div class="sn">4</div><p>Click <strong>API</strong> in the settings menu</p></div>
+    <div class="step"><div class="sn">5</div><p>Copy <strong>Project URL</strong> and the <strong>anon public</strong> key</p></div>
+    <div class="step"><div class="sn">6</div><p>Paste both above and click <strong>Run Connection Tests</strong></p></div>
+  </div>
+
+</div>
+
+<script>
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+function fmt(n) {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000)     return (n / 1_000).toFixed(1)     + 'K';
+  return n.toLocaleString('en-IN');
+}
+
+function addRow(id, name) {
+  const div = document.createElement('div');
+  div.className = 'test-row running';
+  div.id = 'row-' + id;
+  div.innerHTML = `
+    <div class="status-ico"><div class="mini-spin"></div></div>
+    <div class="test-info">
+      <div class="test-name">${name}</div>
+      <div class="test-detail" id="det-${id}">Running…</div>
+    </div>
+    <div class="test-badge">TESTING</div>`;
+  document.getElementById('results').appendChild(div);
+  return div;
+}
+
+function setRow(id, status, detail, badge) {
+  const row = document.getElementById('row-' + id);
+  const icons = { pass: '✓', fail: '✕', warn: '⚠' };
+  row.className = 'test-row ' + status;
+  row.querySelector('.status-ico').innerHTML = icons[status] || '?';
+  row.querySelector('#det-' + id).textContent = detail;
+  row.querySelector('#det-' + id).className = 'test-detail ' + (status === 'pass' ? 'ok' : status === 'fail' ? 'err' : '');
+  row.querySelector('.test-badge').textContent = badge;
+}
+
+function addSummary(allPass, visitorCount) {
+  const div = document.createElement('div');
+  div.className = 'summary ' + (allPass ? 'all-pass' : 'has-fail');
+  if (allPass) {
+    div.innerHTML = `
+      <div class="sum-ico">🎉</div>
+      <div>
+        <div class="sum-title">Everything is connected!</div>
+        <div class="sum-desc">Your Supabase database is working perfectly. Visitor counts will appear on your website in real time. Now paste your URL and key into <code style="font-family:monospace;font-size:.75rem;background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px">script.js</code> if you haven't already.</div>
+      </div>`;
+    // show live count
+    if (visitorCount !== null) {
+      const cd = document.createElement('div');
+      cd.className = 'count-display';
+      cd.innerHTML = `<div class="count-num">${fmt(visitorCount)}</div><div class="count-lbl">All-time visitors recorded</div>`;
+      document.getElementById('results').appendChild(cd);
+    }
+  } else {
+    div.innerHTML = `
+      <div class="sum-ico">🔧</div>
+      <div>
+        <div class="sum-title">Some checks failed</div>
+        <div class="sum-desc">Check the red items above. Most common issues: wrong URL/key, or the SQL setup hasn't been run yet. See the <a href="#how-to">guide below</a> for help.</div>
+      </div>`;
+  }
+  document.getElementById('results').appendChild(div);
+}
+
+async function runTests() {
+  const url = document.getElementById('sb-url').value.trim().replace(/\/$/, '');
+  const key = document.getElementById('sb-key').value.trim();
+
+  if (!url || !key) {
+    alert('Please enter both your Project URL and Anon Key first.');
+    return;
+  }
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Running tests…';
+  document.getElementById('results').innerHTML = '';
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': key,
+    'Authorization': 'Bearer ' + key
+  };
+
+  let allPass = true;
+  let visitorCount = null;
+
+  // ── TEST 1: URL format ──
+  addRow('t1', 'Supabase URL format');
+  await delay(300);
+  if (/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(url)) {
+    setRow('t1', 'pass', url, 'VALID');
+  } else {
+    setRow('t1', 'fail', 'URL should look like: https://abcdefgh.supabase.co — check for typos', 'INVALID');
+    allPass = false;
+  }
+
+  // ── TEST 2: API key format ──
+  addRow('t2', 'API key format');
+  await delay(250);
+  if (key.startsWith('eyJ') && key.length > 100) {
+    setRow('t2', 'pass', 'Key looks correct (starts with eyJ, length OK)', 'VALID');
+  } else {
+    setRow('t2', 'fail', 'Key should start with "eyJ" and be very long — make sure you copied the full anon key', 'INVALID');
+    allPass = false;
+  }
+
+  // ── TEST 3: Can reach Supabase server ──
+  addRow('t3', 'Reach Supabase server');
+  try {
+    const r = await fetch(url + '/rest/v1/', { headers });
+    if (r.status === 200 || r.status === 404 || r.status === 406) {
+      setRow('t3', 'pass', 'Server responded with HTTP ' + r.status + ' — connection is live', 'CONNECTED');
+    } else if (r.status === 401) {
+      setRow('t3', 'fail', 'HTTP 401 — API key is wrong or expired. Re-copy the anon key from Supabase dashboard.', 'AUTH FAIL');
+      allPass = false;
+    } else {
+      setRow('t3', 'warn', 'Unexpected HTTP ' + r.status + ' — may still work, check other tests', 'CHECK');
+    }
+  } catch (e) {
+    setRow('t3', 'fail', 'Cannot reach server — check your Project URL is correct and your internet is working', 'NO REACH');
+    allPass = false;
+  }
+
+  // ── TEST 4: page_views table exists ──
+  addRow('t4', 'page_views table exists');
+  try {
+    const r = await fetch(url + '/rest/v1/page_views?select=page,count&limit=1', { headers });
+    if (r.status === 200) {
+      const data = await r.json();
+      setRow('t4', 'pass', 'Table found — ' + (data.length ? `has ${data.length} row(s)` : 'exists but empty'), 'EXISTS');
+    } else if (r.status === 404 || r.status === 406) {
+      setRow('t4', 'fail', 'Table not found — go to Supabase → SQL Editor and run the supabase_setup.sql file', 'MISSING');
+      allPass = false;
+    } else {
+      const txt = await r.text();
+      setRow('t4', 'fail', 'HTTP ' + r.status + ': ' + txt.slice(0, 80), 'ERROR');
+      allPass = false;
+    }
+  } catch (e) {
+    setRow('t4', 'fail', e.message, 'ERROR');
+    allPass = false;
+  }
+
+  // ── TEST 5: increment function works ──
+  addRow('t5', 'increment_page_view() function');
+  try {
+    const r = await fetch(url + '/rest/v1/rpc/increment_page_view', {
+      method: 'POST', headers,
+      body: JSON.stringify({ page_name: 'home' })
+    });
+    if (r.status === 200) {
+      const count = await r.json();
+      visitorCount = count;
+      setRow('t5', 'pass', `Function executed — current count: ${typeof count === 'number' ? count.toLocaleString('en-IN') : count}`, 'WORKING');
+    } else if (r.status === 404) {
+      setRow('t5', 'fail', 'Function not found — run the supabase_setup.sql to create it', 'MISSING');
+      allPass = false;
+    } else {
+      const txt = await r.text();
+      setRow('t5', 'fail', 'HTTP ' + r.status + ': ' + txt.slice(0, 100), 'ERROR');
+      allPass = false;
+    }
+  } catch (e) {
+    setRow('t5', 'fail', e.message, 'ERROR');
+    allPass = false;
+  }
+
+  // ── TEST 6: Read count back ──
+  addRow('t6', 'Read visitor count from database');
+  try {
+    const r = await fetch(url + '/rest/v1/page_views?select=page,count&page=eq.home', { headers });
+    if (r.status === 200) {
+      const rows = await r.json();
+      if (rows.length > 0) {
+        const c = rows[0].count;
+        visitorCount = c;
+        setRow('t6', 'pass', `Page "home" → count = ${Number(c).toLocaleString('en-IN')} ✓`, 'READ OK');
+      } else {
+        setRow('t6', 'warn', 'Table exists but no "home" row yet — run the SQL setup to insert the initial row', 'NO ROW');
+      }
+    } else {
+      setRow('t6', 'fail', 'HTTP ' + r.status, 'ERROR');
+      allPass = false;
+    }
+  } catch (e) {
+    setRow('t6', 'fail', e.message, 'ERROR');
+    allPass = false;
+  }
+
+  // ── SUMMARY ──
+  await delay(200);
+  addSummary(allPass, visitorCount);
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg> Run Tests Again';
+}
+
+// Allow Enter key to trigger test
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') runTests();
+});
+</script>
+</body>
+</html>
