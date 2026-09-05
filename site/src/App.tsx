@@ -1,380 +1,264 @@
-import useThreejs from "./ThreeJSCanvas"
+import HamsterCursor from "./HamsterCursor"
 import { motion } from "framer-motion"
 import "./App.css"
 
-export default function App() {
-  const threeRef = useThreejs()
+const services = [
+  { icon: "📱", title: "Android Development", desc: "Native & cross-platform Android apps engineered for performance and scale.", tags: "Kotlin · Jetpack · Flutter" },
+  { icon: "🍎", title: "iOS Development", desc: "Refined iOS apps that feel right at home on Apple — silky, precise, composed.", tags: "Swift · SwiftUI · Xcode" },
+  { icon: "🖥️", title: "Desktop Software", desc: "Powerful cross-platform desktop apps trusted by professionals daily.", tags: "Electron · Tauri · .NET" },
+  { icon: "🎮", title: "Game Development", desc: "Immersive game experiences across mobile, PC & console platforms.", tags: "Unity · Unreal · Godot" },
+  { icon: "💡", title: "IT Consulting", desc: "Strategic tech guidance aligning your digital roadmap with business goals.", tags: "Architecture · Audit · Strategy" },
+  { icon: "⚙️", title: "Custom Software", desc: "Bespoke solutions built precisely to your domain — no off-the-shelf compromises.", tags: "Full-stack · SaaS · AI" },
+]
 
+const techs = [
+  { name: "Android", color: "#3DDC84" },
+  { name: "iOS / Swift", color: "#aaa" },
+  { name: "Python", color: "#3776AB" },
+  { name: "JavaScript", color: "#F7DF1E" },
+  { name: "React", color: "#61DAFB" },
+  { name: "AI / ML", color: "#00D4FF" },
+  { name: "AWS Cloud", color: "#FF9900" },
+  { name: "Node.js", color: "#54B435" },
+  { name: "Flutter", color: "#02569B" },
+  { name: "MySQL", color: "#4479A1" },
+  { name: "Unity", color: "#764ABC" },
+  { name: "REST / GraphQL", color: "#2563EB" },
+]
+
+const features = [
+  { num: "01", title: "Scalable Architecture", desc: "From 10 users to 10 million — without a rewrite." },
+  { num: "02", title: "Clean & Secure Code", desc: "Security-first with rigorous reviews and zero shortcuts." },
+  { num: "03", title: "Modern UI/UX Design", desc: "Interfaces that feel inevitable — accessible at every pixel." },
+  { num: "04", title: "High Performance", desc: "Sub-second loads, efficient queries, lean optimized builds." },
+  { num: "05", title: "Professional Support", desc: "Dedicated post-launch support with proactive monitoring." },
+]
+
+export default function App() {
   return (
     <div className="app">
-        <motion.div
-          initial="in"
-          animate="in"
-          exit="out"
-          className="flex min-h-screen flex-col overflow-hidden bg-black text-white"
-        >
-          <div className="flex h-64 items-center justify-center pointer-events-none">
-            <div
-              ref={threeRef}
-              className="absolute inset-0 pointer-events-none"
-            />
+      <HamsterCursor />
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="min-h-screen bg-[#060812] text-white overflow-x-hidden"
+      >
+        {/* ── NAVBAR ── */}
+        <nav className="navbar fixed top-0 left-0 right-0 z-50">
+          <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
+            <a href="#home" className="flex items-center gap-2.5">
+              <img src="/logo_nav_icon.png" alt="" className="w-9 h-9 rounded-full nav-icon" />
+              <span className="font-bold text-lg tracking-wide nav-brand">BlueFluteX</span>
+            </a>
+            <div className="hidden md:flex items-center gap-1">
+              <a href="#home" className="nav-link">Home</a>
+              <a href="#services" className="nav-link">Services</a>
+              <a href="#technology" className="nav-link">Technology</a>
+              <a href="#about" className="nav-link">About</a>
+              <a href="#contact" className="nav-link">Contact</a>
+              <a href="#contact" className="nav-cta">Get in Touch</a>
+            </div>
+            <button className="md:hidden text-white/70 hover:text-white transition-colors">
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            </button>
           </div>
+        </nav>
 
-          <main className="flex-1 p-8 relative z-10">
-            <nav className="fixed top-0 left-0 right-0 z-20 bg-[rgba(8,12,24,0.8)] backdrop-blur border-b border-white/7 transition-colors">
-              <div className="max-w-7xl mx-auto flex items-center justify-between px-6">
-                <a href="#home" className="flex items-center gap-2 text-2xl font-bold tracking-wider text-[#00d4ff]">
-                  <img src="/logo_nav_icon.png" alt="BlueFluteX icon" className="w-9 h-9 rounded-full" style={{filter:'drop-shadow(0 0 6px rgba(0,212,255,.5))'}}/>
-                  <span>BlueFluteX</span>
-                </a>
-                <div className="hidden md:block">
-                  <div className="flex gap-6">
-                    <a href="#services" className="text-white hover:text-[#00d4ff] transition-colors">Services</a>
-                    <a href="#technology" className="text-white hover:text-[#00d4ff] transition-colors">Technology</a>
-                    <a href="#about" className="text-white hover:text-[#00d4ff] transition-colors">About</a>
-                    <a href="#contact" className="text-white hover:text-[#00d4ff] transition-colors">Contact</a>
-                  </div>
-                  <a href="#contact" className="btn-primary px-4 py-2 rounded-full">
-                    Get in Touch
-                  </a>
-                </div>
-                <button className="md:hidden text-white">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                  </svg>
-                </button>
+        {/* ── HERO ── */}
+        <section id="home" className="hero-section relative min-h-screen flex items-center">
+          <div className="hero-bg-orb orb-1"></div>
+          <div className="hero-bg-orb orb-2"></div>
+          <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full pt-24">
+            <div>
+              <div className="hero-pill">✦ Next-gen Software Studio · Pune, India</div>
+              <h1 className="hero-title">
+                Code with <span className="hero-gradient">Harmony</span>
+              </h1>
+              <p className="hero-desc">
+                We craft precision software that resonates — from AI-powered systems to beautiful mobile apps. BlueFluteX turns your boldest ideas into technology that endures.
+              </p>
+              <div className="hero-buttons">
+                <a href="#services" className="btn-glow">Explore Services →</a>
+                <a href="#contact" className="btn-ghost">Contact Us</a>
               </div>
-            </nav>
-
-            <section id="home" className="hero-section min-h-screen flex items-center py-12 px-6 relative">
-              <div className="hero-left">
-                <div className="pill text-white mb-6">
-                  Next-gen Software Studio · Pune, India
-                </div>
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-tight mb-4">
-                  <span className="text-white">Code with</span>
-                  <span className="text-[#00d4ff]">Harmony</span>
-                </h1>
-                <p className="text-lg md:text-xl text-[#8899BB] max-w-2xl mb-8 leading-relaxed">
-                  We craft precision software that resonates — from AI-powered systems to beautiful mobile apps. BlueFluteX turns your boldest ideas into technology that endures.
-                </p>
-                <div className="hero-btns flex flex-wrap gap-4 mb-10">
-                  <a href="#services" className="btn-primary px-6 py-3 rounded-full text-white">
-                    Explore Services →
-                  </a>
-                  <a href="#contact" className="btn-outline px-6 py-3 rounded-full text-[#8899BB]">
-                    Contact Us
-                  </a>
-                </div>
-                <div className="hero-stats flex items-center gap-8 flex-wrap">
-                  <div className="stat"><b>50+</b><span>Projects</span></div>
-                  <div className="sdiv"></div>
-                  <div className="stat"><b>12+</b><span>Countries</span></div>
-                  <div className="sdiv"></div>
-                  <div className="stat"><b>99%</b><span>Satisfaction</span></div>
-                </div>
-              </div>
-
-              <div className="hero-right">
-                <div className="hero-glow-ring ring-a"></div>
-                <div className="hero-glow-ring ring-b"></div>
-                <div className="hero-glow-ring ring-c"></div>
-                <video className="hero-video" autoPlay loop muted playsInline>
-                  <source src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/cloudinarry%20to%20cloudflare/202606021731-e_hqa6sn.mp4" type="video/mp4" />
-                </video>
-                <img src="/logo_clean.png" alt="BlueFluteX" className="hero-logo"/>
-                <div className="chip chip-1 float-a"><span>⚡</span> High Performance</div>
-                <div className="chip chip-2 float-b"><span>🛡</span> Secure by Design</div>
-                <div className="chip chip-3 float-c"><span>🎯</span> Pixel Perfect</div>
-              </div>
-            </section>
-
-            <section id="services" className="py-24 px-6 relative">
-              <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-12">
-                  <div className="sec-tag mb-4">What We Build</div>
-                  <h2 className="sec-h font-black">Services for <span className="text-[#00d4ff]">modern ambitions</span></h2>
-                  <p className="text-base text-[#8899BB] max-w-2xl mx-auto">
-                    End-to-end software delivery — every layer, every detail, every interaction.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="card reveal-c group">
-                    <div className="card-ico">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 28 28">
-                        <rect x="5" y="2" width="18" height="24" rx="3" stroke="#00D4FF" stroke-width="1.5"/>
-                        <circle cx="14" cy="22" r="1.5" fill="#00D4FF"/>
-                        <rect x="10" y="6" width="8" height="1.5" rx=".75" fill="#00D4FF" opacity=".4"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Android Development</h3>
-                    <p>Native & cross-platform Android apps engineered for performance and scale.</p>
-                    <div className="tag">Kotlin · Jetpack · Flutter</div>
-                  </div>
-
-                  <div className="card reveal-c group">
-                    <div className="card-ico">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 28 28">
-                        <rect x="8" y="2" width="12" height="20" rx="3" stroke="#00D4FF" stroke-width="1.5"/>
-                        <circle cx="14" cy="19" r="1.5" fill="#00D4FF"/>
-                        <path d="M11 5h6" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">iOS Development</h3>
-                    <p>Refined iOS apps that feel right at home on Apple — silky, precise, composed.</p>
-                    <div className="tag">Swift · SwiftUI · Xcode</div>
-                  </div>
-
-                  <div className="card reveal-c group">
-                    <div className="card-ico">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 28 28">
-                        <rect x="3" y="6" width="22" height="14" rx="2" stroke="#00D4FF" stroke-width="1.5"/>
-                        <path d="M10 23h8M14 20v3" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Desktop Software</h3>
-                    <p>Powerful cross-platform desktop apps trusted by professionals daily.</p>
-                    <div className="tag">Electron · Tauri · .NET</div>
-                  </div>
-
-                  <div className="card reveal-c group">
-                    <div className="card-ico">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 28 28">
-                        <path d="M7 22L14 7l7 15" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round"/>
-                        <path d="M9 18h10" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
-                        <circle cx="20" cy="9" r="3" stroke="#00D4FF" stroke-width="1.5"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Game Development</h3>
-                    <p>Immersive game experiences across mobile, PC & console platforms.</p>
-                    <div className="tag">Unity · Unreal · Godot</div>
-                  </div>
-
-                  <div className="card reveal-c group">
-                    <div className="card-ico">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 28 28">
-                        <circle cx="14" cy="14" r="10" stroke="#00D4FF" stroke-width="1.5"/>
-                        <path d="M9 14l4 4 6-6" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">IT Consulting</h3>
-                    <p>Strategic tech guidance aligning your digital roadmap with business goals.</p>
-                    <div className="tag">Architecture · Audit · Strategy</div>
-                  </div>
-
-                  <div className="card reveal-c group">
-                    <div className="card-ico">
-                      <svg width="28" height="28" fill="none" viewBox="0 0 28 28">
-                        <path d="M5 9l9-5 9 5v10l-9 5-9-5V9z" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round"/>
-                        <path d="M14 4v20M5 9l9 5 9-5" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Custom Software</h3>
-                    <p>Bespoke solutions built precisely to your domain — no off-the-shelf compromises.</p>
-                    <div className="tag">Full-stack · SaaS · AI</div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="technology" className="py-24 px-6 bg-[rgba(8,12,24,0.8)] relative">
-              <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-12">
-                  <div className="sec-tag mb-4">Our Stack</div>
-                  <h2 className="sec-h font-black">Technology that <span className="text-[#00d4ff]">powers everything</span></h2>
-                  <p className="text-base text-[#8899BB] max-w-2xl mx-auto">
-                    Battle-tested tools wielded by experts who never stop learning.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap justify-center gap-2">
-                  <span className="tech-pill">Android</span>
-                  <span className="tech-pill">iOS / Swift</span>
-                  <span className="tech-pill">Python</span>
-                  <span className="tech-pill">JavaScript</span>
-                  <span className="tech-pill">React</span>
-                  <span className="tech-pill">AI / ML</span>
-                  <span className="tech-pill">AWS Cloud</span>
-                  <span className="tech-pill">Node.js</span>
-                  <span className="tech-pill">Flutter</span>
-                  <span className="tech-pill">MySQL</span>
-                  <span className="tech-pill">Unity</span>
-                  <span className="tech-pill">REST / GraphQL</span>
-                </div>
-              </div>
-            </section>
-
-            <section id="about" className="py-24 px-6 relative">
-              <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-12">
-                  <div className="sec-tag">Our Story</div>
-                  <h2 className="sec-h font-black">Software as an <span className="text-[#00d4ff]">art form</span></h2>
-                  <p className="text-base text-[#8899BB] max-w-2xl mx-auto">
-                    Founded in Pune, India — BlueFluteX was born from a simple belief: great technology should feel like music.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="acard reveal-c">
-                    <div className="aico">🎯</div>
-                    <h4>Our Mission</h4>
-                    <p>Making enterprise-grade quality accessible to teams of every scale.</p>
-                  </div>
-                  <div className="acard reveal-c">
-                    <div className="aico">🌍</div>
-                    <h4>Global Reach</h4>
-                    <p>Based in Pune — serving clients in 12+ countries worldwide.</p>
-                  </div>
-                  <div className="acard reveal-c">
-                    <div className="aico">🔬</div>
-                    <h4>Our Approach</h4>
-                    <p>Research-led, detail-obsessed, collaboration-first on every project.</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="contact" className="py-24 px-6 bg-[rgba(8,12,24,0.8)] relative">
-              <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-12">
-                <div className="w-full md:w-1/2">
-                  <div className="sec-tag mb-4">Get in Touch</div>
-                  <h2 className="sec-h font-black">Let's build <span className="text-[#00d4ff]">something great</span></h2>
-                  <p className="text-base text-[#8899BB] mb-8">
-                    Tell us about your vision. We respond within 24 hours.
-                  </p>
-                  <form className="space-y-4">
-                    <div>
-                      <label className="block text-sm mb-2">Your Name</label>
-                      <input 
-                        type="text" 
-                        placeholder="Alex Johnson" 
-                        required 
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00d4ff]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm mb-2">Email Address</label>
-                      <input 
-                        type="email" 
-                        placeholder="alex@company.com" 
-                        required 
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#00d4ff]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm mb-2">Message</label>
-                      <textarea 
-                        rows={5} 
-                        placeholder="Tell us about your project..." 
-                        required 
-                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white resize-none focus:outline-none focus:border-[#00d4ff] font-sm"
-                      ></textarea>
-                    </div>
-                    <button 
-                      type="submit" 
-                      className="w-full btn-primary py-3 rounded-full text-white font-medium"
-                    >
-                      Send Message ✦
-                    </button>
-                  </form>
-                </div>
-
-                <div className="w-full md:w-1/2 flex items-center justify-center">
-                  <div className="contact-right reveal-c">
-                    <div className="cinfo">
-                      <div className="ci">
-                        <div className="ci-ico">📍</div>
-                        <div>
-                          <small>Location</small>
-                          <strong>Pune, India</strong>
-                        </div>
-                      </div>
-                      <div className="ci">
-                        <div className="ci-ico">✉️</div>
-                        <div>
-                          <small>Email</small>
-                          <strong>vikasshu7@gmail.com</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </main>
-
-          <footer id="footer" className="bg-[rgba(8,12,24,0.9)] border-t border-white/7">
-            <div className="foot-top max-w-7xl mx-auto px-6 py-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="foot-brand">
-                  <img src="/logo_clean.png" alt="BlueFluteX" className="foot-logo mb-4" />
-                  <p>Building software that resonates — one line at a time.</p>
-                  <div className="socials">
-                    <a href="#" aria-label="Twitter" className="social-link">
-                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-                        <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      </svg>
-                    </a>
-                    <a href="#" aria-label="LinkedIn" className="social-link">
-                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-                        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/>
-                      </svg>
-                    </a>
-                    <a href="#" aria-label="GitHub" className="social-link">
-                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      </svg>
-                    </a>
-                    <a href="#" aria-label="Instagram" className="social-link">
-                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-                        <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5"/>
-                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
-                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-
-                <div className="foot-links">
-                  <div className="fcol">
-                    <h5>Services</h5>
-                    <a href="#services">Android Apps</a>
-                    <a href="#services">iOS Apps</a>
-                    <a href="#services">Desktop Software</a>
-                    <a href="#services">Game Dev</a>
-                    <a href="#services">IT Consulting</a>
-                  </div>
-                  <div className="fcol">
-                    <h5>Company</h5>
-                    <a href="#about">About Us</a>
-                    <a href="#why">Why Us</a>
-                    <a href="#technology">Technology</a>
-                    <a href="#contact">Contact</a>
-                  </div>
-                  <div className="fcol">
-                    <h5>Contact</h5>
-                    <a href="mailto:vikasshu7@gmail.com">vikasshu7@gmail.com</a>
-                    <a href="#">Pune, India</a>
-                    <a href="#">LinkedIn</a>
-                    <a href="#">GitHub</a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="foot-bot px-6 py-6 flex justify-between items-center">
-                <span>© 2025 BlueFluteX. All rights reserved.</span>
-                <span className="visitor-counter flex items-center gap-2">
-                  <span className="vc-dot"></span>
-                  <span className="vc-label">Total Visitors:</span>
-                  <span className="vc-num" id="visit-count">—</span>
-                </span>
-                <span>Crafted with precision in Pune 🇮🇳</span>
+              <div className="hero-stats">
+                <div className="stat-item"><span className="stat-num">50+</span><span className="stat-label">Projects</span></div>
+                <div className="stat-sep"></div>
+                <div className="stat-item"><span className="stat-num">12+</span><span className="stat-label">Countries</span></div>
+                <div className="stat-sep"></div>
+                <div className="stat-item"><span className="stat-num">99%</span><span className="stat-label">Satisfaction</span></div>
               </div>
             </div>
-          </footer>
-        </motion.div>
+            <div className="hero-visual relative flex items-center justify-center min-h-[400px]">
+              <div className="glow-ring ring-1"></div>
+              <div className="glow-ring ring-2"></div>
+              <div className="glow-ring ring-3"></div>
+              <img src="/logo_clean.png" alt="BlueFluteX" className="hero-logo-img relative z-10" />
+              <div className="hero-chip chip-pos-1"><span>⚡</span> High Performance</div>
+              <div className="hero-chip chip-pos-2"><span>🛡</span> Secure by Design</div>
+              <div className="hero-chip chip-pos-3"><span>🎯</span> Pixel Perfect</div>
+            </div>
+          </div>
+          <div className="hero-bottom-fade"></div>
+        </section>
+
+        {/* ── SERVICES ── */}
+        <section id="services" className="section-sec py-24 px-6 relative">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="section-tag">What We Build</div>
+              <h2 className="section-title">Services for <span className="text-gradient">modern ambitions</span></h2>
+              <p className="section-desc">End-to-end software delivery — every layer, every detail, every interaction.</p>
+            </div>
+            <div className="services-grid">
+              {services.map((s, i) => (
+                <div key={i} className="service-card" style={{ animationDelay: `${i * 80}ms` }}>
+                  <div className="service-icon">{s.icon}</div>
+                  <h3 className="service-title">{s.title}</h3>
+                  <p className="service-desc">{s.desc}</p>
+                  <div className="service-tag">{s.tags}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── TECHNOLOGY ── */}
+        <section id="technology" className="py-24 px-6 relative section-alt">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="section-tag">Our Stack</div>
+              <h2 className="section-title">Technology that <span className="text-gradient">powers everything</span></h2>
+              <p className="section-desc">Battle-tested tools wielded by experts who never stop learning.</p>
+            </div>
+            <div className="tech-wrap">
+              {techs.map((t, i) => (
+                <div key={i} className="tech-item">
+                  <span className="tech-dot" style={{ background: t.color }}></span>
+                  {t.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── WHY US ── */}
+        <section id="why" className="py-24 px-6 relative border-t border-white/5">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-16">
+            <div className="lg:col-span-2 lg:sticky lg:top-28 lg:self-start">
+              <div className="section-tag">Why BlueFluteX</div>
+              <h2 className="section-title">Built different.<br/><span className="text-gradient">Built to last.</span></h2>
+              <p className="section-desc mb-6">We don't ship mediocre software. Every project is a statement of craft — deliberate, precise, and made to endure.</p>
+              <a href="#contact" className="btn-glow inline-flex">Start a Project →</a>
+            </div>
+            <div className="lg:col-span-3 flex flex-col gap-3">
+              {features.map((f, i) => (
+                <div key={i} className="feature-row">
+                  <span className="feature-num">{f.num}</span>
+                  <div>
+                    <h4 className="feature-title">{f.title}</h4>
+                    <p className="feature-desc">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── ABOUT ── */}
+        <section id="about" className="py-24 px-6 relative section-alt">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="section-tag">Our Story</div>
+              <h2 className="section-title">Software as an <span className="text-gradient">art form</span></h2>
+              <p className="section-desc max-w-xl mx-auto">
+                Founded in Pune, India — BlueFluteX was born from a simple belief: great technology should feel like music.
+              </p>
+            </div>
+            <div className="about-grid">
+              <div className="about-card"><div className="about-emoji">🎯</div><h4>Our Mission</h4><p>Making enterprise-grade quality accessible to teams of every scale.</p></div>
+              <div className="about-card"><div className="about-emoji">🌍</div><h4>Global Reach</h4><p>Based in Pune — serving clients in 12+ countries worldwide.</p></div>
+              <div className="about-card"><div className="about-emoji">🔬</div><h4>Our Approach</h4><p>Research-led, detail-obsessed, collaboration-first on every project.</p></div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CONTACT ── */}
+        <section id="contact" className="py-24 px-6 relative border-t border-white/5">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div>
+              <div className="section-tag">Get in Touch</div>
+              <h2 className="section-title">Let's build <span className="text-gradient">something great</span></h2>
+              <p className="section-desc mb-8">Tell us about your vision. We respond within 24 hours.</p>
+              <div className="contact-info">
+                <div className="contact-item"><span className="ci-icon">📍</span><div><small>Location</small><strong>Pune, India</strong></div></div>
+                <div className="contact-item"><span className="ci-icon">✉️</span><div><small>Email</small><strong>vikasshu7@gmail.com</strong></div></div>
+              </div>
+            </div>
+            <div className="contact-form-wrap">
+              <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+                <div className="form-group">
+                  <label>Your Name</label>
+                  <input type="text" placeholder="Alex Johnson" required />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input type="email" placeholder="alex@company.com" required />
+                </div>
+                <div className="form-group">
+                  <label>Message</label>
+                  <textarea rows={5} placeholder="Tell us about your project..." required></textarea>
+                </div>
+                <button type="submit" className="btn-glow w-full justify-center text-base">Send Message ✦</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FOOTER ── */}
+        <footer className="border-t border-white/5 bg-[#050710]">
+          <div className="max-w-6xl mx-auto px-6 py-14 grid grid-cols-1 lg:grid-cols-4 gap-12">
+            <div className="lg:col-span-1">
+              <img src="/logo_clean.png" alt="BlueFluteX" className="footer-logo mb-4" />
+              <p className="footer-tagline">Building software that resonates — one line at a time.</p>
+              <div className="social-links">
+                <a href="#" className="social-btn" aria-label="Twitter"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></a>
+                <a href="#" className="social-btn" aria-label="LinkedIn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="1.5"/></svg></a>
+                <a href="#" className="social-btn" aria-label="GitHub"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></a>
+                <a href="#" className="social-btn" aria-label="Instagram"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+              </div>
+            </div>
+            <div>
+              <h5 className="footer-heading">Services</h5>
+              <a href="#services" className="footer-link">Android Apps</a>
+              <a href="#services" className="footer-link">iOS Apps</a>
+              <a href="#services" className="footer-link">Desktop Software</a>
+              <a href="#services" className="footer-link">Game Dev</a>
+              <a href="#services" className="footer-link">IT Consulting</a>
+            </div>
+            <div>
+              <h5 className="footer-heading">Company</h5>
+              <a href="#about" className="footer-link">About Us</a>
+              <a href="#why" className="footer-link">Why Us</a>
+              <a href="#technology" className="footer-link">Technology</a>
+              <a href="#contact" className="footer-link">Contact</a>
+            </div>
+            <div>
+              <h5 className="footer-heading">Contact</h5>
+              <a href="mailto:vikasshu7@gmail.com" className="footer-link">vikasshu7@gmail.com</a>
+              <a href="#" className="footer-link">Pune, India</a>
+              <a href="#" className="footer-link">LinkedIn</a>
+              <a href="#" className="footer-link">GitHub</a>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <span>© 2025 BlueFluteX. All rights reserved.</span>
+            <span>Crafted with precision in Pune 🇮🇳</span>
+          </div>
+        </footer>
+      </motion.div>
     </div>
   )
 }
