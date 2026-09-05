@@ -253,6 +253,14 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   display:flex;align-items:center;justify-content:center;
   min-height:480px;
 }
+.hero-video{
+  width:100%;max-width:480px;
+  height:100%;object-fit:cover;
+  position:relative;z-index:1;
+  border-radius:var(--r2);
+  box-shadow:0 0 30px rgba(0,212,255,.35),0 0 80px rgba(0,80,200,.25);
+  animation:logoBreathe 6s ease-in-out infinite;
+}
 .hero-logo{
   width:100%;max-width:480px;
   position:relative;z-index:2;
