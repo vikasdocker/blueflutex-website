@@ -23,8 +23,9 @@ export default function App() {
           <main className="flex-1 p-8 relative z-10">
             <nav className="fixed top-0 left-0 right-0 z-20 bg-[rgba(8,12,24,0.8)] backdrop-blur border-b border-white/7 transition-colors">
               <div className="max-w-7xl mx-auto flex items-center justify-between px-6">
-                <a href="#home" className="text-2xl font-bold tracking-wider uppercase text-[#00d4ff]">
-                  BlueFluteX
+                <a href="#home" className="flex items-center gap-2 text-2xl font-bold tracking-wider text-[#00d4ff]">
+                  <img src="/logo_nav_icon.png" alt="BlueFluteX icon" className="w-9 h-9 rounded-full" style={{filter:'drop-shadow(0 0 6px rgba(0,212,255,.5))'}}/>
+                  <span>BlueFluteX</span>
                 </a>
                 <div className="hidden md:block">
                   <div className="flex gap-6">
@@ -45,8 +46,8 @@ export default function App() {
               </div>
             </nav>
 
-            <section id="home" className="hero min-h-screen flex flex-col items-center justify-center py-12 px-6 relative">
-              <div className="text-center">
+            <section id="home" className="hero-section min-h-screen flex items-center py-12 px-6 relative">
+              <div className="hero-left">
                 <div className="pill text-white mb-6">
                   Next-gen Software Studio · Pune, India
                 </div>
@@ -54,10 +55,10 @@ export default function App() {
                   <span className="text-white">Code with</span>
                   <span className="text-[#00d4ff]">Harmony</span>
                 </h1>
-                <p className="text-lg md:text-xl text-[#8899BB] max-w-2xl mx-auto mb-8 leading-relaxed">
+                <p className="text-lg md:text-xl text-[#8899BB] max-w-2xl mb-8 leading-relaxed">
                   We craft precision software that resonates — from AI-powered systems to beautiful mobile apps. BlueFluteX turns your boldest ideas into technology that endures.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <div className="hero-btns flex flex-wrap gap-4 mb-10">
                   <a href="#services" className="btn-primary px-6 py-3 rounded-full text-white">
                     Explore Services →
                   </a>
@@ -65,11 +66,26 @@ export default function App() {
                     Contact Us
                   </a>
                 </div>
+                <div className="hero-stats flex items-center gap-8 flex-wrap">
+                  <div className="stat"><b>50+</b><span>Projects</span></div>
+                  <div className="sdiv"></div>
+                  <div className="stat"><b>12+</b><span>Countries</span></div>
+                  <div className="sdiv"></div>
+                  <div className="stat"><b>99%</b><span>Satisfaction</span></div>
+                </div>
               </div>
 
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute -top-6 -left-6 w-64 h-64 bg-gradient-to-bl rounded-full blur-3xl from-[rgba(0,212,255,0.1)] to-transparent opacity-70 animate-pulse"></div>
-                <div className="absolute -bottom-6 -right-6 w-64 h-64 bg-gradient-to-tr rounded-full blur-3xl from-[rgba(37,99,235,0.1)] to-transparent opacity-70 animate-pulse"></div>
+              <div className="hero-right">
+                <div className="hero-glow-ring ring-a"></div>
+                <div className="hero-glow-ring ring-b"></div>
+                <div className="hero-glow-ring ring-c"></div>
+                <video className="hero-video" autoPlay loop muted playsInline>
+                  <source src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/cloudinarry%20to%20cloudflare/202606021731-e_hqa6sn.mp4" type="video/mp4" />
+                </video>
+                <img src="/logo_clean.png" alt="BlueFluteX" className="hero-logo"/>
+                <div className="chip chip-1 float-a"><span>⚡</span> High Performance</div>
+                <div className="chip chip-2 float-b"><span>🛡</span> Secure by Design</div>
+                <div className="chip chip-3 float-c"><span>🎯</span> Pixel Perfect</div>
               </div>
             </section>
 
