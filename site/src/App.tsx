@@ -1,24 +1,12 @@
-import { useRef, useState, useEffect } from "react"
 import useThreejs from "./ThreeJSCanvas"
 import { motion } from "framer-motion"
 import "./App.css"
 
 export default function App() {
-  const threeRef = useRef<HTMLDivElement | null>(null)
-  const [showContent, setShowContent] = useState(false)
-
-  useEffect(() => {
-    threeRef.current = useThreejs().current
-    setShowContent(true)
-
-    return () => {
-      threeRef.current = null
-    }
-  }, [])
+  const threeRef = useThreejs()
 
   return (
     <div className="app">
-      {showContent && (
         <motion.div
           initial="in"
           animate="in"
@@ -371,7 +359,6 @@ export default function App() {
             </div>
           </footer>
         </motion.div>
-      )}
     </div>
   )
 }
