@@ -255,8 +255,8 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 }
 .hero-video{
   width:100%;max-width:480px;
-  height:100%;object-fit:cover;
-  position:relative;z-index:1;
+  height:480px;object-fit:cover;
+  position:absolute;z-index:1;
   border-radius:var(--r2);
   box-shadow:0 0 30px rgba(0,212,255,.35),0 0 80px rgba(0,80,200,.25);
   animation:logoBreathe 6s ease-in-out infinite;
@@ -591,6 +591,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   .hero-left{display:flex;flex-direction:column;align-items:center}
   .hero-p{max-width:100%}
   .hero-right{min-height:380px;width:100%}
+  .hero-video{height:380px;max-width:380px}
   .hero-logo{max-width:380px}
   .ring-a{width:380px;height:380px}
   .ring-b{width:280px;height:280px}
