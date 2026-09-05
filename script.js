@@ -169,12 +169,15 @@ document.querySelectorAll('.card').forEach(card => {
 });
 
 /* ── PARALLAX HERO RINGS ── */
+// Use CSS custom properties so the CSS rotation animation keeps running
+// (writing to `style.transform` would clobber the `animation:spinRing` keyframes).
 window.addEventListener('mousemove', e => {
   const xr = (e.clientX / window.innerWidth  - 0.5) * 2;
   const yr = (e.clientY / window.innerHeight - 0.5) * 2;
   document.querySelectorAll('.hero-glow-ring').forEach((r, i) => {
     const f = (i + 1) * 8;
-    r.style.transform = `rotate(${(i%2?1:-1)*360*(performance.now()/((i+1)*25000+15000))}deg) translate(${xr*f}px,${yr*f}px)`;
+    r.style.setProperty('--px', `${xr * f}px`);
+    r.style.setProperty('--py', `${yr * f}px`);
   });
 });
 
@@ -207,9 +210,11 @@ if (window.matchMedia('(pointer:fine)').matches) {
 }
 
 /* ── PAGE FADE IN ── */
+// Use rAF instead of 'load' — if the page is cached 'load' may have already
+// fired, which would leave the body at opacity:0 forever.
 document.body.style.opacity = '0';
 document.body.style.transition = 'opacity .5s ease';
-window.addEventListener('load', () => { document.body.style.opacity = '1'; });
+requestAnimationFrame(() => { document.body.style.opacity = '1'; });
 
 /* ── VISITOR COUNTER (Supabase backend) ── */
 (function () {

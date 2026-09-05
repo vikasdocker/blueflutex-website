@@ -1,6 +1,6 @@
-/* ═══════════════════════════════════════
-   BlueFluteX — style.css  (v2 rebuild)
-   ═══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   BlueFluteX — React App  (v3 WebGL rebuild)
+   ══════════════════════════════════════ */
 
 :root {
   --bg:      #080C18;
@@ -43,12 +43,6 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
 
-/* ── STAR CANVAS ── */
-#stars{
-  position:fixed;inset:0;
-  pointer-events:none;z-index:0;
-}
-
 /* ── SHARED ── */
 .section{
   position:relative;z-index:1;
@@ -72,8 +66,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 }
 .g{
   background:linear-gradient(130deg,var(--c),var(--c2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ── BUTTONS ── */
@@ -108,7 +103,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   background:rgba(0,212,255,.05);
 }
 
-/* ═══════════ NAVBAR ═══════════ */
+/* ── NAVBAR ── */
 #nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
   transition:background .35s,box-shadow .35s;
@@ -136,8 +131,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 }
 .nav-name{
   background:linear-gradient(130deg,#fff,var(--c));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .nav-links{
   display:flex;list-style:none;gap:.1rem;
@@ -182,7 +178,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   background:rgba(0,212,255,.07);text-align:center;
 }
 
-/* ═══════════ HERO ═══════════ */
+/* ── HERO ── */
 .hero{
   min-height:100vh;
   display:grid;grid-template-columns:1fr 1fr;
@@ -224,8 +220,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .hero-h1 span{display:block;}
 .glow-text{
   background:linear-gradient(130deg,var(--c) 0%,var(--c2) 50%,#7C3AED 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   filter:drop-shadow(0 0 24px rgba(0,212,255,.35));
 }
 .hero-p{
@@ -316,7 +313,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 @keyframes floatB{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes floatC{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
-/* ═══════════ SERVICES ═══════════ */
+/* ── SERVICES ── */
 .services{padding-top:5rem;padding-bottom:5rem}
 .cards-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
@@ -366,7 +363,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   border-radius:100px;display:inline-block;
 }
 
-/* ═══════════ TECH ═══════════ */
+/* ── TECH ── */
 .tech-sec{
   background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 50%,var(--bg) 100%);
   max-width:100%;padding:5rem 2rem;
@@ -390,10 +387,10 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   border-color:var(--bdr2);color:var(--txt);
   background:rgba(0,212,255,.05);
   transform:translateY(-2px);
-}
+  }
 .tp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-/* ═══════════ WHY US ═══════════ */
+/* ── WHY US ── */
 .why-sec{border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)}
 .why-inner{
   display:grid;grid-template-columns:1fr 1.5fr;
@@ -423,7 +420,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 }
 .feat p{font-size:.83rem;color:var(--txt2);line-height:1.65}
 
-/* ═══════════ ABOUT ═══════════ */
+/* ── ABOUT ── */
 .about-sec{background:var(--bg2)}
 .about-trio{
   display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;
@@ -444,7 +441,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 }
 .acard p{font-size:.84rem;color:var(--txt2);line-height:1.65}
 
-/* ═══════════ CONTACT ═══════════ */
+/* ── CONTACT ── */
 .contact-sec{background:var(--bg)}
 .contact-wrap{
   display:grid;grid-template-columns:1fr 1.2fr;
@@ -504,7 +501,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .success h4{font-family:var(--fD);font-size:1.1rem;color:var(--txt)}
 .success p{font-size:.84rem;color:var(--txt2)}
 
-/* ═══════════ FOOTER ═══════════ */
+/* ── FOOTER ── */
 #footer{
   background:linear-gradient(180deg,var(--bg) 0%,#060819 100%);
   border-top:1px solid var(--bdr);position:relative;z-index:1;
@@ -549,7 +546,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   font-size:.76rem;color:var(--txt3);
 }
 
-/* ═══════════ REVEAL ANIMATIONS ═══════════ */
+/* ── REVEAL ANIMATIONS ── */
 .reveal{
   opacity:0;transform:translateY(28px);
   transition:opacity .7s var(--ease),transform .7s var(--ease);
@@ -563,7 +560,6 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   transition:opacity .6s var(--ease),transform .6s var(--ease);
 }
 .reveal.vis,.reveal-r.vis,.reveal-c.vis{opacity:1;transform:none}
-/* stagger cards */
 .cards-grid .reveal-c:nth-child(1){transition-delay:0ms}
 .cards-grid .reveal-c:nth-child(2){transition-delay:80ms}
 .cards-grid .reveal-c:nth-child(3){transition-delay:160ms}
@@ -577,7 +573,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .why-right .reveal-c:nth-child(4){transition-delay:240ms}
 .why-right .reveal-c:nth-child(5){transition-delay:320ms}
 
-/* ═══════════ RESPONSIVE ═══════════ */
+/* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .hero{grid-template-columns:1fr;text-align:center;min-height:auto;padding-top:7rem}
   .hero-left{display:flex;flex-direction:column;align-items:center}
@@ -615,7 +611,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   .tech-grid{gap:.55rem}
 }
 
-/* ══ VISITOR COUNTER ══ */
+/* ══ VISITOR COUNTER ── */
 .visitor-counter{
   display:flex;align-items:center;gap:.5rem;
   background:rgba(0,212,255,.05);
