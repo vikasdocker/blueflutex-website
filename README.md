@@ -34,6 +34,76 @@ python -m http.server 8811
 A server is needed rather than opening `index.html` directly, because the hero
 is an ES module and module scripts do not load over `file://`.
 
+## Analytics
+
+Google Tag Manager container **`GTM-NSTRQKNK`**, loading Google Analytics 4.
+
+The snippet is inline in the head of all four pages, with the standard
+`noscript` iframe after each `<body>`. There is no build step and no PHP
+includes, so the container ID is duplicated in four files and nothing keeps
+them in sync:
+
+```
+index.html  privacy-policy.html  licenses.html  404.html
+```
+
+To change it, use the tool rather than a find-and-replace — it refuses to
+double-insert and keeps the encoding work in one place:
+
+```powershell
+python tools\install-gtm.py            # install or re-sync
+python tools\install-gtm.py --remove   # strip it back out, cleanly
+```
+
+### Events pushed to the dataLayer
+
+`assets/js/site.js` pushes three events. `dataLayer` is a plain array, so
+these are harmless under an ad blocker, with JS off, or if GTM never loads.
+
+| Event | Fired when | Notes |
+| --- | --- | --- |
+| `generate_lead` | contact form returns success | GA4 **recommended** event — mark it as a key event in GA4 and it needs no extra GTM config |
+| `email_click` | any `a[href^="mailto:"]` | captures the contact route that skips the form |
+| `outbound_click` | any off-site link | shows which visits become repo visits |
+
+Each carries `link_url`, `link_domain` and `page_location`, so you can segment
+in GA4 without defining custom dimensions.
+
+`generate_lead` is a **client-side** signal. The honeypot is evaluated
+server-side and still answers `ok`, so bot submissions can inflate it — cross-
+check against the `contact_messages` table before quoting the numbers.
+
+### What you must do in the GTM UI
+
+Needs your login, so it is not scripted here:
+
+1. **Variables** → create a GA4 Measurement ID (`G-XXXXXXXXXX`)
+2. **Tags** → *Configuration*, type **Google Analytics: GA4 Configuration**, paste the ID
+3. **Triggers** → **All Pages**
+4. **Tags** → *Event* tags for `email_click` and `outbound_click` if you want
+   them as separate GA4 events
+5. In GA4: **Admin → Data display → Data retention** — confirm 14 months
+6. In GA4: mark `generate_lead` as a **key event**
+
+### Verifying it
+
+```powershell
+python -m http.server 8811
+python tools\verify-gtm.py
+```
+
+Drives a real headless browser over the DevTools protocol and asserts, per
+page, that `dataLayer` exists, `window.google_tag_manager` is defined, and the
+container's own `gtm.js` bootstrap event is present.
+
+### Removing tracking
+
+`python tools\install-gtm.py --remove` plus deleting the `track()` block and
+its call site in `site.js`. Nothing else on the site depends on it. You would
+then want to trim the Analytics section from `privacy-policy.html` too.
+
+---
+
 ## Deploy
 
 Push to `main`. `.github/workflows/deploy.yml` pushes to InfinityFree over FTP.
@@ -55,11 +125,19 @@ would exceed 10 kB, because the host deletes those silently.
 
 ## Enabling the contact form
 
-The form works without a database — it validates and reports success, and tells
-the visitor to email instead. To actually store enquiries:
+**This is already done on your machine.** The credentials live in
+`api/contact.local.php`, which is gitignored — the tracked
+`api/contact.php` contains no secrets.
 
-**1. Create the tables.** In the InfinityFree control panel, open phpMyAdmin for
-your database and run:
+`api/contact.php` requires that file if it exists. **On the server you must
+upload `contact.local.php` as well**, or the form will fall back to telling
+visitors to email instead of storing anything. It will not be deployed by the
+GitHub workflow, by design.
+
+What it still needs:
+
+1. **Tables** — in the InfinityFree panel, open phpMyAdmin for your database
+   and run:
 
 ```sql
 CREATE TABLE contact_messages (
@@ -85,21 +163,20 @@ CREATE TABLE contact_rate (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-**2. Add credentials** to the `CONFIG` block at the top of `api/contact.php`
-(`DB_NAME`, `DB_USER`, `DB_PASS`). Values come from
-*Control Panel → MySQL Databases*.
+2. **`api/contact.local.php` on the server** — copy the file up over FTP. The
+   database host is already set to `sql105.infinityfree.com` in `contact.php`;
+   InfinityFree will not accept `localhost` for MySQL.
 
-> Credentials live in a tracked file, which is not great. If you would rather
-> not commit them, move the four constants into `api/config.local.php`,
-> add that path to `.gitignore`, and `require` it from `contact.php`.
-
-**3. Set `SITE_ORIGIN`** to the real domain once you have it — it is used for
-the same-origin check on submissions.
+`python tools\check-php.py` will refuse to pass if a password ever reappears in
+the tracked file, if the local override stops being gitignored, or if
+`contact.php` stops requiring it.
 
 ## Before launch
 
-- [ ] Replace the real domain in `index.html` (`<link rel="canonical">` and the
-      `og:*` URLs) and in `api/contact.php` (`SITE_ORIGIN`)
+- [x] Domain — `https://blueflutex.gt.tc` is set as canonical, `og:url` and
+      `SITE_ORIGIN`
+- [ ] Upload `api/contact.local.php` to the server (FTP)
+- [ ] Create the two tables in phpMyAdmin
 - [ ] Add 2–3 real case studies — the `#work` section ships with one on purpose
       rather than filling the page with invented metrics
 - [ ] Replace the placeholder social links in the contact section (they carry
@@ -107,16 +184,31 @@ the same-origin check on submissions.
 - [ ] **Rotate the Supabase anon key** from the previous version of this site.
       It is no longer referenced anywhere, but it remains in git history and the
       old `increment_page_view` RPC was an unauthenticated write endpoint.
-- [ ] Add `robots.txt` and `sitemap.xml` once the domain is final
+- [ ] Configure the GA4 tag in the GTM UI (see Analytics above)
+- [ ] Add `robots.txt` and `sitemap.xml` for `blueflutex.gt.tc`
 
 ## Regenerating assets
 
 ```powershell
-python tools\fetch-fonts.py        # re-download the woff2 subsets + fonts.css
-python tools\optimize-assets.py    # knock out the logo's white bg, rebuild favicons
-python tools\prep-case-images.py   # downscale + webp the case-study screenshots
-python tools\make-og-card.py       # rebuild assets/img/og-card.png
+python tools\fetch-fonts.py          # re-download the woff2 subsets + fonts.css
+python tools\optimize-assets.py      # knock out the logo's white bg, rebuild favicons
+python tools\prep-case-images.py     # downscale + webp the case-study screenshots
+python tools\make-og-card.py         # rebuild assets/img/og-card.png
+python tools\install-gtm.py          # install / re-sync the Tag Manager snippet
+python tools\install-gtm.py --remove # strip Tag Manager back out
+python tools\fold-ascii.py           # force source files back to ASCII escapes
+python tools\check-php.py            # structural sanity check on contact.php
+python tools\verify-gtm.py           # drive a headless browser, assert GTM boots
 ```
+
+Every source file is deliberately **pure ASCII**. HTML uses entities
+(`&mdash;`, `&rsquo;`), and JS/CSS use `\uXXXX` escapes. A literal curly quote
+in source is one cp1252 shell or careless editor away from becoming mojibake,
+and the resulting damage is far harder to spot than the time spent preventing
+it. Run `fold-ascii.py` after any bulk edit to put it back.
+
+`check-php.py` is not a substitute for `php -l`, which needs a PHP install.
+Run that on the server.
 
 `optimize-assets.py` expects the original `logo_clean.png` and
 `logo_nav_icon.png` at the repo root. They are the only binary sources; every
@@ -151,7 +243,7 @@ Guards, all of which matter more than the effect itself:
 - full `dispose()` on `pagehide`
 
 **Deliberately absent.** No scroll hijacking, no custom cursor, no cookie
-banner, no analytics, no framework.
+banner, no framework. Analytics are present and documented — see below.
 
 ### Why three.js comes from a CDN
 

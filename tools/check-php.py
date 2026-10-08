@@ -9,6 +9,9 @@ which is exactly what happened the first time this was written.
 
 Not a substitute for `php -l`. Run that on the server.
 """
+import io
+import os
+import re
 import sys
 
 PATH = "api/contact.php"
@@ -113,13 +116,29 @@ for opener, line in stack:
 for key in ("DB_NAME", "DB_USER", "DB_PASS"):
     i = src.find(f"const {key}")
     if i == -1:
-        problems.append(f"missing const {key}")
+        # define() form, reading from the gitignored local override
+        m = re.search(rf"define\(\s*'{key}'\s*,\s*(.*?)\)\s*;", src, re.S)
+        if not m:
+            problems.append(f"missing {key} definition")
+            continue
+        rhs = m.group(1)
+        if re.search(r"['\"][^'\"]+['\"]\s*\)\s*;", rhs):
+            problems.append(f"{key} falls back to a hardcoded value -- move it to contact.local.php")
         continue
     stmt = src[i:src.find(";", i)]  # stop at the statement end, not end of line
     _, _, rhs = stmt.partition("=")
     value = rhs.strip().strip("'\"").strip()
     if value:
         problems.append(f"const {key} is NOT empty ({value!r}) -- credentials may be committed")
+
+# the local override must be gitignored, or moving them achieves nothing
+ignore = open(".gitignore", encoding="utf-8").read()
+if "api/contact.local.php" not in ignore:
+    problems.append("api/contact.local.php is not in .gitignore")
+
+# the override must actually be loaded, or every submission silently no-ops
+if "contact.local.php" not in src or "require" not in src:
+    problems.append("contact.php never requires contact.local.php -- DB credentials would always be empty")
 
 # no user input interpolated into SQL
 import re

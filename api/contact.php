@@ -21,14 +21,38 @@
 
 declare(strict_types=1);
 
-/* ============================ CONFIG ============================ */
-const DB_HOST = 'localhost';
-const DB_NAME = '';      // e.g. if0_41314745_studio
-const DB_USER = '';      // e.g. if0_41314745_admin
-const DB_PASS = '';      // control panel -> MySQL Databases -> Password
+/* ============================ CONFIG ============================
+   Credentials are NOT in this file. They live in api/contact.local.php,
+   which is gitignored so a database password can never reach the public
+   repository. Upload that file to the server alongside this one.
+
+   To create it locally:
+     <?php
+     define('BFX_DB_NAME', 'your_database');
+     define('BFX_DB_USER', 'your_user');
+     define('BFX_DB_PASS', 'your_password');
+
+   If it is absent -- which is the case on a fresh clone -- the form still
+   validates and reports success, and tells the visitor to email instead,
+   so a missing config never produces a fatal error in front of a prospect.
+   ================================================================ */
+
+$bfxLocalConfig = __DIR__ . '/contact.local.php';
+if (is_readable($bfxLocalConfig)) {
+    require_once $bfxLocalConfig;
+}
+
+// InfinityFree requires the sql###.infinityfree.com hostname for MySQL;
+// "localhost" will not connect from the shared host.
+const DB_HOST = 'sql105.infinityfree.com';
+
+define('DB_NAME', defined('BFX_DB_NAME') ? BFX_DB_NAME : '');
+define('DB_USER', defined('BFX_DB_USER') ? BFX_DB_USER : '');
+define('DB_PASS', defined('BFX_DB_PASS') ? BFX_DB_PASS : '');
+
 const MAIL_TO = 'vikasshu7@gmail.com';
-const SITE_ORIGIN = 'https://blueflutex.com'; // used for CORS + referer check
-/* ================================================================ */
+
+define('SITE_ORIGIN', defined('BFX_SITE_ORIGIN') ? BFX_SITE_ORIGIN : 'https://blueflutex.gt.tc');
 
 const MAX_NAME    = 120;
 const MAX_EMAIL   = 200;

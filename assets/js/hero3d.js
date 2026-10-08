@@ -1,10 +1,10 @@
 /* =========================================================
-   BlueFluteX — hero resonance field
+   BlueFluteX \u2014 hero resonance field
 
    A subdivided plane displaced by the shader in shaders.js, viewed
    in perspective so it reads as a surface rather than a texture.
 
-   Three.js comes from a CDN via the import map in index.html — see
+   Three.js comes from a CDN via the import map in index.html \u2014 see
    the note there for why it is not bundled.
 
    Failure is a supported path, not an exception: no WebGL, no CDN,
@@ -101,7 +101,7 @@ function boot() {
 
   /* ---------- layout ----------
      Size the plane from the camera frustum so it always overfills the
-     viewport — no letterboxing when the window is resized or rotated. */
+     viewport \u2014 no letterboxing when the window is resized or rotated. */
   const Z = 4.2;
   camera.position.set(0, 0, Z);
   camera.lookAt(0, -0.12, 0);
@@ -177,7 +177,7 @@ function boot() {
   function frame(now) {
     raf = requestAnimationFrame(frame);
 
-    // delta-time, never frame counts — the same motion at 60Hz and 120Hz
+    // delta-time, never frame counts \u2014 the same motion at 60Hz and 120Hz
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
     elapsed += dt;

@@ -1,5 +1,5 @@
 /* =========================================================
-   BlueFluteX — interaction layer
+   BlueFluteX \u2014 interaction layer
    Vanilla, no dependencies. Every effect is an enhancement:
    with JS off (or WebGL down) the page is still complete.
    ========================================================= */
@@ -145,6 +145,53 @@
     el.textContent = String(new Date().getFullYear());
   });
 
+  /* ---------- analytics events ----------
+     Pushes to window.dataLayer for Google Tag Manager. GTM decides what to do
+     with them; nothing here talks to Google directly, and the container ID
+     lives only in the four HTML files.
+
+     dataLayer is a plain array created by the GTM snippet, so these pushes are
+     harmless under an ad blocker, with JS off, or if GTM never loads at all.
+
+     `generate_lead` is a GA4 recommended event name, which means it can be
+     marked as a key event without any extra GTM configuration. The other two
+     are custom and need an Event tag in the container. See README.md. */
+  const track = (event, params = {}) => {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event,
+      link_url: location.href,
+      link_domain: location.hostname,
+      page_location: location.pathname,
+      ...params,
+    });
+  };
+
+  // 1. contact form accepted by the server -- the primary conversion
+  // 2. a mailto: click, which bypasses the form entirely
+  // 3. any off-site link, so you can see which visits become repo visits
+  document.addEventListener(
+    "click",
+    (e) => {
+      const link = e.target.closest?.("a[href]");
+      if (!link) return;
+
+      const href = link.getAttribute("href") || "";
+
+      if (href.startsWith("mailto:")) {
+        track("email_click", { link_text: link.textContent.trim() });
+        return;
+      }
+
+      // data-todo-link marks the unreplaced placeholder profiles
+      if (href.startsWith("http") && !href.includes(location.hostname)) {
+        track("outbound_click", { link_text: link.textContent.trim(), link_url: href });
+      }
+    },
+    // passive: this listener only reads, never prevents default
+    { passive: true }
+  );
+
   /* ---------- contact form ----------
      Progressive enhancement: without JS this is a normal POST that lands on
      contact.php, which renders its own result. With JS we POST JSON and swap
@@ -173,7 +220,7 @@
     const rules = {
       "f-name": (v) => (v.trim().length >= 2 ? "" : "Please tell us your name."),
       "f-email": (v) =>
-        /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "That email address doesn’t look right.",
+        /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "That email address doesn\u2019t look right.",
       "f-msg": (v) =>
         v.trim().length >= 20 ? "" : "A sentence or two about the project, please.",
     };
@@ -218,7 +265,7 @@
       }
 
       submit.disabled = true;
-      if (label) label.textContent = "Sending…";
+      if (label) label.textContent = "Sending\u2026";
       say("", null);
 
       const payload = Object.fromEntries(new FormData(form).entries());
@@ -234,7 +281,18 @@
         if (!res.ok || !data.ok) throw new Error(data.error || "The message could not be sent.");
 
         form.reset();
-        say(data.message || "Thanks — we’ll reply within two working days.", "ok");
+        say(data.message || "Thanks \u2014 we\u2019ll reply within two working days.", "ok");
+
+        // Only on confirmed delivery, so a failed submit never counts as a
+        // lead. Note this is a client-side signal: the honeypot is evaluated
+        // server-side and still answers ok, so bot submissions can inflate
+        // this event. Cross-check against the contact_messages table before
+        // treating the numbers as exact.
+        track("generate_lead", {
+          form_id: "contact",
+          lead_type: "contact_form",
+          budget: payload.budget || "unstated",
+        });
       } catch (err) {
         say(
           err.message + " You can also email us directly at vikasshu7@gmail.com.",
