@@ -108,15 +108,35 @@ then want to trim the Analytics section from `privacy-policy.html` too.
 
 Push to `main`. `.github/workflows/deploy.yml` pushes to InfinityFree over FTP.
 
-Set one repository secret:
+Repository secrets:
 
-| Secret | Value |
-| --- | --- |
-| `FTP_PASSWORD` | password for the InfinityFree account |
+| Secret | Required | Purpose |
+| --- | --- | --- |
+| `FTP_PASSWORD` | **yes** | InfinityFree account password |
+| `DB_NAME` / `DB_USER` / `DB_PASS` | no | database credentials; enables the contact form |
+| `FTP_SERVER` | no | defaults to `ftp.infinityfree.com` |
+| `FTP_USERNAME` | no | defaults to the account handle |
 
-Username is the account handle (`if0_41314745`) and the server is
-`ftp.infinityfree.com`. Both are defaulted in the workflow, so
-`FTP_SERVER` / `FTP_USERNAME` only need setting if that ever changes.
+The workflow copies `api/` wholesale, so the gitignored
+`api/contact.local.php` is uploaded to the server along with the code — that is
+how the credentials reach it without ever entering git. In CI that file is
+rebuilt from the `DB_*` secrets first. If the secrets are unset the run logs a
+`::notice::` and the form falls back to directing visitors to email.
+
+Set them with:
+
+```powershell
+gh secret set DB_NAME
+gh secret set DB_USER
+gh secret set DB_PASS
+```
+
+`dangerous-clean-slate: true` is enabled so files removed from the repo are
+also removed from `htdocs`. That is what deleted the previous generation —
+including `admin.html`, whose plaintext `localStorage` login was publicly
+reachable and survived an earlier deploy because `sync-all` is not a valid
+input for this action. **It deletes anything in `htdocs` that this workflow
+does not ship**, so avoid putting files there by hand.
 
 InfinityFree deletes anything uploaded outside `htdocs`, so the workflow stages
 an explicit file list rather than uploading the repository root. It also fails
@@ -181,8 +201,8 @@ the tracked file, if the local override stops being gitignored, or if
 - [x] Domain — `https://blueflutex.gt.tc` is set as canonical, `og:url` and
       `SITE_ORIGIN`
 - [ ] Create the two tables in phpMyAdmin
-- [ ] Push from a checkout that has `api/contact.local.php`, so the DB
-      credentials reach the server (see above)
+- [ ] Add the `DB_NAME` / `DB_USER` / `DB_PASS` secrets, then push — the
+      workflow rebuilds `api/contact.local.php` from them and uploads it
 - [ ] Add 2–3 real case studies — the `#work` section ships with one on purpose
       rather than filling the page with invented metrics
 - [ ] Replace the placeholder social links in the contact section (they carry
