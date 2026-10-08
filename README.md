@@ -129,10 +129,15 @@ would exceed 10 kB, because the host deletes those silently.
 `api/contact.local.php`, which is gitignored — the tracked
 `api/contact.php` contains no secrets.
 
-`api/contact.php` requires that file if it exists. **On the server you must
-upload `contact.local.php` as well**, or the form will fall back to telling
-visitors to email instead of storing anything. It will not be deployed by the
-GitHub workflow, by design.
+`api/contact.php` requires that file if it exists. On a fresh clone it does
+not, so the form falls back to telling visitors to email instead of storing
+anything.
+
+To make the form work on the server, run the deploy from a checkout where
+`api/contact.local.php` exists — the workflow copies `api/` wholesale and
+uploads it, and logs a `::warning::` when it does. That is how the password
+reaches the server without ever entering git. On a clean CI clone the file
+is absent and you will see a `::notice::` saying so.
 
 What it still needs:
 
@@ -175,8 +180,9 @@ the tracked file, if the local override stops being gitignored, or if
 
 - [x] Domain — `https://blueflutex.gt.tc` is set as canonical, `og:url` and
       `SITE_ORIGIN`
-- [ ] Upload `api/contact.local.php` to the server (FTP)
 - [ ] Create the two tables in phpMyAdmin
+- [ ] Push from a checkout that has `api/contact.local.php`, so the DB
+      credentials reach the server (see above)
 - [ ] Add 2–3 real case studies — the `#work` section ships with one on purpose
       rather than filling the page with invented metrics
 - [ ] Replace the placeholder social links in the contact section (they carry

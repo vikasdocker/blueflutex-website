@@ -42,6 +42,17 @@ jobs:
           # .htaccess must survive the copy as a dotfile
           ls -la _deploy/.htaccess
 
+          # api/contact.local.php holds the database password and is gitignored,
+          # so it is absent from a fresh clone but present in a maintainer's
+          # checkout. The server needs it for the contact form to store
+          # anything, so deploy it when it exists -- and say so loudly rather
+          # than letting it ride along unannounced.
+          if [ -f _deploy/api/contact.local.php ]; then
+            echo "::warning::deploying api/contact.local.php (contains DB credentials) to the server"
+          else
+            echo "::notice::api/contact.local.php not present - the contact form will fall back to directing visitors to email"
+          fi
+
           echo "--- staged ---"
           find _deploy -type f | sort
           echo "--- size ---"
