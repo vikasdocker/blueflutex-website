@@ -1,281 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BlueFluteX — Code with Harmony</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>BlueFluteX &mdash; Software Studio, Pune</title>
+<meta name="description" content="BlueFluteX is a software studio in Pune, India. We design and engineer mobile, desktop and AI systems that are architected to be extended, not rewritten." />
+<meta name="theme-color" content="#faf8f4" />
+<meta name="color-scheme" content="light" />
+<link rel="canonical" href="https://blueflutex.com/" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="BlueFluteX &mdash; Software Studio, Pune" />
+<meta property="og:description" content="Code with harmony. Mobile, desktop and AI systems architected to be extended, not rewritten." />
+<meta property="og:image" content="assets/img/og-card.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+<link rel="manifest" href="site.webmanifest" />
+
+<script>
+  /* Set before first paint. The reveal animation starts from opacity:0, so
+     without this gate a visitor with JS disabled would get a blank page
+     rather than a unanimated one. */
+  document.documentElement.classList.add("js");
+</script>
+
+<!-- webp sources; the raster twins are kept in the repo for older browsers -->
+<link rel="preload" as="image" href="assets/img/mark-sm.webp" type="image/webp" />
+<link rel="preload" href="assets/fonts/Inter-normal-100-900-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="assets/fonts/InstrumentSerif-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="assets/css/fonts.css" />
+<link rel="stylesheet" href="assets/css/site.css" />
+
+<!--
+  Three.js is resolved from a CDN via import map rather than bundled.
+  Two reasons: InfinityFree deletes any JS file over 1 MB, and the
+  documented no-bundler install path for three is an import map.
+  Version and CDN must stay in lockstep -- mixing sources can pull in two
+  copies of the library. The hero degrades to a CSS gradient if this never
+  loads; see README.md for how to self-host it instead.
+-->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"
+  }
+}
+</script>
 </head>
+
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
-<canvas id="stars"></canvas>
+<div class="progress" aria-hidden="true"><span data-progress></span></div>
 
-<!-- ══════════ NAVBAR ══════════ -->
-<nav id="nav">
-  <div class="nav-wrap">
-    <a href="#home" class="nav-logo">
-      <img src="logo_nav_icon.png" alt="BlueFluteX icon" class="nav-icon"/>
-      <span class="nav-name">BlueFluteX</span>
+<!-- ============================ NAV ============================ -->
+<header class="nav" data-nav>
+  <div class="wrap nav__in">
+    <a class="brand" href="#top" aria-label="BlueFluteX, home">
+      <picture>
+        <source srcset="assets/img/mark-sm.webp" type="image/webp" />
+        <img class="brand__mark" src="assets/img/mark-sm.png" alt="" width="44" height="20" />
+      </picture>
+      <span class="brand__word">BlueFlute<em>X</em></span>
     </a>
-    <ul class="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="#technology">Technology</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <a href="#contact" class="nav-btn">Get in Touch</a>
-    <button class="burger" id="burger">
-      <span></span><span></span><span></span>
+
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#services">Services</a>
+      <a href="#work">Work</a>
+      <a href="#process">Process</a>
+      <a href="#studio">Studio</a>
+    </nav>
+
+    <a class="btn btn--ink nav__cta" href="#contact">Start a project</a>
+
+    <button class="burger" data-burger aria-label="Menu" aria-expanded="false" aria-controls="nav-drawer">
+      <i></i><i></i>
     </button>
   </div>
-  <div class="nav-mob" id="nav-mob">
-    <a href="#home">Home</a>
+
+  <div class="drawer" id="nav-drawer" data-drawer hidden>
     <a href="#services">Services</a>
-    <a href="#technology">Technology</a>
+    <a href="#work">Work</a>
+    <a href="#process">Process</a>
+    <a href="#studio">Studio</a>
     <a href="#contact">Contact</a>
-    <a href="#contact" class="mob-btn">Get in Touch</a>
+    <a class="btn btn--ink" href="#contact">Start a project</a>
   </div>
-</nav>
+</header>
 
-<!-- ══════════ HERO ══════════ -->
-<section id="home" class="hero">
-  <div class="hero-left">
-    <div class="pill reveal">✦ Next-gen Software Studio · Pune, India</div>
-    <h1 class="hero-h1 reveal">
-      <span>Code with</span>
-      <span class="glow-text">Harmony</span>
-    </h1>
-    <p class="hero-p reveal">
-      We craft precision software that resonates — from AI-powered systems to beautiful mobile apps. BlueFluteX turns your boldest ideas into technology that endures.
+<main id="main">
+<span id="top"></span>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <!-- decorative; the copy is the content, not the canvas -->
+  <canvas id="resonance" class="hero__canvas" aria-hidden="true"></canvas>
+  <div class="hero__fallback" aria-hidden="true"></div>
+
+  <div class="wrap hero__in">
+    <p class="tag reveal" data-d="0">
+      <span class="dot" aria-hidden="true"></span>
+      Software studio &middot; Pune, India
     </p>
-    <div class="hero-btns reveal">
-      <a href="#services" class="btn-primary">Explore Services →</a>
-      <a href="#contact" class="btn-outline">Contact Us</a>
+
+    <h1 class="hero__h1" data-split>Code with <em>harmony</em>.</h1>
+
+    <p class="hero__lede reveal" data-d="2">
+      BlueFluteX designs and engineers software for teams who care how it feels
+      &mdash; and how it still holds up two years later. Mobile, desktop, and the
+      systems underneath them.
+    </p>
+
+    <div class="hero__cta reveal" data-d="3">
+      <a class="btn btn--ink btn--lg" href="#contact">Start a project</a>
+      <a class="btn btn--line btn--lg" href="#work">See our work</a>
     </div>
-    <div class="hero-stats reveal">
-      <div class="stat"><b>50+</b><span>Projects</span></div>
-      <div class="sdiv"></div>
-      <div class="stat"><b>12+</b><span>Countries</span></div>
-      <div class="sdiv"></div>
-      <div class="stat"><b>99%</b><span>Satisfaction</span></div>
-    </div>
+
+    <dl class="hero__facts reveal" data-d="4">
+      <div><dt>Focus</dt><dd>Mobile &middot; Desktop &middot; AI</dd></div>
+      <div><dt>Engagement</dt><dd>Project &amp; retainer</dd></div>
+      <div><dt>Based</dt><dd>Pune, India</dd></div>
+    </dl>
   </div>
-  <div class="hero-right reveal-r">
-    <div class="hero-glow-ring ring-a"></div>
-    <div class="hero-glow-ring ring-b"></div>
-    <div class="hero-glow-ring ring-c"></div>
-    <video class="hero-video" autoplay loop muted playsinline>
-      <source src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/cloudinarry%20to%20cloudflare/202606021731-e_hqa6sn.mp4" type="video/mp4"/>
-    </video>
-    <img src="logo_clean.png" alt="BlueFluteX" class="hero-logo"/>
-    <div class="chip chip-1 float-a"><span>⚡</span> High Performance</div>
-    <div class="chip chip-2 float-b"><span>🛡</span> Secure by Design</div>
-    <div class="chip chip-3 float-c"><span>🎯</span> Pixel Perfect</div>
-  </div>
+
+  <p class="hero__scroll" aria-hidden="true"><span>Scroll</span></p>
 </section>
 
-<!-- ══════════ SERVICES ══════════ -->
-<section id="services" class="section services">
-  <div class="sec-tag reveal">What We Build</div>
-  <h2 class="sec-h reveal">Services for <span class="g">modern ambitions</span></h2>
-  <p class="sec-p reveal">End-to-end software delivery — every layer, every detail, every interaction.</p>
-  <div class="cards-grid">
-
-    <div class="card reveal-c">
-      <div class="card-ico">
-        <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="5" y="2" width="18" height="24" rx="3" stroke="#00D4FF" stroke-width="1.5"/><circle cx="14" cy="22" r="1.5" fill="#00D4FF"/><rect x="10" y="6" width="8" height="1.5" rx=".75" fill="#00D4FF" opacity=".4"/></svg>
-      </div>
-      <h3>Android Development</h3>
-      <p>Native & cross-platform Android apps engineered for performance and scale.</p>
-      <div class="tag">Kotlin · Jetpack · Flutter</div>
-    </div>
-
-    <div class="card reveal-c">
-      <div class="card-ico">
-        <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="8" y="2" width="12" height="20" rx="3" stroke="#00D4FF" stroke-width="1.5"/><circle cx="14" cy="19" r="1.5" fill="#00D4FF"/><path d="M11 5h6" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>
-      </div>
-      <h3>iOS Development</h3>
-      <p>Refined iOS apps that feel right at home on Apple — silky, precise, composed.</p>
-      <div class="tag">Swift · SwiftUI · Xcode</div>
-    </div>
-
-    <div class="card reveal-c">
-      <div class="card-ico">
-        <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><rect x="3" y="6" width="22" height="14" rx="2" stroke="#00D4FF" stroke-width="1.5"/><path d="M10 23h8M14 20v3" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </div>
-      <h3>Desktop Software</h3>
-      <p>Powerful cross-platform desktop apps trusted by professionals daily.</p>
-      <div class="tag">Electron · Tauri · .NET</div>
-    </div>
-
-    <div class="card reveal-c">
-      <div class="card-ico">
-        <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><path d="M7 22L14 7l7 15" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 18h10" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/><circle cx="20" cy="9" r="3" stroke="#00D4FF" stroke-width="1.5"/></svg>
-      </div>
-      <h3>Game Development</h3>
-      <p>Immersive game experiences across mobile, PC & console platforms.</p>
-      <div class="tag">Unity · Unreal · Godot</div>
-    </div>
-
-    <div class="card reveal-c">
-      <div class="card-ico">
-        <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#00D4FF" stroke-width="1.5"/><path d="M9 14l4 4 6-6" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <h3>IT Consulting</h3>
-      <p>Strategic tech guidance aligning your digital roadmap with business goals.</p>
-      <div class="tag">Architecture · Audit · Strategy</div>
-    </div>
-
-    <div class="card reveal-c">
-      <div class="card-ico">
-        <svg width="28" height="28" fill="none" viewBox="0 0 28 28"><path d="M5 9l9-5 9 5v10l-9 5-9-5V9z" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 4v20M5 9l9 5 9-5" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>
-      </div>
-      <h3>Custom Software</h3>
-      <p>Bespoke solutions built precisely to your domain — no off-the-shelf compromises.</p>
-      <div class="tag">Full-stack · SaaS · AI</div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ══════════ TECHNOLOGY ══════════ -->
-<section id="technology" class="section tech-sec">
-  <div class="sec-tag reveal">Our Stack</div>
-  <h2 class="sec-h reveal">Technology that <span class="g">powers everything</span></h2>
-  <p class="sec-p reveal">Battle-tested tools wielded by experts who never stop learning.</p>
-  <div class="tech-grid">
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#3DDC84"></span>Android</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#aaa"></span>iOS / Swift</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#3776AB"></span>Python</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#F7DF1E"></span>JavaScript</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#61DAFB"></span>React</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#00D4FF"></span>AI / ML</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#FF9900"></span>AWS Cloud</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#54B435"></span>Node.js</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#02569B"></span>Flutter</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#4479A1"></span>MySQL</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#764ABC"></span>Unity</div>
-    <div class="tech-pill reveal-c"><span class="tp-dot" style="background:#2563EB"></span>REST / GraphQL</div>
-  </div>
-</section>
-
-<!-- ══════════ WHY US ══════════ -->
-<section id="why" class="section why-sec">
-  <div class="why-inner">
-    <div class="why-left">
-      <div class="sec-tag reveal">Why BlueFluteX</div>
-      <h2 class="sec-h reveal">Built different.<br/><span class="g">Built to last.</span></h2>
-      <p class="sec-p reveal">We don't ship mediocre software. Every project is a statement of craft — deliberate, precise, and made to endure.</p>
-      <a href="#contact" class="btn-primary reveal" style="margin-top:1.5rem;display:inline-flex">Start a Project →</a>
-    </div>
-    <div class="why-right">
-      <div class="feat reveal-c"><div class="fn">01</div><div><h4>Scalable Architecture</h4><p>From 10 users to 10 million — without a rewrite.</p></div></div>
-      <div class="feat reveal-c"><div class="fn">02</div><div><h4>Clean & Secure Code</h4><p>Security-first with rigorous reviews and zero shortcuts.</p></div></div>
-      <div class="feat reveal-c"><div class="fn">03</div><div><h4>Modern UI/UX Design</h4><p>Interfaces that feel inevitable — accessible at every pixel.</p></div></div>
-      <div class="feat reveal-c"><div class="fn">04</div><div><h4>High Performance</h4><p>Sub-second loads, efficient queries, lean optimized builds.</p></div></div>
-      <div class="feat reveal-c"><div class="fn">05</div><div><h4>Professional Support</h4><p>Dedicated post-launch support with proactive monitoring.</p></div></div>
+<!-- ============================ TICKER ============================ -->
+<section class="ticker" aria-label="Technologies we work with">
+  <div class="ticker__row" data-marquee>
+    <div class="ticker__set">
+      <span>Kotlin</span><i>&middot;</i><span>Swift</span><i>&middot;</i><span>TypeScript</span><i>&middot;</i>
+      <span>Flutter</span><i>&middot;</i><span>.NET</span><i>&middot;</i><span>React</span><i>&middot;</i>
+      <span>Node</span><i>&middot;</i><span>Python</span><i>&middot;</i><span>Unity</span><i>&middot;</i>
+      <span>Three.js</span><i>&middot;</i><span>PostgreSQL</span><i>&middot;</i><span>AWS</span><i>&middot;</i>
     </div>
   </div>
 </section>
 
-<!-- ══════════ ABOUT ══════════ -->
-<section id="about" class="section about-sec">
-  <div class="sec-tag reveal" style="text-align:center">Our Story</div>
-  <h2 class="sec-h reveal" style="text-align:center">Software as an <span class="g">art form</span></h2>
-  <p class="sec-p reveal" style="text-align:center;max-width:620px;margin:0 auto 3rem">Founded in Pune, India — BlueFluteX was born from a simple belief: great technology should feel like music. Every component perfectly tuned, every interaction in harmony.</p>
-  <div class="about-trio">
-    <div class="acard reveal-c"><div class="aico">🎯</div><h4>Our Mission</h4><p>Making enterprise-grade quality accessible to teams of every scale.</p></div>
-    <div class="acard reveal-c"><div class="aico">🌍</div><h4>Global Reach</h4><p>Based in Pune — serving clients in 12+ countries worldwide.</p></div>
-    <div class="acard reveal-c"><div class="aico">🔬</div><h4>Our Approach</h4><p>Research-led, detail-obsessed, collaboration-first on every project.</p></div>
+<!-- ============================ MANIFESTO ============================ -->
+<section class="section manifesto">
+  <div class="wrap">
+    <p class="tag reveal">What we believe</p>
+    <blockquote class="pull reveal" data-d="1">
+      We don&rsquo;t ship templates. We ship <em>systems</em> &mdash; architected
+      to be read by the next person, extended by the next team, and still
+      standing years later.
+    </blockquote>
+
+    <ul class="creed">
+      <li class="reveal" data-d="2">
+        <h3>Legible over clever</h3>
+        <p>Code should explain itself to a stranger. If it needs a comment to be understood, it needs a rewrite.</p>
+      </li>
+      <li class="reveal" data-d="3">
+        <h3>Constraints are the work</h3>
+        <p>Budget, deadline and legacy shape the answer. We design inside them rather than around them.</p>
+      </li>
+      <li class="reveal" data-d="4">
+        <h3>Handover is part of the build</h3>
+        <p>Documentation, tests and a deploy pipeline are deliverables &mdash; not a favour we add if asked.</p>
+      </li>
+    </ul>
   </div>
 </section>
 
-<!-- ══════════ CONTACT ══════════ -->
-<section id="contact" class="section contact-sec">
-  <div class="contact-wrap">
-    <div class="contact-left">
-      <div class="sec-tag reveal">Get in Touch</div>
-      <h2 class="sec-h reveal">Let's build<br/><span class="g">something great</span></h2>
-      <p class="sec-p reveal">Tell us about your vision. We respond within 24 hours.</p>
-      <div class="cinfo">
-        <div class="ci reveal">
-          <div class="ci-ico">📍</div>
-          <div><small>Location</small><strong>Pune, India</strong></div>
+<!-- ============================ SERVICES ============================ -->
+<section class="section section--rule" id="services">
+  <div class="wrap">
+    <header class="head">
+      <p class="tag reveal">What we build</p>
+      <h2 class="h2 reveal" data-d="1">Six disciplines, one standard.</h2>
+    </header>
+
+    <div class="svc">
+      <!-- data-tilt enables the pointer-following response on card hover -->
+      <article class="card reveal" data-d="1" data-tilt>
+        <span class="card__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2.5" /><path d="M10 18.5h4" />
+          </svg>
+        </span>
+        <h3>Android</h3>
+        <p>Native Kotlin and cross-platform apps built for real device matrices, not emulators.</p>
+        <p class="chips"><span>Kotlin</span><span>Jetpack</span><span>Flutter</span></p>
+      </article>
+
+      <article class="card reveal" data-d="2" data-tilt>
+        <span class="card__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="7" y="2" width="10" height="20" rx="2.5" /><path d="M11 18.5h2" />
+          </svg>
+        </span>
+        <h3>iOS</h3>
+        <p>Swift and SwiftUI apps that respect platform conventions instead of fighting them.</p>
+        <p class="chips"><span>Swift</span><span>SwiftUI</span><span>Xcode</span></p>
+      </article>
+
+      <article class="card reveal" data-d="3" data-tilt>
+        <span class="card__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" />
+          </svg>
+        </span>
+        <h3>Desktop</h3>
+        <p>Cross-platform desktop software that starts fast and stays responsive under load.</p>
+        <p class="chips"><span>Tauri</span><span>.NET</span><span>Electron</span></p>
+      </article>
+
+      <article class="card reveal" data-d="4" data-tilt>
+        <span class="card__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 11h4l3 8 4-16 3 8h-2" />
+          </svg>
+        </span>
+        <h3>Game development</h3>
+        <p>Playable work across mobile, PC and console &mdash; scoped so the fun arrives before the budget runs out.</p>
+        <p class="chips"><span>Unity</span><span>Unreal</span><span>Godot</span></p>
+      </article>
+
+      <article class="card reveal" data-d="5" data-tilt>
+        <span class="card__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" />
+          </svg>
+        </span>
+        <h3>AI &amp; data systems</h3>
+        <p>Retrieval, inference and analytics wired into products &mdash; with the evaluation harness that keeps it honest.</p>
+        <p class="chips"><span>LLM apps</span><span>RAG</span><span>Python</span></p>
+      </article>
+
+      <article class="card reveal" data-d="6" data-tilt>
+        <span class="card__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7l9-4 9 4v10l-9 4-9-4V7Z" /><path d="M12 3v18M3 7l9 4 9-4" />
+          </svg>
+        </span>
+        <h3>Architecture &amp; audit</h3>
+        <p>Second opinions on the systems you already own &mdash; code review, risk assessment, migration plans.</p>
+        <p class="chips"><span>Review</span><span>Migration</span><span>Strategy</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WORK ============================ -->
+<section class="section section--rule" id="work">
+  <div class="wrap">
+    <header class="head">
+      <p class="tag reveal">Selected work</p>
+      <h2 class="h2 reveal" data-d="1">One we can show you properly.</h2>
+      <p class="head__lede reveal" data-d="2">
+        We&rsquo;d rather show one finished thing than five mockups. This one is
+        public, open source, and still in active use.
+      </p>
+    </header>
+
+    <!--
+      TODO(owner): add 2-3 more case studies, with real screenshots and real
+      outcomes. One honest entry beats a page of invented metrics -- a
+      fabricated number on a company site is a liability, not a feature.
+    -->
+    <article class="case reveal" data-d="3">
+      <div class="case__body">
+        <p class="case__meta">
+          <span>Windows desktop</span><i>&middot;</i><span>2026</span><i>&middot;</i><span>Open source, MIT</span>
+        </p>
+        <h3 class="case__title">CleanBoost</h3>
+        <p class="case__lede">
+          A one-click Windows cleaner where the hard part wasn&rsquo;t the cleaning
+          &mdash; it was making every deletion <em>reversible and visible</em>. Every
+          removal routes through the Recycle Bin, and the interface reports the
+          outcome of each individual file while the run is in progress.
+        </p>
+        <p class="case__note">
+          Built around a single deletion funnel, so the path guard, symlink refusal
+          and audit logging cannot be bypassed by accident.
+        </p>
+
+        <dl class="case__stats">
+          <div><dt>Cleanup categories</dt><dd>22 curated</dd></div>
+          <div><dt>Community rules</dt><dd>4,000+</dd></div>
+          <div><dt>Automated tests</dt><dd>46</dd></div>
+        </dl>
+
+        <a class="btn btn--line" href="https://github.com/vikasdocker/CleanBoost" target="_blank" rel="noopener noreferrer">
+          View on GitHub
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        </a>
+      </div>
+
+      <figure class="case__shot">
+        <img src="assets/img/work-cleaner-scan.webp" alt="The CleanBoost cleaner screen listing cleanup categories with a file count against each." width="1200" height="754" loading="lazy" decoding="async" />
+      </figure>
+    </article>
+  </div>
+</section>
+
+<!-- ============================ PROCESS ============================ -->
+<section class="section section--rule" id="process">
+  <div class="wrap">
+    <header class="head">
+      <p class="tag reveal">How we work</p>
+      <h2 class="h2 reveal" data-d="1">Four steps, in this order.</h2>
+    </header>
+
+    <ol class="steps">
+      <li class="reveal" data-d="1">
+        <span class="steps__n">01</span>
+        <h3>Listen</h3>
+        <p>We start from the problem and the constraints, not the feature list you were handed.</p>
+      </li>
+      <li class="reveal" data-d="2">
+        <span class="steps__n">02</span>
+        <h3>Architect</h3>
+        <p>Data model, module boundaries and failure modes settled before anyone opens a design file.</p>
+      </li>
+      <li class="reveal" data-d="3">
+        <span class="steps__n">03</span>
+        <h3>Build in the open</h3>
+        <p>Weekly builds you can click on, with the trade-offs written down rather than presented.</p>
+      </li>
+      <li class="reveal" data-d="4">
+        <span class="steps__n">04</span>
+        <h3>Hand over properly</h3>
+        <p>Tests, docs and a deploy pipeline, so your team owns the system and we are not a dependency.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================ STUDIO ============================ -->
+<section class="section section--rule" id="studio">
+  <div class="wrap studio">
+    <div class="studio__copy">
+      <p class="tag reveal">The studio</p>
+      <h2 class="h2 reveal" data-d="1">Why a flute?</h2>
+      <p class="studio__p reveal" data-d="2">
+        A flute makes sound from tuned air. Software makes results from tuned
+        systems &mdash; and it is just as easy to play out of tune. The name is a
+        reminder that precision and restraint are what make the result sing.
+      </p>
+      <p class="studio__p reveal" data-d="3">
+        We are a small team in Pune, India. We take a deliberately small number of
+        engagements so the people you meet are the people who build it.
+      </p>
+
+      <ul class="proof">
+        <li class="reveal" data-d="4">Scalable architecture &mdash; from ten users to ten million, without a rewrite.</li>
+        <li class="reveal" data-d="5">Security-first reviews; no shortcut survives to production.</li>
+        <li class="reveal" data-d="6">Accessible interfaces, verified rather than assumed.</li>
+        <li class="reveal" data-d="7">Lean builds and fast queries as a default, not an optimisation phase.</li>
+      </ul>
+    </div>
+
+    <figure class="studio__art reveal" data-d="2">
+      <picture>
+        <source srcset="assets/img/lockup.webp" type="image/webp" />
+        <img src="assets/img/lockup.png" alt="The BlueFluteX mark: a flute whose body resolves into a feathered circuit motif, above the words BlueFluteX and Code with Harmony." width="760" height="549" loading="lazy" decoding="async" />
+      </picture>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================ CONTACT ============================ -->
+<section class="section section--rule" id="contact">
+  <div class="wrap contact">
+    <div class="contact__intro">
+      <p class="tag reveal">Get in touch</p>
+      <h2 class="h2 reveal" data-d="1">Tell us what you&rsquo;re building.</h2>
+      <p class="contact__p reveal" data-d="2">
+        A paragraph is plenty. What it does, who it&rsquo;s for, and when it needs to
+        exist. We reply within two working days.
+      </p>
+
+      <dl class="contact__info reveal" data-d="3">
+        <div>
+          <dt>Email</dt>
+          <dd><a href="mailto:vikasshu7@gmail.com">vikasshu7@gmail.com</a></dd>
         </div>
-        <div class="ci reveal">
-          <div class="ci-ico">✉️</div>
-          <div><small>Email</small><strong>vikasshu7@gmail.com</strong></div>
+        <div>
+          <dt>Studio</dt>
+          <dd>Pune, Maharashtra, India</dd>
         </div>
-      </div>
+        <!--
+          TODO(owner): replace with real profile URLs before launch. The
+          previous site shipped href="#" placeholders, which read as broken
+          to screen readers and to anyone clicking them.
+        -->
+        <div>
+          <dt>Elsewhere</dt>
+          <dd class="contact__social">
+            <a href="#" data-todo-link aria-disabled="true">GitHub</a>
+            <a href="#" data-todo-link aria-disabled="true">LinkedIn</a>
+          </dd>
+        </div>
+      </dl>
     </div>
-    <div class="contact-right reveal-c">
-      <form id="cf">
-        <div class="fg"><label>Your Name</label><input type="text" placeholder="Alex Johnson" required/></div>
-        <div class="fg"><label>Email Address</label><input type="email" placeholder="alex@company.com" required/></div>
-        <div class="fg"><label>Message</label><textarea rows="5" placeholder="Tell us about your project..." required></textarea></div>
-        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;font-size:1rem">Send Message ✦</button>
+
+    <div class="contact__form-wrap reveal" data-d="2">
+      <!-- novalidate: we validate in JS and server-side, and want our own
+           messages rather than the browser's inconsistent ones -->
+      <form class="form" id="contact" method="post" action="api/contact.php" novalidate>
+        <div class="field">
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" required autocomplete="name" maxlength="120" placeholder="Your name" aria-describedby="f-name-err" />
+          <p class="field__err" id="f-name-err" data-err-for="f-name" role="alert" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" required autocomplete="email" maxlength="200" placeholder="you@company.com" aria-describedby="f-email-err" />
+          <p class="field__err" id="f-email-err" data-err-for="f-email" role="alert" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="f-budget">Budget <span class="opt">optional</span></label>
+          <select id="f-budget" name="budget">
+            <option value="">Not sure yet</option>
+            <option>Under &#8377;2L</option>
+            <option>&#8377;2L &#8211; &#8377;8L</option>
+            <option>&#8377;8L &#8211; &#8377;20L</option>
+            <option>&#8377;20L+</option>
+            <option>Retainer</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-msg">Project</label>
+          <textarea id="f-msg" name="message" rows="5" required maxlength="4000" placeholder="What are you building, and by when?" aria-describedby="f-msg-err"></textarea>
+          <p class="field__err" id="f-msg-err" data-err-for="f-msg" role="alert" hidden></p>
+        </div>
+
+        <!-- honeypot: bots fill every input they find, humans never see this -->
+        <div class="hp" aria-hidden="true">
+          <label for="f-website">Leave this empty</label>
+          <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button class="btn btn--ink btn--lg btn--block" type="submit" data-submit>
+          <span data-submit-label>Send message</span>
+        </button>
+
+        <p class="form__status" data-status role="status" aria-live="polite"></p>
       </form>
-      <div class="success" id="success">
-        <div class="s-ico">✓</div>
-        <h4>Message sent!</h4>
-        <p>We'll be in touch within 24 hours.</p>
-      </div>
     </div>
   </div>
 </section>
+</main>
 
-<!-- ══════════ FOOTER ══════════ -->
-<footer id="footer">
-  <div class="foot-top">
-    <div class="foot-brand">
-      <img src="logo_clean.png" alt="BlueFluteX" class="foot-logo"/>
-      <p>Building software that resonates — one line at a time.</p>
-      <div class="socials">
-        <a href="#" aria-label="Twitter">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+<!-- ============================ FOOTER ============================ -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top">
+      <div class="foot__brand">
+        <a class="brand" href="#top" aria-label="BlueFluteX, back to top">
+          <picture>
+            <source srcset="assets/img/mark-sm.webp" type="image/webp" />
+            <img class="brand__mark" src="assets/img/mark-sm.png" alt="" width="44" height="20" />
+          </picture>
+          <span class="brand__word">BlueFlute<em>X</em></span>
         </a>
-        <a href="#" aria-label="LinkedIn">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
-        </a>
-        <a href="#" aria-label="GitHub">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </a>
-        <a href="#" aria-label="Instagram">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-        </a>
+        <p>A software studio in Pune. We build systems that stay legible after we leave.</p>
       </div>
+
+      <nav class="foot__cols" aria-label="Footer">
+        <div>
+          <h2>Studio</h2>
+          <a href="#services">Services</a>
+          <a href="#work">Work</a>
+          <a href="#process">Process</a>
+          <a href="#studio">About</a>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <a href="mailto:vikasshu7@gmail.com">vikasshu7@gmail.com</a>
+          <a href="#contact">Start a project</a>
+        </div>
+        <div>
+          <h2>Legal</h2>
+          <a href="privacy-policy.html">Privacy policy</a>
+          <a href="licenses.html">Open-source licences</a>
+        </div>
+      </nav>
     </div>
-    <div class="foot-links">
-      <div class="fcol"><h5>Services</h5>
-        <a href="#services">Android Apps</a><a href="#services">iOS Apps</a>
-        <a href="#services">Desktop Software</a><a href="#services">Game Dev</a>
-        <a href="#services">IT Consulting</a>
-      </div>
-      <div class="fcol"><h5>Company</h5>
-        <a href="#about">About Us</a><a href="#why">Why Us</a>
-        <a href="#technology">Technology</a><a href="#contact">Contact</a>
-      </div>
-      <div class="fcol"><h5>Contact</h5>
-        <a href="mailto:vikasshu7@gmail.com">vikasshu7@gmail.com</a>
-        <a href="#">Pune, India</a>
-        <a href="#">LinkedIn</a><a href="#">GitHub</a>
-      </div>
+
+    <div class="foot__bot">
+      <p>&copy; <span data-year>2026</span> BlueFluteX. All rights reserved.</p>
+      <p class="foot__stack">
+        <span>Instrument Serif</span><span>Inter</span><span>JetBrains Mono</span><span>Lucide</span><span>three.js</span>
+      </p>
     </div>
-  </div>
-  <div class="foot-bot">
-    <span>© 2025 BlueFluteX. All rights reserved.</span>
-    <span class="visitor-counter">
-      <span class="vc-dot"></span>
-      <span class="vc-label">Total Visitors:</span>
-      <span class="vc-num" id="visit-count">—</span>
-    </span>
-    <span>Crafted with precision in Pune 🇮🇳</span>
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="assets/js/site.js" defer></script>
+<script type="module" src="assets/js/hero3d.js"></script>
 </body>
 </html>

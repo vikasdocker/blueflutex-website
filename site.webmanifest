@@ -1,0 +1,16 @@
+{
+  "name": "BlueFluteX — Software Studio",
+  "short_name": "BlueFluteX",
+  "description": "Software studio in Pune, India. Mobile, desktop and AI systems architected to be extended — not rewritten.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf8f4",
+  "theme_color": "#faf8f4",
+  "lang": "en",
+  "icons": [
+    { "src": "/assets/img/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/assets/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

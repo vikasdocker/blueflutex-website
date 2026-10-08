@@ -1,0 +1,84 @@
+# BlueFluteX — Apache configuration
+# Hosted on Apache via InfinityFree.
+#
+# INFINITYFREE LIMITS, verified against their forum, and respected here:
+#   - this file must stay under 10 kB (larger files are silently deleted)
+#   - HTML / PHP / JS files are limited to 1 MB each
+#   - anything uploaded outside htdocs is deleted
+# Run `wc -c .htaccess` after editing.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.html index.php
+AddDefaultCharset UTF-8
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS (InfinityFree provides free SSL). Skip loopback so local
+  # testing over http://localhost does not redirect to itself forever.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1) [NC]
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+  # Custom 404
+  ErrorDocument 404 /404.html
+</IfModule>
+
+# --- security headers -------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), interest-cohort=()"
+  # long enough to cover the site's own assets, short enough that a
+  # redesign is live without a cache purge
+  Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+</IfModule>
+
+# the contact endpoint is the only dynamic route
+<Files "contact.php">
+  Header always set Cache-Control "no-store"
+</Files>
+
+# --- compression ------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css
+  AddOutputFilterByType DEFLATE application/javascript text/javascript
+  AddOutputFilterByType DEFLATE application/json image/svg+xml
+</IfModule>
+
+# --- caching ----------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # HTML must revalidate or a deploy never reaches anyone
+  ExpiresByType text/html                      "access plus 0 seconds"
+
+  # fingerprinted-by-content CSS/JS: revalidate rather than blind-cache
+  ExpiresByType text/css                       "access plus 0 seconds"
+  ExpiresByType application/javascript         "access plus 0 seconds"
+
+  # images: filenames are stable, so cache them properly
+  ExpiresByType image/webp                     "access plus 1 year"
+  ExpiresByType image/png                      "access plus 1 year"
+  ExpiresByType image/svg+xml                  "access plus 1 year"
+
+  # fonts carry a unicode-range so the browser only fetches what renders
+  ExpiresByType font/woff2                     "access plus 1 year"
+</IfModule>
+
+# --- hardening --------------------------------------------------------
+# never serve the source repo if a stray copy lands in htdocs
+<FilesMatch "(^\.|\.(md|json|lock|yml|yaml|sql|example)$)">
+  Require all denied
+</FilesMatch>
+
+# no directory listings even if Options is overridden upstream
+<IfModule mod_autoindex.c>
+  IndexIgnore *
+</IfModule>
+
+# do not advertise the PHP version
+<IfModule mod_php.c>
+  php_flag expose_php off
+</IfModule>

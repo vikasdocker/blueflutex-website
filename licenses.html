@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Open-source licences — BlueFluteX</title>
+<meta name="description" content="Third-party open-source components used on the BlueFluteX website, with their licences." />
+<link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" />
+<link rel="stylesheet" href="/assets/css/fonts.css" />
+<link rel="stylesheet" href="/assets/css/site.css" />
+<style>
+  .lic { padding-block: calc(var(--nav-h) + 56px) 90px; }
+  .lic__intro { max-width: 62ch; color: var(--muted); margin-top: 18px; }
+  .lic__list { margin-top: 48px; display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+  .lic__item { background: var(--paper); padding: 26px 28px; display: grid; gap: 6px; }
+  .lic__item h2 { font-size: 1.06rem; font-weight: 600; letter-spacing: -.015em; }
+  .lic__item p { font-size: .93rem; color: var(--muted); max-width: 68ch; }
+  .lic__tag {
+    justify-self: start; font-family: var(--f-mono); font-size: .68rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--teal);
+    border: 1px solid var(--rule); border-radius: 6px; padding: .18rem .5rem;
+  }
+  .lic__back { margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header class="nav is-stuck">
+  <div class="wrap nav__in">
+    <a class="brand" href="/" aria-label="BlueFluteX — home">
+      <img class="brand__mark" src="/assets/img/mark-sm.webp" alt="" width="44" height="20" />
+      <span class="brand__word">BlueFlute<em>X</em></span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="/#services">Services</a>
+      <a href="/#work">Work</a>
+      <a href="/#process">Process</a>
+      <a href="/#studio">Studio</a>
+    </nav>
+    <a class="btn btn--ink nav__cta" href="/#contact">Start a project</a>
+  </div>
+</header>
+
+<main class="lic">
+  <div class="wrap">
+    <p class="tag">Open source</p>
+    <h1 class="h2">Third-party components</h1>
+    <p class="lic__intro">
+      This site is built on the work of other people. Each component below is
+      used under a licence that permits commercial use without fee; the full
+      licence texts ship in the repository at <code>THIRD-PARTY-NOTICES.md</code>.
+    </p>
+
+    <div class="lic__list">
+      <div class="lic__item">
+        <h2>three.js</h2>
+        <span class="lic__tag">MIT</span>
+        <p>WebGL renderer for the hero resonance field. Loaded from jsDelivr at a pinned version.</p>
+      </div>
+
+      <div class="lic__item">
+        <h2>Lucide</h2>
+        <span class="lic__tag">ISC · MIT</span>
+        <p>
+          Icon path data for the service cards, drawn as inline SVG. Lucide is
+          licensed ISC; the icons derived from the Feather project carry the
+          MIT licence. Both notices are reproduced in
+          <code>THIRD-PARTY-NOTICES.md</code>.
+        </p>
+      </div>
+
+      <div class="lic__item">
+        <h2>Instrument Serif</h2>
+        <span class="lic__tag">OFL 1.1</span>
+        <p>Display and headline typeface. Self-hosted as woff2.</p>
+      </div>
+
+      <div class="lic__item">
+        <h2>Inter</h2>
+        <span class="lic__tag">OFL 1.1</span>
+        <p>Body and UI typeface. Self-hosted as a variable woff2.</p>
+      </div>
+
+      <div class="lic__item">
+        <h2>JetBrains Mono</h2>
+        <span class="lic__tag">OFL 1.1</span>
+        <p>Micro-labels and technical accents. Self-hosted as a variable woff2.</p>
+      </div>
+    </div>
+
+    <p class="lic__back"><a class="btn btn--line" href="/">← Back to the site</a></p>
+  </div>
+</main>
+
+</body>
+</html>

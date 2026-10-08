@@ -1,38 +1,76 @@
-name: Deploy Website
+name: Deploy to InfinityFree
+
+# The site is static, so there is nothing to build. This workflow exists
+# purely to push the deployable files to the host over FTP.
+#
+# Required repository secret:
+#   FTP_PASSWORD  — the password for the InfinityFree account
+# Account handle (used as the FTP username) is fixed below.
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
 
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # InfinityFree silently deletes anything uploaded outside htdocs, and
+      # FTP listings cap around 5000 items per folder -- so we ship exactly
+      # the deployable set, flat, and nothing else.
+      - name: Stage deployable files
+        run: |
+          set -euo pipefail
+          mkdir -p _deploy
+
+          cp index.html 404.html privacy-policy.html licenses.html \
+             site.webmanifest .htaccess _deploy/
+          cp -r assets api _deploy/
+
+          # .htaccess must survive the copy as a dotfile
+          ls -la _deploy/.htaccess
+
+          echo "--- staged ---"
+          find _deploy -type f | sort
+          echo "--- size ---"
+          du -sh _deploy
+
+          # InfinityFree deletes files over 1 MB (HTML/PHP/JS) and any file
+          # over 10 MB, silently. Fail the build here instead.
+          BIG=$(find _deploy -type f \( -name '*.js' -o -name '*.php' -o -name '*.html' \) -size +1000k | head)
+          if [ -n "$BIG" ]; then
+            echo "::error::file(s) exceed the InfinityFree 1 MB limit:"
+            echo "$BIG"
+            exit 1
+          fi
+
+          HT=$(stat -c%s _deploy/.htaccess)
+          if [ "$HT" -gt 10240 ]; then
+            echo "::error::.htaccess is ${HT} bytes; InfinityFree deletes anything over 10 kB"
+            exit 1
+          fi
+
+      - name: FTP deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
-          node-version: 20
-
-      - name: Install dependencies
-        working-directory: ./site
-        run: npm install
-
-      - name: Build
-        working-directory: ./site
-        run: npm run build
-
-      - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER || 'ftp.infinityfree.com' }}
+          username: ${{ secrets.FTP_USERNAME || 'if0_41314745' }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./site/dist/
+          local-dir: ./_deploy/
           server-dir: /htdocs/
+          # remove files from the server that no longer exist locally, so a
+          # deleted page does not linger
+          sync-all: true
+          timeout-minutes: 10

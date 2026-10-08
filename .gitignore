@@ -1,11 +1,10 @@
-﻿# Dependencies
-node_modules/
-
-# Builds
+﻿# Local build output
+_deploy/
 dist/
-build/
-site/dist/
-.netlify/
+
+# Dependencies — there are none at runtime, but keep node_modules out if
+# anyone experiments locally
+node_modules/
 
 # Logs
 *.log
@@ -21,3 +20,11 @@ npm-debug.log*
 .vscode/
 .DS_Store
 Thumbs.db
+Thumbs.db:encryptable
+
+# Never commit real database credentials. api/contact.php is tracked with
+# empty CONFIG values on purpose -- see README.md.
+api/contact.local.php
+
+# Scratch output from the tools/ scripts
+assets/img/_*
