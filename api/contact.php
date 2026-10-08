@@ -68,9 +68,24 @@ header('Cache-Control: no-store');
 /* ---------- negotiate the response format ----------
    JSON when the client asked for it (the fetch() in site.js always sends
    Accept: application/json); otherwise fall back to a redirect, which is
-   what a no-JS form submit needs. */
+   what a no-JS form submit needs.
+
+   The redirect is only ever correct for an actual form submission. Reusing
+   it for other responses makes a browser follow a 302 and report 200 with
+   the homepage, which hides the real status from anyone checking by hand --
+   see rejectMethod() below. */
 $acceptsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'json')
     || str_contains($_SERVER['HTTP_CONTENT_TYPE'] ?? '', 'application/json');
+
+/** Emit a plain status code, never a redirect. */
+function rejectMethod(string $message, int $code): never
+{
+    http_response_code($code);
+    header('Content-Type: text/plain; charset=utf-8');
+    header('Allow: POST');
+    echo $message . "\n";
+    exit;
+}
 
 function respond(bool $ok, string $message, array $extra = [], int $code = 200): never
 {
@@ -89,10 +104,11 @@ function respond(bool $ok, string $message, array $extra = [], int $code = 200):
     exit;
 }
 
-/* ---------- only POST ---------- */
+/* ---------- only POST ----------
+   Answered directly rather than through respond(), which would redirect a
+   plain GET back to the homepage and mask the 405 as a 200. */
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    header('Allow: POST');
-    respond(false, 'This endpoint only accepts POST requests.', [], 405);
+    rejectMethod('This endpoint only accepts POST requests.', 405);
 }
 
 /* ---------- origin check ----------
