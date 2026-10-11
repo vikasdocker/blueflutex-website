@@ -45,6 +45,9 @@ jobs:
           const js = readFileSync("assets/js/site.js", "utf8");
           const shaders = readFileSync("assets/js/shaders.js", "utf8");
           const css = readFileSync("assets/css/site.css", "utf8");
+          const mark = readFileSync("assets/img/blueflutex-mark.svg", "utf8");
+          const lockup = readFileSync("assets/img/blueflutex-lockup.svg", "utf8");
+          const manifest = readFileSync("site.webmanifest", "utf8");
 
           const ids = [...html.matchAll(/id="([^"]+)"/g)].map((m) => m[1]);
           const duplicates = [...new Set(ids.filter((id, i) => ids.indexOf(id) !== i))];
@@ -73,7 +76,25 @@ jobs:
           assert.ok(css.includes("@media (max-width: 780px)"),
             "The mobile navigation breakpoint must remain present.");
 
-          console.log("PASS: unique IDs, contact form wiring, analytics compatibility, shader correction, responsive and reduced-motion guards.");
+          assert.ok(mark.includes("<svg") && mark.includes("#0f5c56") && mark.includes("#14786f"),
+            "The new vector mark must use the BlueFluteX teal palette.");
+          assert.ok(lockup.includes("BlueFlute") && lockup.includes("CODE WITH HARMONY"),
+            "The studio lockup must contain the wordmark and tagline.");
+          assert.ok(html.includes('src="assets/img/blueflutex-mark.svg"') &&
+                    html.includes('src="assets/img/blueflutex-lockup.svg"'),
+            "The homepage must reference the new mark and lockup assets.");
+          assert.ok(css.includes(".brand__mark { width: 40px; height: 40px;"),
+            "The new square logo mark sizing must be applied.");
+          assert.ok(manifest.includes("/assets/img/blueflutex-mark.svg"),
+            "The installable app manifest must include the updated brand icon.");
+
+          for (const path of ["privacy-policy.html", "licenses.html"]) {
+            const page = readFileSync(path, "utf8");
+            assert.ok(page.includes("/assets/img/blueflutex-mark.svg"),
+              path + " must use the refreshed logo.");
+          }
+
+          console.log("PASS: form wiring, shader, all IDs, updated vector branding, favicon/manifest references, responsiveness and reduced-motion guards.");
           NODE
 
       - name: Check InfinityFree deployment size limits
@@ -151,6 +172,23 @@ jobs:
             assert.match(await page.title(), /BlueFluteX/, "Homepage title should identify the site.");
             assert.equal(await page.locator("#contact").count(), 1, "Contact section anchor should be unique.");
             assert.equal(await page.locator("#contact-form").count(), 1, "Contact form should be uniquely addressable.");
+
+            await page.waitForFunction(
+              () => [...document.querySelectorAll("img.brand__mark")].length >= 1 &&
+                    [...document.querySelectorAll("img.brand__mark")].every((img) => img.complete && img.naturalWidth > 0),
+              null,
+              { timeout: 10000 }
+            );
+            const markResponse = await page.request.get("http://127.0.0.1:8811/assets/img/blueflutex-mark.svg");
+            const lockupResponse = await page.request.get("http://127.0.0.1:8811/assets/img/blueflutex-lockup.svg");
+            assert.equal(markResponse.status(), 200, "The new vector logo must be served successfully.");
+            assert.equal(lockupResponse.status(), 200, "The new vector lockup must be served successfully.");
+            const markSize = await page.locator("img.brand__mark").first().evaluate((img) => ({
+              width: getComputedStyle(img).width,
+              height: getComputedStyle(img).height
+            }));
+            assert.deepEqual(markSize, { width: "40px", height: "40px" }, "The new brand mark should display at its intended square size.");
+            console.log("PASS: refreshed logo assets load in Chromium at the specified size.");
 
             // Mobile navigation must open and close, without relying on desktop layout.
             await page.setViewportSize({ width: 390, height: 844 });
