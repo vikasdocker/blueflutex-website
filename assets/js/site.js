@@ -206,7 +206,7 @@
 
       projectCards.forEach((card) => {
         const categories = (card.dataset.projectCategories || "").split(/\s+/).filter(Boolean);
-        const text = (card.textContent + " " + (card.dataset.projectSearch || "")).toLocaleLowerCase();
+        const text = (card.textContent + " " + (card.dataset.searchTerms || "")).toLocaleLowerCase();
         const categoryMatch = category === "all" || categories.includes(category);
         const queryMatch = !query || text.includes(query);
         const show = categoryMatch && queryMatch;
