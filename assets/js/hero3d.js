@@ -96,7 +96,7 @@ function boot() {
      Fine wire rings, a faceted core and a sparse orbit of nodes. No textures,
      external assets, post-processing or extra scene dependencies are needed. */
   const sculpture = new THREE.Group();
-  sculpture.scale.setScalar(narrow ? 0.62 : 1);
+  sculpture.scale.setScalar(narrow ? 0.5 : 1);
   scene.add(sculpture);
 
   const halo = new THREE.Mesh(
@@ -205,7 +205,7 @@ function boot() {
     const objectDepth = camera.position.z - sculpture.position.z;
     const objectHeight = 2 * Math.tan(fovRadians / 2) * objectDepth;
     const objectWidth = objectHeight * camera.aspect;
-    sculpture.position.x = objectWidth * (narrow ? 0.13 : 0.235);
+    sculpture.position.x = objectWidth * (narrow ? 0.32 : 0.235);
     sculpture.position.y = objectHeight * (narrow ? 0.29 : -0.015);
   }
 
