@@ -112,9 +112,10 @@ export const FRAG = /* glsl */ `
     float edge = smoothstep(0.0, 0.16, uv.y) * smoothstep(1.0, 0.84, uv.y);
 
     // accent only on the upper crests, so colour reads as emphasis.
-    // vH is scaled by uAmp, so the threshold tracks the amplitude rather
-    // than assuming a fixed crest height.
-    float crest = smoothstep(0.22, 0.62, vH * max(uAmp, 0.001));
+    // vH already contains the amplitude applied by field() in the vertex
+    // shader. Do not multiply by uAmp again: that would square the amplitude
+    // and make the teal accent fade unpredictably as the field breathes.
+    float crest = smoothstep(0.22, 0.62, vH);
     vec3 col = mix(uInk, uAccent, crest * 0.9);
 
     float alpha = line * vFade * copy * edge * (0.19 + crest * 0.34);

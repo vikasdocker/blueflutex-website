@@ -196,7 +196,7 @@
      Progressive enhancement: without JS this is a normal POST that lands on
      contact.php, which renders its own result. With JS we POST JSON and swap
      the status line in place so the page never navigates. */
-  const form = $("#contact");
+  const form = $("#contact-form");
 
   if (form) {
     const status = $("[data-status]", form);
