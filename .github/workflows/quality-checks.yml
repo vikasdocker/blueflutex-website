@@ -115,7 +115,7 @@ jobs:
           assert.ok(css.includes(".case--showcase") && css.includes(".case__tab.is-active") &&
                     css.includes("@media (max-width: 560px)"),
             "Showcase visual states and mobile styling must remain present.");
-          assert.ok(siteJs.includes('$("[data-project-tabs]")') &&
+          assert.ok(siteJs.includes('data-project-tabs]").forEach') &&
                     siteJs.includes('event.key === "ArrowRight"') &&
                     siteJs.includes('event.key === "ArrowLeft"'),
             "Project tabs must support click and keyboard navigation.");
