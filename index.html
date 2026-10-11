@@ -267,52 +267,90 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="section section--rule" id="work">
   <div class="wrap">
     <header class="head">
-      <p class="tag reveal">Selected work</p>
-      <h2 class="h2 reveal" data-d="1">One we can show you properly.</h2>
+      <p class="tag reveal">Selected work · 01 public project</p>
+      <h2 class="h2 reveal" data-d="1">Real work. Open to inspection.</h2>
       <p class="head__lede reveal" data-d="2">
-        We&rsquo;d rather show one finished thing than five mockups. This one is
-        public, open source, and still in active use.
+        One public project, presented in detail rather than padded with mockups.
+        Explore the decisions behind the build.
       </p>
     </header>
 
-    <!--
-      TODO(owner): add 2-3 more case studies, with real screenshots and real
-      outcomes. One honest entry beats a page of invented metrics -- a
-      fabricated number on a company site is a liability, not a feature.
-    -->
-    <article class="case reveal" data-d="3">
+    <article class="case case--showcase reveal" data-d="3">
       <div class="case__body">
         <p class="case__meta">
-          <span>Windows desktop</span><i>&middot;</i><span>2026</span><i>&middot;</i><span>Open source, MIT</span>
+          <span class="case__index">01 / 01</span><i aria-hidden="true">&middot;</i>
+          <span>Windows desktop</span><i aria-hidden="true">&middot;</i><span>MIT licence</span>
         </p>
-        <h3 class="case__title">CleanBoost</h3>
+        <h3 class="case__title">CleanBoost<span class="case__title-mark" aria-hidden="true">↗</span></h3>
         <p class="case__lede">
           A one-click Windows cleaner where the hard part wasn&rsquo;t the cleaning
-          &mdash; it was making every deletion <em>reversible and visible</em>. Every
-          removal routes through the Recycle Bin, and the interface reports the
-          outcome of each individual file while the run is in progress.
-        </p>
-        <p class="case__note">
-          Built around a single deletion funnel, so the path guard, symlink refusal
-          and audit logging cannot be bypassed by accident.
+          &mdash; it was making every deletion <em>reversible and visible</em>.
+          Every removal routes through the Recycle Bin, and the interface reports
+          the outcome of each individual file while the run is in progress.
         </p>
 
+        <div class="case__tabs" data-project-tabs role="tablist" aria-label="Explore the CleanBoost project">
+          <button class="case__tab is-active" type="button" role="tab" id="cleanboost-tab-overview"
+            aria-selected="true" aria-controls="cleanboost-panel-overview" tabindex="0" data-project-tab="overview">Overview</button>
+          <button class="case__tab" type="button" role="tab" id="cleanboost-tab-safety"
+            aria-selected="false" aria-controls="cleanboost-panel-safety" tabindex="-1" data-project-tab="safety">Safety model</button>
+          <button class="case__tab" type="button" role="tab" id="cleanboost-tab-engineering"
+            aria-selected="false" aria-controls="cleanboost-panel-engineering" tabindex="-1" data-project-tab="engineering">Engineering</button>
+        </div>
+
+        <div class="case__panels" data-project-panels>
+          <section class="case__panel is-active" id="cleanboost-panel-overview" role="tabpanel"
+            aria-labelledby="cleanboost-tab-overview" data-project-panel="overview">
+            <p class="case__panel-kicker">THE IDEA</p>
+            <p>Make system cleanup understandable while it runs: clear categories, a visible per-file outcome, and no silent “trust us” deletion.</p>
+          </section>
+          <section class="case__panel" id="cleanboost-panel-safety" role="tabpanel"
+            aria-labelledby="cleanboost-tab-safety" data-project-panel="safety">
+            <p class="case__panel-kicker">SAFE BY DESIGN</p>
+            <p>A single deletion funnel brings the path guard, symlink refusal, Recycle Bin routing and audit logging into the same controlled path.</p>
+          </section>
+          <section class="case__panel" id="cleanboost-panel-engineering" role="tabpanel"
+            aria-labelledby="cleanboost-tab-engineering" data-project-panel="engineering">
+            <p class="case__panel-kicker">THE BUILD</p>
+            <p>The public project includes 22 curated cleanup categories, 4,000+ community rules and 46 automated tests. It is published under the MIT licence.</p>
+          </section>
+        </div>
+
         <dl class="case__stats">
-          <div><dt>Cleanup categories</dt><dd>22 curated</dd></div>
+          <div><dt>Cleanup categories</dt><dd>22</dd></div>
           <div><dt>Community rules</dt><dd>4,000+</dd></div>
           <div><dt>Automated tests</dt><dd>46</dd></div>
         </dl>
 
-        <a class="btn btn--line" href="https://github.com/vikasdocker/CleanBoost" target="_blank" rel="noopener noreferrer">
-          View on GitHub
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
-        </a>
+        <div class="case__actions">
+          <a class="btn btn--ink" href="https://github.com/vikasdocker/CleanBoost" target="_blank" rel="noopener noreferrer">
+            Explore the repository
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </a>
+          <span class="case__availability"><span aria-hidden="true"></span> Public · Open source</span>
+        </div>
       </div>
 
-      <figure class="case__shot">
-        <img src="assets/img/work-cleaner-scan.webp" alt="The CleanBoost cleaner screen listing cleanup categories with a file count against each." width="1200" height="754" loading="lazy" decoding="async" />
+      <figure class="case__shot case__shot--interactive" data-tilt>
+        <div class="case__frame-bar" aria-hidden="true">
+          <span class="case__window-dots"><i></i><i></i><i></i></span>
+          <span class="case__frame-name">CLEANBOOST / WINDOWS DESKTOP</span>
+          <span class="case__frame-tag">PROJECT 01</span>
+        </div>
+        <div class="case__image-wrap">
+          <img src="assets/img/work-cleaner-scan.webp" alt="Actual CleanBoost cleaner screen listing cleanup categories and the number of files found in each category." width="1200" height="754" loading="lazy" decoding="async" />
+          <span class="case__image-note">Actual product screenshot</span>
+        </div>
+        <figcaption class="case__caption">
+          <span>Built for clarity, not guesswork.</span>
+          <span aria-hidden="true">↗</span>
+        </figcaption>
       </figure>
     </article>
+
+    <p class="work__footnote reveal" data-d="4">
+      More projects will appear here as additional work is ready for public release.
+    </p>
   </div>
 </section>
 

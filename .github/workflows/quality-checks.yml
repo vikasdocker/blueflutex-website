@@ -46,6 +46,7 @@ jobs:
           const shaders = readFileSync("assets/js/shaders.js", "utf8");
           const hero3d = readFileSync("assets/js/hero3d.js", "utf8");
           const css = readFileSync("assets/css/site.css", "utf8");
+          const siteJs = readFileSync("assets/js/site.js", "utf8");
           const mark = readFileSync("assets/img/blueflutex-mark.svg", "utf8");
           const lockup = readFileSync("assets/img/blueflutex-lockup.svg", "utf8");
           const manifest = readFileSync("site.webmanifest", "utf8");
@@ -99,6 +100,29 @@ jobs:
             "The new square logo mark sizing must be applied.");
           assert.ok(manifest.includes("/assets/img/blueflutex-mark.svg"),
             "The installable app manifest must include the updated brand icon.");
+
+          assert.ok(html.includes('data-project-tabs role="tablist"') &&
+                    html.includes('data-project-tab="overview"') &&
+                    html.includes('data-project-tab="safety"') &&
+                    html.includes('data-project-tab="engineering"'),
+            "CleanBoost must expose the three accessible project detail tabs.");
+          assert.ok(html.includes('id="cleanboost-panel-overview"') &&
+                    html.includes('id="cleanboost-panel-safety"') &&
+                    html.includes('id="cleanboost-panel-engineering"'),
+            "Each project tab must have a corresponding labelled detail panel.");
+          assert.ok(html.includes('href="https://github.com/vikasdocker/CleanBoost"'),
+            "The project CTA must link to the actual public CleanBoost repository.");
+          assert.ok(css.includes(".case--showcase") && css.includes(".case__tab.is-active") &&
+                    css.includes("@media (max-width: 560px)"),
+            "Showcase visual states and mobile styling must remain present.");
+          assert.ok(siteJs.includes('data-project-tabs]").forEach') &&
+                    siteJs.includes('event.key === "ArrowRight"') &&
+                    siteJs.includes('event.key === "ArrowLeft"'),
+            "Project tabs must support click and keyboard navigation.");
+
+          for (const path of ["index.html", "assets/js/site.js"]) {
+            assert.ok(readFileSync(path, "utf8").length > 0, path + " should not be empty.");
+          }
 
           for (const path of ["privacy-policy.html", "licenses.html"]) {
             const page = readFileSync(path, "utf8");
@@ -184,6 +208,46 @@ jobs:
             assert.match(await page.title(), /BlueFluteX/, "Homepage title should identify the site.");
             assert.equal(await page.locator("#contact").count(), 1, "Contact section anchor should be unique.");
             assert.equal(await page.locator("#contact-form").count(), 1, "Contact form should be uniquely addressable.");
+
+            // The interactive project case study must work with both pointer and keyboard.
+            const projectImage = page.locator(".case__image-wrap img");
+            await projectImage.scrollIntoViewIfNeeded();
+            await page.waitForFunction(() => {
+              const img = document.querySelector(".case__image-wrap img");
+              return img && img.complete && img.naturalWidth > 0;
+            }, null, { timeout: 10000 });
+            assert.ok(await projectImage.evaluate((img) => img.naturalWidth > 0),
+              "The actual CleanBoost screenshot should load.");
+
+            const overviewTab = page.locator("#cleanboost-tab-overview");
+            const safetyTab = page.locator("#cleanboost-tab-safety");
+            const engineeringTab = page.locator("#cleanboost-tab-engineering");
+            assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
+              "Overview should be the initial selected project tab.");
+            await safetyTab.click();
+            assert.equal(await safetyTab.getAttribute("aria-selected"), "true",
+              "Clicking Safety model should select that tab.");
+            assert.equal(await page.locator("#cleanboost-panel-safety").isVisible(), true,
+              "Safety details should be visible after selection.");
+            assert.match(await page.locator("#cleanboost-panel-safety").innerText(), /Recycle Bin/i,
+              "Safety panel should explain the real Recycle Bin safeguard.");
+            await safetyTab.press("ArrowRight");
+            assert.equal(await engineeringTab.getAttribute("aria-selected"), "true",
+              "ArrowRight should move selection to the next tab.");
+            assert.equal(await page.locator("#cleanboost-panel-engineering").isVisible(), true,
+              "Engineering details should appear on keyboard navigation.");
+            assert.match(await page.locator("#cleanboost-panel-engineering").innerText(), /46 automated tests/i,
+              "Engineering panel should display the verified project detail.");
+            await engineeringTab.press("Home");
+            assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
+              "Home should return to the first project tab.");
+            await overviewTab.press("End");
+            assert.equal(await engineeringTab.getAttribute("aria-selected"), "true",
+              "End should select the last project tab.");
+            await overviewTab.click();
+            assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
+              "The Overview tab should be restored for the initial page state.");
+            console.log("PASS: CleanBoost screenshot loads; Overview/Safety/Engineering tabs work with click, ArrowRight, Home and End.");
 
             await page.waitForFunction(
               () => [...document.querySelectorAll("img.brand__mark")].length >= 1 &&
@@ -308,6 +372,84 @@ jobs:
               assert.deepEqual(sameOriginFailures, [], "No production same-origin resources should return HTTP errors.");
               assert.deepEqual(errors, [], "Production page should not throw uncaught JavaScript errors.");
               console.log("PASS: live homepage HTTP 200; immersive/fallback hero state=" + mode + "; contact form preserved; mobile menu and width verified.");
+            }
+          } finally {
+            await browser.close();
+          }
+          NODE
+
+      - name: Verify live interactive project showcase
+        if: github.ref == 'refs/heads/feat/interactive-project-showcase'
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+          try {
+            const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+            const errors = [];
+            const missingSameOrigin = [];
+            page.on("pageerror", (error) => errors.push(error.message));
+            page.on("response", (response) => {
+              if (response.url().startsWith("https://blueflutex.gt.tc/") && response.status() >= 400) {
+                missingSameOrigin.push({ status: response.status(), url: response.url() });
+              }
+            });
+
+            const response = await page.goto("https://blueflutex.gt.tc/", {
+              waitUntil: "domcontentloaded", timeout: 60000
+            });
+            assert.ok(response, "The production homepage must return a document response.");
+            assert.equal(response.status(), 200, "The production homepage should return HTTP 200.");
+            await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
+
+            // The first run happens before release. Skip the live feature assertions
+            // only if the previous release is still served; rerun this branch after deploy.
+            const deployed = await page.locator("#cleanboost-tab-safety").count();
+            if (!deployed) {
+              console.log("SKIP: interactive project showcase is not on production yet; rerun after the release.");
+            } else {
+              await page.waitForTimeout(1000);
+              assert.equal(await page.locator("#cleanboost-tab-overview").count(), 1, "The live Overview tab should exist.");
+              assert.equal(await page.locator("#cleanboost-tab-safety").count(), 1, "The live Safety tab should exist.");
+              assert.equal(await page.locator("#cleanboost-tab-engineering").count(), 1, "The live Engineering tab should exist.");
+
+              const shot = page.locator(".case__image-wrap img");
+              await shot.scrollIntoViewIfNeeded();
+              await page.waitForFunction(() => {
+                const image = document.querySelector(".case__image-wrap img");
+                return image && image.complete && image.naturalWidth > 0;
+              }, null, { timeout: 10000 });
+              assert.ok(await shot.evaluate((image) => image.naturalWidth > 0),
+                "The public CleanBoost screenshot should load.");
+
+              const safety = page.locator("#cleanboost-tab-safety");
+              const engineering = page.locator("#cleanboost-tab-engineering");
+              await safety.click();
+              assert.equal(await safety.getAttribute("aria-selected"), "true", "Live Safety tab should activate.");
+              assert.match(await page.locator("#cleanboost-panel-safety").innerText(), /Recycle Bin/i,
+                "Live Safety tab should explain the safeguard.");
+              await safety.press("ArrowRight");
+              assert.equal(await engineering.getAttribute("aria-selected"), "true",
+                "Live keyboard navigation should advance to Engineering.");
+              assert.match(await page.locator("#cleanboost-panel-engineering").innerText(), /46 automated tests/i,
+                "Live Engineering tab should show the existing project facts.");
+
+              await page.setViewportSize({ width: 390, height: 844 });
+              await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
+              await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
+              assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), false,
+                "The live mobile page must not overflow horizontally.");
+              const burger = page.locator("[data-burger]");
+              await burger.click();
+              assert.equal(await page.locator("[data-drawer]").isVisible(), true, "The live mobile menu should open.");
+              await page.locator('[data-drawer] a[href="#services"]').click();
+              assert.equal(await page.locator("[data-drawer]").isVisible(), false, "The live mobile menu should close after navigation.");
+
+              assert.deepEqual(missingSameOrigin, [], "No production same-origin resources should return HTTP errors.");
+              assert.deepEqual(errors, [], "The production site should not throw uncaught JavaScript errors.");
+              console.log("PASS: production project screenshot, all detail tabs, keyboard navigation and mobile layout verified.");
             }
           } finally {
             await browser.close();
