@@ -99,3 +99,88 @@ jobs:
           done < <(find index.html 404.html privacy-policy.html licenses.html assets api -type f)
 
           echo "PASS: .htaccess and deployable HTML/JS/PHP files are within configured host limits."
+
+  browser-smoke:
+    name: Browser smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock playwright
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test homepage, mobile navigation, reduced motion and contact form
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8811 --bind 127.0.0.1 >/tmp/blueflutex-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for _ in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:8811/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+          try {
+            const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+            const pageErrors = [];
+            page.on("pageerror", (error) => pageErrors.push(error.message));
+
+            // Keep the contact test hermetic: never POST to a real database or mailbox.
+            await page.route("**/api/contact.php", (route) => route.fulfill({
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify({ ok: true, message: "CI mock accepted the message." })
+            }));
+
+            const response = await page.goto("http://127.0.0.1:8811/", { waitUntil: "domcontentloaded" });
+            assert.equal(response.status(), 200, "Homepage should load successfully.");
+            assert.match(await page.title(), /BlueFluteX/, "Homepage title should identify the site.");
+            assert.equal(await page.locator("#contact").count(), 1, "Contact section anchor should be unique.");
+            assert.equal(await page.locator("#contact-form").count(), 1, "Contact form should be uniquely addressable.");
+
+            // Mobile navigation must open and close, without relying on desktop layout.
+            await page.setViewportSize({ width: 390, height: 844 });
+            const burger = page.locator("[data-burger]");
+            await burger.click();
+            assert.equal(await burger.getAttribute("aria-expanded"), "true", "Mobile menu should report expanded.");
+            assert.equal(await page.locator("[data-drawer]").isVisible(), true, "Mobile drawer should become visible.");
+            await page.locator('[data-drawer] a[href="#services"]').click();
+            assert.equal(await burger.getAttribute("aria-expanded"), "false", "Choosing a mobile link should close the menu.");
+            assert.equal(await page.locator("[data-drawer]").isVisible(), false, "Mobile drawer should be hidden after selection.");
+
+            // The intercepted endpoint proves the JS submit handler receives the actual form element.
+            await page.locator("#f-name").fill("CI Test");
+            await page.locator("#f-email").fill("ci-test@example.com");
+            await page.locator("#f-msg").fill("Automated smoke test for the BlueFluteX contact form.");
+            await page.locator("#contact-form button[type=submit]").click();
+            await page.waitForFunction(() => document.querySelector("[data-status]")?.textContent.includes("CI mock accepted the message."), null, { timeout: 10000 });
+            assert.equal(await page.locator("#f-name").inputValue(), "", "Successful submission should reset the form.");
+
+            // Reduced-motion users should still see content immediately.
+            await page.emulateMedia({ reducedMotion: "reduce" });
+            await page.reload({ waitUntil: "domcontentloaded" });
+            await page.locator(".hero__lede").waitFor({ state: "visible" });
+            const opacity = await page.locator(".hero__lede").evaluate((el) => getComputedStyle(el).opacity);
+            assert.equal(opacity, "1", "Hero copy must remain visible with reduced motion enabled.");
+            assert.deepEqual(pageErrors, [], "No uncaught JavaScript exceptions should occur during the smoke test.");
+
+            await page.screenshot({ path: "/tmp/blueflutex-home.png", fullPage: false });
+            console.log("PASS: homepage HTTP 200, mobile drawer open/close, mock contact form submission, form reset, reduced-motion visibility, and no uncaught page errors.");
+          } finally {
+            await browser.close();
+          }
+          NODE
