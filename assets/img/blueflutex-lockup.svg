@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 549" width="760" height="549">
+  <title>BlueFluteX — Code with Harmony</title>
+  <g transform="translate(278 56) scale(3.15)">
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 35c5-1 9 1 13 5l4 3" stroke="#14786f" stroke-width="2.5"/>
+      <circle cx="7" cy="35" r="2.5" fill="#faf8f4" stroke="#0f5c56" stroke-width="2"/>
+      <circle cx="12" cy="48" r="2.5" fill="#faf8f4" stroke="#0f5c56" stroke-width="2"/>
+      <path d="M12 48c4-4 7-5 11-5" stroke="#0f5c56" stroke-width="2.3"/>
+      <path d="M26 45c9-7 17-8 25-4 3 2 5 4 7 7-10 1-19-2-26-7" stroke="#14786f" stroke-width="2.3"/>
+      <path d="M35 30c1-11 10-21 24-25 0 13-8 25-22 31" fill="#0f5c56" stroke="#0f5c56" stroke-width="1.2"/>
+      <path d="M36 34c6-8 12-16 18-23" stroke="#faf8f4" stroke-width="1.5"/>
+      <path d="M29 39c3-9 10-16 19-21-1 10-7 18-18 25" fill="#14786f" stroke="#14786f" stroke-width="1.2"/>
+      <path d="M30 42c7-5 14-9 20-12" stroke="#faf8f4" stroke-width="1.3"/>
+      <path d="M11 55 37 29" stroke="#14110f" stroke-width="9"/>
+      <path d="M8 58l5-5" stroke="#14110f" stroke-width="8"/>
+      <path d="M9 55l4-4" stroke="#0f5c56" stroke-width="2.2"/>
+      <path d="M14.7 51.3l2-2M20 46l2-2M25.3 40.7l2-2M30.6 35.4l2-2" stroke="#faf8f4" stroke-width="2.1"/>
+      <path d="M21 49c4-2 8-2 11-1" stroke="#0f5c56" stroke-width="2.4"/>
+      <circle cx="34" cy="49" r="2.1" fill="#faf8f4" stroke="#0f5c56" stroke-width="1.8"/>
+    </g>
+  </g>
+  <text x="380" y="394" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="61" letter-spacing="-2" fill="#14110f">BlueFlute<tspan fill="#0f5c56" font-style="italic">X</tspan></text>
+  <path d="M288 421H472" stroke="#0f5c56" stroke-width="1.6"/>
+  <text x="380" y="454" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="600" letter-spacing="4.1" fill="#3a342e">CODE WITH HARMONY</text>
+  <text x="380" y="485" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" letter-spacing="1.1" fill="#6b6560">Mobile · Desktop · AI</text>
+</svg>
