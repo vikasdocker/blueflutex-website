@@ -1,0 +1,100 @@
+name: Website quality checks
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static quality checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check JavaScript module syntax
+        run: |
+          set -euo pipefail
+          node --check assets/js/site.js
+          node --check --input-type=module < assets/js/shaders.js
+          node --check --input-type=module < assets/js/hero3d.js
+
+      - name: Validate page IDs, contact form wiring and hero shader
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+
+          const html = readFileSync("index.html", "utf8");
+          const js = readFileSync("assets/js/site.js", "utf8");
+          const shaders = readFileSync("assets/js/shaders.js", "utf8");
+          const css = readFileSync("assets/css/site.css", "utf8");
+
+          const ids = [...html.matchAll(/\\bid\\s*=\\s*["']([^"']+)["']/g)].map((m) => m[1]);
+          const duplicates = [...new Set(ids.filter((id, i) => ids.indexOf(id) !== i))];
+          assert.deepEqual(duplicates, [], `Duplicate HTML IDs: ${duplicates.join(", ")}`);
+
+          assert.equal((html.match(/<section\\b[^>]*\\bid=["']contact["']/g) ?? []).length, 1,
+            "The contact section must keep the #contact anchor.");
+          assert.equal((html.match(/<form\\b[^>]*\\bid=["']contact-form["']/g) ?? []).length, 1,
+            "The contact form must have its own unique contact-form ID.");
+          assert.match(html, /action=["']api\\/contact\\.php["']/,
+            "The contact form must continue to target the existing endpoint.");
+          assert.match(js, /const form = \\$("#contact-form"\\);/,
+            "JavaScript must select the actual contact form, not the section.");
+          assert.match(js, /new FormData\\(form\\)\\.entries\\(\\)/,
+            "Form submission must build FormData from the selected form.");
+          assert.match(js, /form_id:\\s*"contact"/,
+            "Keep the existing analytics form_id for compatibility.");
+
+          assert.match(shaders, /float crest = smoothstep\\(0\\.22, 0\\.62, vH\\);/,
+            "The crest calculation must use vH without multiplying amplitude twice.");
+          assert.doesNotMatch(shaders, /vH\\s*\\*\\s*max\\(uAmp/,
+            "The previous double-amplitude expression must stay removed.");
+          assert.match(css, /@media \\(prefers-reduced-motion: reduce\\)/,
+            "Reduced-motion support must remain present.");
+          assert.match(css, /@media \\(max-width: 780px\\)/,
+            "The mobile navigation breakpoint must remain present.");
+
+          console.log("PASS: unique IDs, contact form wiring, analytics compatibility, shader correction, responsive and reduced-motion guards.");
+          NODE
+
+      - name: Check InfinityFree deployment size limits
+        shell: bash
+        run: |
+          set -euo pipefail
+          htaccess_size=$(wc -c < .htaccess)
+          if (( htaccess_size > 10240 )); then
+            echo "::error::.htaccess is ${htaccess_size} bytes; the host limit is 10240 bytes."
+            exit 1
+          fi
+
+          while IFS= read -r file; do
+            case "$file" in
+              *.html|*.js|*.php)
+                size=$(wc -c < "$file")
+                if (( size > 1000000 )); then
+                  echo "::error::$file is ${size} bytes; the host's approximately 1 MB limit may silently delete it."
+                  exit 1
+                fi
+                ;;
+            esac
+          done < <(find index.html 404.html privacy-policy.html licenses.html assets api -type f)
+
+          echo "PASS: .htaccess and deployable HTML/JS/PHP files are within configured host limits."
