@@ -222,3 +222,84 @@ jobs:
             await browser.close();
           }
           NODE
+
+      - name: Verify refreshed branding on the live site
+        if: github.ref == 'refs/heads/design/blueflutex-logo-refresh'
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+          try {
+            const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+            const pageErrors = [];
+            const missingSameOrigin = [];
+            page.on("pageerror", (error) => pageErrors.push(error.message));
+            page.on("response", (response) => {
+              if (response.url().startsWith("https://blueflutex.gt.tc/") && response.status() >= 400) {
+                missingSameOrigin.push({ status: response.status(), url: response.url() });
+              }
+            });
+
+            const response = await page.goto("https://blueflutex.gt.tc/", {
+              waitUntil: "domcontentloaded",
+              timeout: 60000
+            });
+            assert.ok(response, "The live homepage must return a document response.");
+            assert.equal(response.status(), 200, "The live homepage should return HTTP 200.");
+            await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
+            await page.waitForTimeout(5000);
+
+            const wordmark = page.locator(".brand__word").first();
+            assert.equal(await wordmark.textContent(), "BlueFluteX", "The live navigation wordmark should remain readable.");
+            const fontFamily = await wordmark.evaluate((element) => getComputedStyle(element).fontFamily);
+            assert.ok(fontFamily.includes("Instrument Serif"), "The live wordmark should use the refreshed editorial type.");
+            assert.equal(await page.locator("img.brand__mark").count(), 2, "Header and footer should use the new logo mark.");
+            await page.waitForFunction(
+              () => [...document.querySelectorAll("img.brand__mark")].every((img) => img.complete && img.naturalWidth > 0),
+              null,
+              { timeout: 10000 }
+            );
+            assert.equal(await page.locator(".studio__lockup").count(), 1, "The studio should use the new complete lockup.");
+            await page.locator(".studio__lockup").scrollIntoViewIfNeeded();
+            await page.waitForFunction(() => {
+              const image = document.querySelector(".studio__lockup");
+              return image && image.complete && image.naturalWidth > 0;
+            }, null, { timeout: 10000 });
+            const favicon = await page.request.get("https://blueflutex.gt.tc/assets/img/blueflutex-mark.svg");
+            assert.equal(favicon.status(), 200, "The refreshed SVG favicon should be public.");
+            const lockup = await page.request.get("https://blueflutex.gt.tc/assets/img/blueflutex-lockup.svg");
+            assert.equal(lockup.status(), 200, "The refreshed full lockup should be public.");
+
+            const brokenAnchors = await page.locator('a[href^="#"]').evaluateAll((links) =>
+              links.map((a) => a.getAttribute("href"))
+                .filter((href) => href && href !== "#" && !document.getElementById(decodeURIComponent(href.slice(1))))
+            );
+            assert.deepEqual(brokenAnchors, [], "In-page links must have valid targets.");
+
+            await page.setViewportSize({ width: 390, height: 844 });
+            await page.goto("https://blueflutex.gt.tc/", { waitUntil: "domcontentloaded", timeout: 60000 });
+            await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
+            const burger = page.locator("[data-burger]");
+            await burger.click();
+            assert.equal(await page.locator("[data-drawer]").isVisible(), true, "The live mobile menu should open.");
+            await page.locator('[data-drawer] a[href="#services"]').click();
+            assert.equal(await page.locator("[data-drawer]").isVisible(), false, "The live mobile menu should close after navigation.");
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), false,
+              "The live mobile page should not overflow horizontally.");
+
+            for (const path of ["/privacy-policy.html", "/licenses.html"]) {
+              const sub = await page.goto("https://blueflutex.gt.tc" + path, { waitUntil: "domcontentloaded", timeout: 60000 });
+              assert.ok(sub, path + " should return a document response.");
+              assert.equal(sub.status(), 200, path + " should return HTTP 200.");
+              assert.ok(await page.locator("img.brand__mark").getAttribute("src").then((src) => src.includes("blueflutex-mark.svg")),
+                path + " should use the new brand mark.");
+            }
+            assert.deepEqual(missingSameOrigin, [], "No same-origin page resources should return HTTP errors.");
+            assert.deepEqual(pageErrors, [], "The live branding audit should produce no uncaught JavaScript errors.");
+            console.log("PASS: deployed new header/footer logo, serif wordmark, studio lockup and favicon; legal pages HTTP 200; in-page links, mobile menu and horizontal layout verified.");
+          } finally {
+            await browser.close();
+          }
+          NODE
