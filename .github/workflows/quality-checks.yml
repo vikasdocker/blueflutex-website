@@ -149,10 +149,12 @@ jobs:
                     html.includes('href="https://github.com/MRTHAKER/Compose-Glassmorphism"') &&
                     html.includes('href="https://github.com/kk-amit/jetcompose"'),
             "Fork cards must credit their upstream repositories.");
-          assert.ok(siteJs.includes('const projectCards = projectGrid ? $$') &&
-                    siteJs.includes('const projectFilterButtons = projectFilterRoot ? $$') &&
+          assert.ok(siteJs.includes('const projectCards = projectGrid ? $') &&
+                    siteJs.includes('const projectFilterButtons = projectFilterRoot ? $') &&
                     siteJs.includes('applyProjectFilters') &&
-                    siteJs.includes('projectFilterRoot.hidden = false'),
+                    siteJs.includes('card.dataset.searchTerms') &&
+                    siteJs.includes('projectFilterRoot.hidden = false') &&
+                    html.includes('data-search-terms="aether studio'),
             "The public portfolio filters must initialise and evaluate the full card grid.");
 
           for (const path of ["index.html", "assets/js/site.js"]) {
