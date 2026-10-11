@@ -327,7 +327,7 @@ jobs:
               "An unmatched query should hide every card.");
             assert.equal(await page.locator("[data-project-empty]").isVisible(), true,
               "A helpful empty state should appear when there are no matches.");
-            assert.equal(await page.locator("[data-project-count]").innerText(), "0 projects",
+            assert.equal(await page.locator("[data-project-count]").textContent(), "0 projects",
               "The result counter should reflect empty search results.");
             await projectSearch.fill("");
             assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
