@@ -195,6 +195,15 @@ jobs:
           const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
           try {
             const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+            const pageErrors = [];
+            const sameOriginFailures = [];
+            page.on("pageerror", (error) => pageErrors.push(error.message));
+            page.on("response", (res) => {
+              if (res.url().startsWith("https://blueflutex.gt.tc/") && res.status() >= 400) {
+                sameOriginFailures.push({ status: res.status(), url: res.url() });
+              }
+            });
+
             const response = await page.goto("https://blueflutex.gt.tc/", {
               waitUntil: "domcontentloaded",
               timeout: 60000
@@ -208,12 +217,50 @@ jobs:
               null,
               { timeout: 30000 }
             );
+            // Give deferred scripts, the hero module and images time to initialise.
+            await page.waitForTimeout(8000);
 
             assert.match(await page.title(), /BlueFluteX/, "The live page title should identify BlueFluteX.");
             assert.equal(await page.locator("#contact").count(), 1, "The live contact anchor should exist once.");
             assert.equal(await page.locator("#contact-form").count(), 1, "The live fixed contact form ID should be deployed.");
             await page.locator(".hero__h1").waitFor({ state: "visible" });
-            console.log("PASS: live domain returned HTTP 200 and served the expected BlueFluteX page, contact anchor and contact-form fix.");
+
+            const brokenImages = await page.locator("img").evaluateAll((images) =>
+              images.filter((img) => img.complete && img.naturalWidth === 0).map((img) => img.currentSrc || img.src)
+            );
+            assert.deepEqual(brokenImages, [], "All loaded page images should resolve.");
+            const brokenAnchors = await page.locator('a[href^="#"]').evaluateAll((links) =>
+              links.map((a) => a.getAttribute("href"))
+                .filter((href) => href && href !== "#" && !document.getElementById(decodeURIComponent(href.slice(1))))
+            );
+            assert.deepEqual(brokenAnchors, [], "Every in-page navigation link should have a target.");
+            assert.deepEqual(sameOriginFailures, [], "The live page should not request missing same-origin resources.");
+            assert.deepEqual(pageErrors, [], "The live homepage should not throw uncaught JavaScript errors.");
+
+            await page.setViewportSize({ width: 390, height: 844 });
+            const menu = page.locator("[data-burger]");
+            await menu.click();
+            assert.equal(await page.locator("[data-drawer]").isVisible(), true, "The live mobile drawer should open.");
+            await page.locator('[data-drawer] a[href="#services"]').click();
+            assert.equal(await page.locator("[data-drawer]").isVisible(), false, "The live mobile drawer should close after navigation.");
+            const overflow = await page.evaluate(() =>
+              document.documentElement.scrollWidth > document.documentElement.clientWidth
+            );
+            assert.equal(overflow, false, "The live mobile homepage should not overflow horizontally.");
+
+            for (const path of ["/privacy-policy.html", "/licenses.html"]) {
+              const subpage = await page.goto("https://blueflutex.gt.tc" + path, {
+                waitUntil: "domcontentloaded",
+                timeout: 60000
+              });
+              assert.ok(subpage, path + " should return a document response.");
+              assert.equal(subpage.status(), 200, path + " should return HTTP 200.");
+            }
+
+            console.log("PASS: live homepage and legal pages return HTTP 200; images and in-page links resolve; no missing same-origin resources or uncaught JS errors; mobile drawer works without horizontal overflow.");
+            if (sameOriginFailures.length || pageErrors.length) {
+              console.log(JSON.stringify({ sameOriginFailures, pageErrors }, null, 2));
+            }
           } finally {
             await browser.close();
           }
