@@ -289,7 +289,7 @@
         // this event. Cross-check against the contact_messages table before
         // treating the numbers as exact.
         track("generate_lead", {
-          form_id: "contact-form",
+          form_id: "contact",
           lead_type: "contact_form",
           budget: payload.budget || "unstated",
         });
