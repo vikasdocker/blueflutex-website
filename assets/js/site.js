@@ -189,8 +189,8 @@
      after this script runs, so no project is hidden if JavaScript is disabled. */
   const projectFilterRoot = $("[data-project-filters]");
   const projectGrid = $("[data-project-grid]");
-  const projectCards = projectGrid ? $("[data-project-card]", projectGrid) : [];
-  const projectFilterButtons = projectFilterRoot ? $("[data-project-filter]", projectFilterRoot) : [];
+  const projectCards = projectGrid ? $$("[data-project-card]", projectGrid) : [];
+  const projectFilterButtons = projectFilterRoot ? $$("[data-project-filter]", projectFilterRoot) : [];
   const projectSearch = projectFilterRoot ? $("[data-project-search]", projectFilterRoot) : null;
   const projectCount = $("[data-project-count]");
   const projectEmpty = $("[data-project-empty]");
