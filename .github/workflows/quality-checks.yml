@@ -115,10 +115,47 @@ jobs:
           assert.ok(css.includes(".case--showcase") && css.includes(".case__tab.is-active") &&
                     css.includes("@media (max-width: 560px)"),
             "Showcase visual states and mobile styling must remain present.");
-          assert.ok(siteJs.includes('data-project-tabs]").forEach') &&
+          assert.ok(siteJs.includes("data-project-tabs") &&
                     siteJs.includes('event.key === "ArrowRight"') &&
                     siteJs.includes('event.key === "ArrowLeft"'),
             "Project tabs must support click and keyboard navigation.");
+
+          const projectCardCount = html.split('<article class="project-card ').length - 1;
+          assert.equal(projectCardCount, 16, "The portfolio should include 16 additional public project cards.");
+          assert.ok(html.includes('data-project-filters hidden') &&
+                    html.includes('data-project-filter="all"') &&
+                    html.includes('data-project-filter="apps"') &&
+                    html.includes('data-project-filter="systems"') &&
+                    html.includes('data-project-filter="games"') &&
+                    html.includes('data-project-filter="tools"') &&
+                    html.includes('data-project-filter="open-source"'),
+            "The portfolio should expose all six project category filters.");
+          assert.ok(html.includes('href="https://github.com/vikasdocker/VideoEditorApp"') &&
+                    html.includes('href="https://github.com/vikasdocker/My-Video-Editor"') &&
+                    html.includes('href="https://github.com/vikasdocker/Ather-Os"') &&
+                    html.includes('href="https://github.com/vikasdocker/avenus-os-"') &&
+                    html.includes('href="https://github.com/vikasdocker/Lumen-X"') &&
+                    html.includes('href="https://github.com/vikasdocker/VaultX"') &&
+                    html.includes('href="https://github.com/vikasdocker/buy-and-sell-"') &&
+                    html.includes('href="https://github.com/vikasdocker/SpaceExplorer"') &&
+                    html.includes('href="https://github.com/vikasdocker/PocketSyllabus"') &&
+                    html.includes('href="https://github.com/vikasdocker/anonchat"') &&
+                    html.includes('href="https://github.com/vikasdocker/agent-runtime"') &&
+                    html.includes('href="https://github.com/vikasdocker/RecordedWorld"') &&
+                    html.includes('href="https://github.com/vikasdocker/MyAAAKidsGame"') &&
+                    html.includes('href="https://github.com/vikasdocker/Opencode-in-Unreal"'),
+            "The personal public project repositories should all have direct links.");
+          assert.ok(html.includes('href="https://github.com/JustVugg/colibri"') &&
+                    html.includes('href="https://github.com/MRTHAKER/Compose-Glassmorphism"') &&
+                    html.includes('href="https://github.com/kk-amit/jetcompose"'),
+            "Fork cards must credit their upstream repositories.");
+          assert.ok(siteJs.includes('const projectCards = projectGrid ? $') &&
+                    siteJs.includes('const projectFilterButtons = projectFilterRoot ? $') &&
+                    siteJs.includes('applyProjectFilters') &&
+                    siteJs.includes('card.dataset.searchTerms') &&
+                    siteJs.includes('projectFilterRoot.hidden = false') &&
+                    html.includes('data-search-terms="aether studio'),
+            "The public portfolio filters must initialise and evaluate the full card grid.");
 
           for (const path of ["index.html", "assets/js/site.js"]) {
             assert.ok(readFileSync(path, "utf8").length > 0, path + " should not be empty.");
@@ -248,6 +285,54 @@ jobs:
             assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
               "The Overview tab should be restored for the initial page state.");
             console.log("PASS: CleanBoost screenshot loads; Overview/Safety/Engineering tabs work with click, ArrowRight, Home and End.");
+
+            // Public project directory: count, filters, search and no-results state.
+            assert.equal(await page.locator("[data-project-card]").count(), 16,
+              "The project library should show all 16 additional public repositories/projects.");
+            assert.equal(await page.locator("[data-project-filters]").isVisible(), true,
+              "Category filters should be visible when JavaScript is active.");
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
+              "All additional projects should be visible by default.");
+
+            const projectFilter = (category) => page.locator('[data-project-filter="' + category + '"]');
+            await projectFilter("systems").click();
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 5,
+              "AI & systems should show its five matching projects.");
+            assert.equal(await projectFilter("systems").getAttribute("aria-pressed"), "true",
+              "The selected filter should expose its pressed state.");
+            await projectFilter("games").click();
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 3,
+              "Games & worlds should show its three matching projects.");
+            await projectFilter("tools").click();
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 7,
+              "Developer tools should show its seven matching projects.");
+            await projectFilter("open-source").click();
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 3,
+              "Open-source forks should show the three upstream-credited projects.");
+            await projectFilter("apps").click();
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 8,
+              "Apps should show the eight app projects.");
+            await projectFilter("all").click();
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
+              "All projects should restore the full grid.");
+
+            const projectSearch = page.locator("[data-project-search]");
+            await projectSearch.fill("Aether Studio");
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 1,
+              "Project search should narrow to the matching Aether Studio card.");
+            assert.equal(await page.locator("[data-project-card]:not([hidden]) h4").innerText(), "Aether Studio",
+              "Search results should preserve the correct project identity.");
+            await projectSearch.fill("no-matching-project-xyz");
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 0,
+              "An unmatched query should hide every card.");
+            assert.equal(await page.locator("[data-project-empty]").isVisible(), true,
+              "A helpful empty state should appear when there are no matches.");
+            assert.equal(await page.locator("[data-project-count]").textContent(), "0 projects",
+              "The result counter should reflect empty search results.");
+            await projectSearch.fill("");
+            assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
+              "Clearing search should restore the current category results.");
+            console.log("PASS: 16-project grid, category filters, live search, result counter, empty state and upstream attribution.");
 
             await page.waitForFunction(
               () => [...document.querySelectorAll("img.brand__mark")].length >= 1 &&
@@ -379,7 +464,7 @@ jobs:
           NODE
 
       - name: Verify live interactive project showcase
-        if: github.ref == 'refs/heads/feat/interactive-project-showcase'
+        if: github.ref == 'refs/heads/feat/github-project-portfolio'
         run: |
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";
@@ -404,9 +489,9 @@ jobs:
             assert.equal(response.status(), 200, "The production homepage should return HTTP 200.");
             await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
 
-            // The first run happens before release. Skip the live feature assertions
-            // only if the previous release is still served; rerun this branch after deploy.
-            const deployed = await page.locator("#cleanboost-tab-safety").count();
+            // This feature branch runs CI before merge and again after release.
+            // Skip only while production is still serving the previous gallery.
+            const deployed = (await page.locator("[data-project-card]").count()) === 16;
             if (!deployed) {
               console.log("SKIP: interactive project showcase is not on production yet; rerun after the release.");
             } else {
@@ -435,6 +520,47 @@ jobs:
                 "Live keyboard navigation should advance to Engineering.");
               assert.match(await page.locator("#cleanboost-panel-engineering").innerText(), /46 automated tests/i,
                 "Live Engineering tab should show the existing project facts.");
+
+              // Verify the full public project library and its search/filter interactions
+              // against production, not only in the local build.
+              assert.equal(await page.locator("[data-project-card]").count(), 16,
+                "Production should serve all 16 additional public project cards.");
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
+                "The production project grid should initially show every project.");
+              const liveFilter = (category) => page.locator('[data-project-filter="' + category + '"]');
+              await liveFilter("systems").click();
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 5,
+                "Production AI & systems filter should return five projects.");
+              await liveFilter("games").click();
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 3,
+                "Production Games & worlds filter should return three projects.");
+              await liveFilter("tools").click();
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 7,
+                "Production developer tools filter should return seven projects.");
+              await liveFilter("open-source").click();
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 3,
+                "Production open-source filter should return three credited forks.");
+              await liveFilter("apps").click();
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 8,
+                "Production apps filter should return eight projects.");
+              await liveFilter("all").click();
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
+                "Production All projects filter should restore the entire grid.");
+
+              const liveSearch = page.locator('input[data-project-search]');
+              await liveSearch.fill("Aether Studio");
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 1,
+                "Production search should find Aether Studio.");
+              await liveSearch.fill("no-matching-project-xyz");
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 0,
+                "Production search should be able to return zero results.");
+              assert.equal(await page.locator("[data-project-empty]").isVisible(), true,
+                "Production zero-results state should be visible.");
+              assert.equal(await page.locator("[data-project-count]").textContent(), "0 projects",
+                "Production count should reflect zero search matches.");
+              await liveSearch.fill("");
+              assert.equal(await page.locator("[data-project-card]:not([hidden])").count(), 16,
+                "Clearing production search should restore all projects.");
 
               await page.setViewportSize({ width: 390, height: 844 });
               await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
