@@ -144,10 +144,10 @@
      Native buttons and ARIA tabs keep the case study keyboard-accessible.
      If this script is unavailable, CSS hides the tab controls and shows all
      detail panels, so no project information is lost. */
-  $("[data-project-tabs]").forEach((tablist) => {
-    const tabs = $("[data-project-tab]", tablist);
+  $$("[data-project-tabs]").forEach((tablist) => {
+    const tabs = $$("[data-project-tab]", tablist);
     const panelRoot = tablist.parentElement?.querySelector("[data-project-panels]");
-    const panels = panelRoot ? $("[data-project-panel]", panelRoot) : [];
+    const panels = panelRoot ? $$("[data-project-panel]", panelRoot) : [];
     if (!tabs.length || !panels.length) return;
 
     const activate = (tab, moveFocus = false) => {
