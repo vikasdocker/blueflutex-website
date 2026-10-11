@@ -115,45 +115,45 @@ jobs:
           assert.ok(css.includes(".case--showcase") && css.includes(".case__tab.is-active") &&
                     css.includes("@media (max-width: 560px)"),
             "Showcase visual states and mobile styling must remain present.");
-          assert.ok(siteJs.includes('data-project-tabs]\").forEach') &&
-                    siteJs.includes('event.key === \"ArrowRight\"') &&
-                    siteJs.includes('event.key === \"ArrowLeft\"'),
-            \"Project tabs must support click and keyboard navigation.\");
+          assert.ok(siteJs.includes("data-project-tabs") &&
+                    siteJs.includes('event.key === "ArrowRight"') &&
+                    siteJs.includes('event.key === "ArrowLeft"'),
+            "Project tabs must support click and keyboard navigation.");
 
           const projectCardCount = html.split('<article class="project-card ').length - 1;
-          assert.equal(projectCardCount, 16, \"The portfolio should include 16 additional public project cards.\");
+          assert.equal(projectCardCount, 16, "The portfolio should include 16 additional public project cards.");
           assert.ok(html.includes('data-project-filters hidden') &&
-                    html.includes('data-project-filter=\"all\"') &&
-                    html.includes('data-project-filter=\"apps\"') &&
-                    html.includes('data-project-filter=\"systems\"') &&
-                    html.includes('data-project-filter=\"games\"') &&
-                    html.includes('data-project-filter=\"tools\"') &&
-                    html.includes('data-project-filter=\"open-source\"'),
-            \"The portfolio should expose all six project category filters.\");
-          assert.ok(html.includes('href=\"https://github.com/vikasdocker/VideoEditorApp\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/My-Video-Editor\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/Ather-Os\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/avenus-os-\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/Lumen-X\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/VaultX\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/buy-and-sell-\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/SpaceExplorer\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/PocketSyllabus\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/anonchat\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/agent-runtime\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/RecordedWorld\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/MyAAAKidsGame\"') &&
-                    html.includes('href=\"https://github.com/vikasdocker/Opencode-in-Unreal\"'),
-            \"The personal public project repositories should all have direct links.\");
-          assert.ok(html.includes('href=\"https://github.com/JustVugg/colibri\"') &&
-                    html.includes('href=\"https://github.com/MRTHAKER/Compose-Glassmorphism\"') &&
-                    html.includes('href=\"https://github.com/kk-amit/jetcompose\"'),
-            \"Fork cards must credit their upstream repositories.\");
+                    html.includes('data-project-filter="all"') &&
+                    html.includes('data-project-filter="apps"') &&
+                    html.includes('data-project-filter="systems"') &&
+                    html.includes('data-project-filter="games"') &&
+                    html.includes('data-project-filter="tools"') &&
+                    html.includes('data-project-filter="open-source"'),
+            "The portfolio should expose all six project category filters.");
+          assert.ok(html.includes('href="https://github.com/vikasdocker/VideoEditorApp"') &&
+                    html.includes('href="https://github.com/vikasdocker/My-Video-Editor"') &&
+                    html.includes('href="https://github.com/vikasdocker/Ather-Os"') &&
+                    html.includes('href="https://github.com/vikasdocker/avenus-os-"') &&
+                    html.includes('href="https://github.com/vikasdocker/Lumen-X"') &&
+                    html.includes('href="https://github.com/vikasdocker/VaultX"') &&
+                    html.includes('href="https://github.com/vikasdocker/buy-and-sell-"') &&
+                    html.includes('href="https://github.com/vikasdocker/SpaceExplorer"') &&
+                    html.includes('href="https://github.com/vikasdocker/PocketSyllabus"') &&
+                    html.includes('href="https://github.com/vikasdocker/anonchat"') &&
+                    html.includes('href="https://github.com/vikasdocker/agent-runtime"') &&
+                    html.includes('href="https://github.com/vikasdocker/RecordedWorld"') &&
+                    html.includes('href="https://github.com/vikasdocker/MyAAAKidsGame"') &&
+                    html.includes('href="https://github.com/vikasdocker/Opencode-in-Unreal"'),
+            "The personal public project repositories should all have direct links.");
+          assert.ok(html.includes('href="https://github.com/JustVugg/colibri"') &&
+                    html.includes('href="https://github.com/MRTHAKER/Compose-Glassmorphism"') &&
+                    html.includes('href="https://github.com/kk-amit/jetcompose"'),
+            "Fork cards must credit their upstream repositories.");
           assert.ok(siteJs.includes('const projectCards = $$') &&
                     siteJs.includes('const projectFilterButtons = $$') &&
                     siteJs.includes('applyProjectFilters') &&
                     siteJs.includes('projectFilterRoot.hidden = false'),
-            \"The public portfolio filters must initialise and evaluate the full card grid.\");
+            "The public portfolio filters must initialise and evaluate the full card grid.");
 
           for (const path of ["index.html", "assets/js/site.js"]) {
             assert.ok(readFileSync(path, "utf8").length > 0, path + " should not be empty.");
