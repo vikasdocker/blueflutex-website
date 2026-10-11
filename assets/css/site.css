@@ -198,27 +198,45 @@ h1, h2, h3, h4 { color: var(--ink); font-weight: 400; }
 /* ---------- hero ---------- */
 .hero {
   position: relative;
+  isolation: isolate;
   padding-block: calc(var(--nav-h) + clamp(48px, 9vw, 104px)) clamp(56px, 8vw, 92px);
   min-height: min(100svh, 860px);
   display: flex; flex-direction: column; justify-content: center;
   overflow: hidden;
+  background: linear-gradient(112deg, var(--paper) 4%, #faf8f4 48%, #f1f7f4 100%);
+}
+/* Static ambient light and orbital guide remain elegant if WebGL is disabled. */
+.hero::before, .hero::after {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  width: clamp(460px, 57vw, 860px); aspect-ratio: 1;
+  right: clamp(-220px, -12vw, -80px); top: 46%;
+  transform: translateY(-50%); border-radius: 50%;
+}
+.hero::before {
+  background: radial-gradient(circle, rgba(20, 120, 111, .16) 0%, rgba(20, 120, 111, .07) 32%, transparent 70%);
+  filter: blur(22px);
+}
+.hero::after {
+  border: 1px solid rgba(15, 92, 86, .14);
+  box-shadow: inset 0 0 0 22px rgba(15, 92, 86, .025),
+              inset 0 0 0 23px rgba(15, 92, 86, .075),
+              0 0 0 54px rgba(15, 92, 86, .025);
+  opacity: .78;
 }
 .hero__canvas, .hero__fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
-.hero__canvas { z-index: 0; }
-/* Shown only when WebGL or the CDN is unavailable. Repeating radial gradients
-   reproduce the same contour language the shader draws, so the hero still
-   looks deliberate rather than broken. Rings are weighted to the right to
-   keep the copy column clear, same as the shader's screen-space falloff. */
+.hero__canvas { z-index: 0; opacity: .96; }
+/* No-WebGL fallback: a quiet contour halo keeps the hero intentional. */
 .hero__fallback {
   z-index: 0; opacity: 0; transition: opacity 1s var(--ease);
   background:
-    repeating-radial-gradient(circle at 80% 38%, rgba(15, 92, 86, .17) 0 1px, transparent 1px 44px),
-    repeating-radial-gradient(circle at 80% 38%, rgba(15, 92, 86, .09) 0 1px, transparent 1px 88px),
-    radial-gradient(58% 70% at 80% 38%, rgba(20, 120, 111, .11), transparent 72%);
+    repeating-radial-gradient(circle at 78% 45%, rgba(15, 92, 86, .16) 0 1px, transparent 1px 42px),
+    repeating-radial-gradient(circle at 78% 45%, rgba(15, 92, 86, .075) 0 1px, transparent 1px 84px),
+    radial-gradient(54% 68% at 78% 45%, rgba(20, 120, 111, .13), transparent 72%);
 }
 .hero.is-fallback .hero__fallback { opacity: 1; }
+.hero.is-immersive .hero__fallback { opacity: .18; }
 
-.hero__in { position: relative; z-index: 1; }
+.hero__in { position: relative; z-index: 1; width: 100%; }
 
 .hero__h1 {
   font-family: var(--f-display);
@@ -262,6 +280,17 @@ h1, h2, h3, h4 { color: var(--ink); font-weight: 400; }
   animation: nudge 2.6s var(--ease) infinite;
 }
 @keyframes nudge { 50% { transform: translateX(8px); } }
+
+@media (min-width: 1021px) {
+  .hero__in {
+    max-width: 770px;
+    margin-left: max(calc((100vw - var(--wrap)) / 2), clamp(20px, 5vw, 40px));
+    margin-right: 0;
+    padding-right: clamp(24px, 3vw, 44px);
+  }
+  .hero__h1 { max-width: 8.8ch; font-size: clamp(5rem, 7.35vw, 7.5rem); }
+  .hero__facts { max-width: 570px; }
+}
 
 /* ---------- ticker ---------- */
 .ticker {
@@ -499,6 +528,19 @@ h1, h2, h3, h4 { color: var(--ink); font-weight: 400; }
   .burger { display: block; }
   .hero__facts { gap: 22px 34px; }
   .hero__scroll { display: none; }
+  .hero::before, .hero::after {
+    width: clamp(290px, 86vw, 460px);
+    right: -25%;
+    top: 36%;
+  }
+  .hero::before { filter: blur(14px); }
+  .hero::after { box-shadow: none; opacity: .38; }
+  .hero__canvas { opacity: .7; }
+  .hero__fallback {
+    background:
+      repeating-radial-gradient(circle at 83% 32%, rgba(15, 92, 86, .13) 0 1px, transparent 1px 34px),
+      radial-gradient(62% 45% at 83% 32%, rgba(20, 120, 111, .09), transparent 74%);
+  }
   .foot__cols { grid-template-columns: 1fr 1fr; }
 }
 
