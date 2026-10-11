@@ -184,6 +184,56 @@
     });
   });
 
+  /* ---------- public project portfolio filters ---------- 
+     The entire project grid is visible by default. Filters are enabled only
+     after this script runs, so no project is hidden if JavaScript is disabled. */
+  const projectFilterRoot = $("[data-project-filters]");
+  const projectGrid = $("[data-project-grid]");
+  const projectCards = projectGrid ? $("[data-project-card]", projectGrid) : [];
+  const projectFilterButtons = projectFilterRoot ? $("[data-project-filter]", projectFilterRoot) : [];
+  const projectSearch = projectFilterRoot ? $("[data-project-search]", projectFilterRoot) : null;
+  const projectCount = $("[data-project-count]");
+  const projectEmpty = $("[data-project-empty]");
+
+  if (projectFilterRoot && projectGrid && projectCards.length && projectFilterButtons.length) {
+    projectFilterRoot.hidden = false;
+
+    const applyProjectFilters = () => {
+      const activeButton = projectFilterButtons.find((button) => button.getAttribute("aria-pressed") === "true");
+      const category = activeButton?.dataset.projectFilter || "all";
+      const query = (projectSearch?.value || "").trim().toLocaleLowerCase();
+      let visible = 0;
+
+      projectCards.forEach((card) => {
+        const categories = (card.dataset.projectCategories || "").split(/\\s+/).filter(Boolean);
+        const text = (card.textContent + " " + (card.dataset.projectSearch || "")).toLocaleLowerCase();
+        const categoryMatch = category === "all" || categories.includes(category);
+        const queryMatch = !query || text.includes(query);
+        const show = categoryMatch && queryMatch;
+
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      if (projectCount) projectCount.textContent = `${visible} ${visible === 1 ? "project" : "projects"}`;
+      if (projectEmpty) projectEmpty.hidden = visible !== 0;
+    };
+
+    projectFilterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        projectFilterButtons.forEach((candidate) => {
+          const active = candidate === button;
+          candidate.classList.toggle("is-active", active);
+          candidate.setAttribute("aria-pressed", String(active));
+        });
+        applyProjectFilters();
+      });
+    });
+
+    projectSearch?.addEventListener("input", applyProjectFilters);
+    applyProjectFilters();
+  }
+
   /* ---------- footer year ---------- */
   $$("[data-year]").forEach((el) => {
     el.textContent = String(new Date().getFullYear());
