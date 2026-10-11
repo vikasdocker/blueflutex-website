@@ -156,12 +156,14 @@ h1, h2, h3, h4 { color: var(--ink); font-weight: 400; }
 }
 .nav__in { height: var(--nav-h); display: flex; align-items: center; gap: 28px; }
 
-.brand { display: inline-flex; align-items: center; gap: 11px; }
-.brand__mark { width: 44px; height: auto; }
+.brand { display: inline-flex; align-items: center; gap: 10px; }
+.brand__mark { width: 40px; height: 40px; flex: 0 0 40px; object-fit: contain; }
 .brand__word {
-  font-size: 1.02rem; font-weight: 600; letter-spacing: -.022em; color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 1.34rem; font-weight: 600; line-height: 1;
+  letter-spacing: -.035em; color: var(--ink);
 }
-.brand__word em { font-style: normal; color: var(--teal); }
+.brand__word em { font-style: italic; color: var(--teal); margin-left: 1px; }
 
 .nav__links { display: flex; gap: 28px; margin-left: auto; font-size: .93rem; }
 .nav__links a { position: relative; padding: 6px 0; color: var(--ink-2); transition: color var(--fast); }
