@@ -44,6 +44,7 @@ jobs:
           const html = readFileSync("index.html", "utf8");
           const js = readFileSync("assets/js/site.js", "utf8");
           const shaders = readFileSync("assets/js/shaders.js", "utf8");
+          const hero3d = readFileSync("assets/js/hero3d.js", "utf8");
           const css = readFileSync("assets/css/site.css", "utf8");
           const mark = readFileSync("assets/img/blueflutex-mark.svg", "utf8");
           const lockup = readFileSync("assets/img/blueflutex-lockup.svg", "utf8");
@@ -75,6 +76,17 @@ jobs:
             "Reduced-motion support must remain present.");
           assert.ok(css.includes("@media (max-width: 780px)"),
             "The mobile navigation breakpoint must remain present.");
+
+          assert.ok(hero3d.includes("new THREE.TorusGeometry") && hero3d.includes("new THREE.IcosahedronGeometry"),
+            "The immersive sculpture must be built from native Three.js geometry.");
+          assert.ok(hero3d.includes("const dprCap = narrow ? 1.25 : 1.75;"),
+            "Pixel ratio must be capped lower on mobile.");
+          assert.ok(hero3d.includes("navigator.connection?.saveData") && hero3d.includes("navigator.deviceMemory <= 2"),
+            "Data-saver and very-low-memory phones must use the safe CSS fallback.");
+          assert.ok(hero3d.includes("document.hidden") && hero3d.includes("IntersectionObserver"),
+            "The animation loop must pause when hidden or offscreen.");
+          assert.ok(hero3d.includes('reduced.addEventListener?.("change"'),
+            "Reduced-motion changes must stop animation and render a still frame.");
 
           assert.ok(mark.includes("<svg") && mark.includes("#0f5c56") && mark.includes("#14786f"),
             "The new vector mark must use the BlueFluteX teal palette.");
@@ -190,6 +202,20 @@ jobs:
             assert.deepEqual(markSize, { width: "40px", height: "40px" }, "The new brand mark should display at its intended square size.");
             console.log("PASS: refreshed logo assets load in Chromium at the specified size.");
 
+            await page.waitForFunction(() => {
+              const el = document.querySelector(".hero");
+              return el?.classList.contains("is-immersive") || el?.classList.contains("is-fallback");
+            }, null, { timeout: 15000 });
+            const heroMode = await page.locator(".hero").evaluate((el) =>
+              el.classList.contains("is-immersive") ? "immersive" : "fallback"
+            );
+            assert.ok(["immersive", "fallback"].includes(heroMode), "Hero must reach a valid rendered or fallback state.");
+            if (heroMode === "immersive") {
+              assert.equal(await page.locator("#resonance").getAttribute("data-render-mode"), "immersive",
+                "WebGL render state should be labelled for diagnostics.");
+            }
+            console.log("PASS: hero selects immersive Three.js rendering or the deliberate fallback.");
+
             // Mobile navigation must open and close, without relying on desktop layout.
             await page.setViewportSize({ width: 390, height: 844 });
             const burger = page.locator("[data-burger]");
@@ -218,6 +244,64 @@ jobs:
 
             await page.screenshot({ path: "/tmp/blueflutex-home.png", fullPage: false });
             console.log("PASS: homepage HTTP 200, mobile drawer open/close, mock contact form submission, form reset, reduced-motion visibility, and no uncaught page errors.");
+          } finally {
+            await browser.close();
+          }
+          NODE
+
+      - name: Verify live immersive hero and responsive layout
+        if: github.ref == 'refs/heads/design/immersive-three-hero'
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+          try {
+            const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+            const errors = [];
+            const sameOriginFailures = [];
+            page.on("pageerror", (error) => errors.push(error.message));
+            page.on("response", (response) => {
+              if (response.url().startsWith("https://blueflutex.gt.tc/") && response.status() >= 400) {
+                sameOriginFailures.push({ status: response.status(), url: response.url() });
+              }
+            });
+
+            const response = await page.goto("https://blueflutex.gt.tc/", {
+              waitUntil: "domcontentloaded", timeout: 60000
+            });
+            assert.ok(response, "The live homepage must return a document response.");
+            assert.equal(response.status(), 200, "The live homepage should return HTTP 200.");
+            await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
+            await page.waitForTimeout(4000);
+            await page.waitForFunction(() => {
+              const el = document.querySelector(".hero");
+              return el?.classList.contains("is-immersive") || el?.classList.contains("is-fallback");
+            }, null, { timeout: 15000 });
+
+            const mode = await page.locator(".hero").evaluate((el) =>
+              el.classList.contains("is-immersive") ? "immersive" : "fallback"
+            );
+            assert.ok(["immersive", "fallback"].includes(mode), "Live hero should enter a valid render mode.");
+            assert.equal(await page.locator(".hero__h1").isVisible(), true, "Hero headline must remain visible.");
+            assert.equal(await page.locator("#contact-form").count(), 1, "Contact form must remain present.");
+
+            await page.setViewportSize({ width: 390, height: 844 });
+            await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
+            await page.waitForFunction(() => document.title.includes("BlueFluteX"), null, { timeout: 30000 });
+            await page.waitForTimeout(1200);
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), false,
+              "The mobile site must not overflow horizontally.");
+            const burger = page.locator("[data-burger]");
+            await burger.click();
+            assert.equal(await page.locator("[data-drawer]").isVisible(), true, "Mobile menu should open.");
+            await page.locator('[data-drawer] a[href="#services"]').click();
+            assert.equal(await page.locator("[data-drawer]").isVisible(), false, "Mobile menu should close after navigation.");
+
+            assert.deepEqual(sameOriginFailures, [], "No production same-origin resources should return HTTP errors.");
+            assert.deepEqual(errors, [], "Production page should not throw uncaught JavaScript errors.");
+            console.log("PASS: live homepage HTTP 200; immersive/fallback hero state=" + mode + "; contact form preserved; mobile menu and width verified.");
           } finally {
             await browser.close();
           }
