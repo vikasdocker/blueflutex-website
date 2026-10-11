@@ -149,8 +149,8 @@ jobs:
                     html.includes('href="https://github.com/MRTHAKER/Compose-Glassmorphism"') &&
                     html.includes('href="https://github.com/kk-amit/jetcompose"'),
             "Fork cards must credit their upstream repositories.");
-          assert.ok(siteJs.includes('const projectCards = $$') &&
-                    siteJs.includes('const projectFilterButtons = $$') &&
+          assert.ok(siteJs.includes('const projectCards = projectGrid ? $$') &&
+                    siteJs.includes('const projectFilterButtons = projectFilterRoot ? $$') &&
                     siteJs.includes('applyProjectFilters') &&
                     siteJs.includes('projectFilterRoot.hidden = false'),
             "The public portfolio filters must initialise and evaluate the full card grid.");
