@@ -140,6 +140,50 @@
     }
   }
 
+  /* ---------- interactive project showcase ---------- 
+     Native buttons and ARIA tabs keep the case study keyboard-accessible.
+     If this script is unavailable, CSS hides the tab controls and shows all
+     detail panels, so no project information is lost. */
+  $("[data-project-tabs]").forEach((tablist) => {
+    const tabs = $("[data-project-tab]", tablist);
+    const panelRoot = tablist.parentElement?.querySelector("[data-project-panels]");
+    const panels = panelRoot ? $("[data-project-panel]", panelRoot) : [];
+    if (!tabs.length || !panels.length) return;
+
+    const activate = (tab, moveFocus = false) => {
+      const selectedKey = tab.dataset.projectTab;
+      tabs.forEach((item) => {
+        const active = item === tab;
+        item.classList.toggle("is-active", active);
+        item.setAttribute("aria-selected", String(active));
+        item.tabIndex = active ? 0 : -1;
+      });
+      panels.forEach((panel) => {
+        const active = panel.dataset.projectPanel === selectedKey;
+        panel.classList.toggle("is-active", active);
+        panel.hidden = !active;
+      });
+      if (moveFocus) tab.focus();
+    };
+
+    activate(tabs.find((tab) => tab.getAttribute("aria-selected") === "true") || tabs[0]);
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => activate(tab));
+      tab.addEventListener("keydown", (event) => {
+        let nextIndex = index;
+        if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+        else if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === "Home") nextIndex = 0;
+        else if (event.key === "End") nextIndex = tabs.length - 1;
+        else return;
+
+        event.preventDefault();
+        activate(tabs[nextIndex], true);
+      });
+    });
+  });
+
   /* ---------- footer year ---------- */
   $$("[data-year]").forEach((el) => {
     el.textContent = String(new Date().getFullYear());
