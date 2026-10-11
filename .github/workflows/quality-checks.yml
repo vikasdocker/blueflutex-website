@@ -184,3 +184,37 @@ jobs:
             await browser.close();
           }
           NODE
+
+      - name: Verify deployed homepage in Chromium
+        if: github.ref == 'refs/heads/polish/resonance-hero'
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+          try {
+            const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+            const response = await page.goto("https://blueflutex.gt.tc/", {
+              waitUntil: "domcontentloaded",
+              timeout: 60000
+            });
+            assert.ok(response, "The deployed homepage should return a document response.");
+            assert.equal(response.status(), 200, "The deployed homepage should return HTTP 200.");
+
+            // InfinityFree may present a JavaScript anti-bot interstitial to first-time requests.
+            await page.waitForFunction(
+              () => document.title.includes("BlueFluteX"),
+              null,
+              { timeout: 30000 }
+            );
+
+            assert.match(await page.title(), /BlueFluteX/, "The live page title should identify BlueFluteX.");
+            assert.equal(await page.locator("#contact").count(), 1, "The live contact anchor should exist once.");
+            assert.equal(await page.locator("#contact-form").count(), 1, "The live fixed contact form ID should be deployed.");
+            await page.locator(".hero__h1").waitFor({ state: "visible" });
+            console.log("PASS: live domain returned HTTP 200 and served the expected BlueFluteX page, contact anchor and contact-form fix.");
+          } finally {
+            await browser.close();
+          }
+          NODE
