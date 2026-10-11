@@ -46,6 +46,7 @@ jobs:
           const shaders = readFileSync("assets/js/shaders.js", "utf8");
           const hero3d = readFileSync("assets/js/hero3d.js", "utf8");
           const css = readFileSync("assets/css/site.css", "utf8");
+          const siteJs = readFileSync("assets/js/site.js", "utf8");
           const mark = readFileSync("assets/img/blueflutex-mark.svg", "utf8");
           const lockup = readFileSync("assets/img/blueflutex-lockup.svg", "utf8");
           const manifest = readFileSync("site.webmanifest", "utf8");
@@ -99,6 +100,29 @@ jobs:
             "The new square logo mark sizing must be applied.");
           assert.ok(manifest.includes("/assets/img/blueflutex-mark.svg"),
             "The installable app manifest must include the updated brand icon.");
+
+          assert.ok(html.includes('data-project-tabs role="tablist"') &&
+                    html.includes('data-project-tab="overview"') &&
+                    html.includes('data-project-tab="safety"') &&
+                    html.includes('data-project-tab="engineering"'),
+            "CleanBoost must expose the three accessible project detail tabs.");
+          assert.ok(html.includes('id="cleanboost-panel-overview"') &&
+                    html.includes('id="cleanboost-panel-safety"') &&
+                    html.includes('id="cleanboost-panel-engineering"'),
+            "Each project tab must have a corresponding labelled detail panel.");
+          assert.ok(html.includes('href="https://github.com/vikasdocker/CleanBoost"'),
+            "The project CTA must link to the actual public CleanBoost repository.");
+          assert.ok(css.includes(".case--showcase") && css.includes(".case__tab.is-active") &&
+                    css.includes("@media (max-width: 560px)"),
+            "Showcase visual states and mobile styling must remain present.");
+          assert.ok(siteJs.includes('$("[data-project-tabs]")') &&
+                    siteJs.includes('event.key === "ArrowRight"') &&
+                    siteJs.includes('event.key === "ArrowLeft"'),
+            "Project tabs must support click and keyboard navigation.");
+
+          for (const path of ["index.html", "assets/js/site.js"]) {
+            assert.ok(readFileSync(path, "utf8").length > 0, path + " should not be empty.");
+          }
 
           for (const path of ["privacy-policy.html", "licenses.html"]) {
             const page = readFileSync(path, "utf8");
@@ -184,6 +208,46 @@ jobs:
             assert.match(await page.title(), /BlueFluteX/, "Homepage title should identify the site.");
             assert.equal(await page.locator("#contact").count(), 1, "Contact section anchor should be unique.");
             assert.equal(await page.locator("#contact-form").count(), 1, "Contact form should be uniquely addressable.");
+
+            // The interactive project case study must work with both pointer and keyboard.
+            const projectImage = page.locator(".case__image-wrap img");
+            await projectImage.scrollIntoViewIfNeeded();
+            await page.waitForFunction(() => {
+              const img = document.querySelector(".case__image-wrap img");
+              return img && img.complete && img.naturalWidth > 0;
+            }, null, { timeout: 10000 });
+            assert.ok(await projectImage.evaluate((img) => img.naturalWidth > 0),
+              "The actual CleanBoost screenshot should load.");
+
+            const overviewTab = page.locator("#cleanboost-tab-overview");
+            const safetyTab = page.locator("#cleanboost-tab-safety");
+            const engineeringTab = page.locator("#cleanboost-tab-engineering");
+            assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
+              "Overview should be the initial selected project tab.");
+            await safetyTab.click();
+            assert.equal(await safetyTab.getAttribute("aria-selected"), "true",
+              "Clicking Safety model should select that tab.");
+            assert.equal(await page.locator("#cleanboost-panel-safety").isVisible(), true,
+              "Safety details should be visible after selection.");
+            assert.match(await page.locator("#cleanboost-panel-safety").innerText(), /Recycle Bin/i,
+              "Safety panel should explain the real Recycle Bin safeguard.");
+            await safetyTab.press("ArrowRight");
+            assert.equal(await engineeringTab.getAttribute("aria-selected"), "true",
+              "ArrowRight should move selection to the next tab.");
+            assert.equal(await page.locator("#cleanboost-panel-engineering").isVisible(), true,
+              "Engineering details should appear on keyboard navigation.");
+            assert.match(await page.locator("#cleanboost-panel-engineering").innerText(), /46 automated tests/i,
+              "Engineering panel should display the verified project detail.");
+            await engineeringTab.press("Home");
+            assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
+              "Home should return to the first project tab.");
+            await overviewTab.press("End");
+            assert.equal(await engineeringTab.getAttribute("aria-selected"), "true",
+              "End should select the last project tab.");
+            await overviewTab.click();
+            assert.equal(await overviewTab.getAttribute("aria-selected"), "true",
+              "The Overview tab should be restored for the initial page state.");
+            console.log("PASS: CleanBoost screenshot loads; Overview/Safety/Engineering tabs work with click, ArrowRight, Home and End.");
 
             await page.waitForFunction(
               () => [...document.querySelectorAll("img.brand__mark")].length >= 1 &&
