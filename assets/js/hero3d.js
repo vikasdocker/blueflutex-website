@@ -1,91 +1,85 @@
 /* =========================================================
-   BlueFluteX \u2014 hero resonance field
+   BlueFluteX — immersive resonance hero
 
-   A subdivided plane displaced by the shader in shaders.js, viewed
-   in perspective so it reads as a surface rather than a texture.
+   One lightweight Three.js scene: the existing contour field plus a
+   layered "resonator" sculpture. The canvas is decorative; the page
+   content remains readable and complete without WebGL.
 
-   Three.js comes from a CDN via the import map in index.html \u2014 see
-   the note there for why it is not bundled.
-
-   Failure is a supported path, not an exception: no WebGL, no CDN,
-   or a context-loss all fall back to the CSS gradient already in the
-   markup, and nothing is logged to the page.
+   Performance safeguards:
+   - capped device-pixel ratio and reduced mesh / particle counts on mobile
+   - frame loop pauses offscreen and while the tab is hidden
+   - adaptive pixel ratio if rendering is slow
+   - reduced-motion users receive a single still frame
+   - data-saver / very-low-memory phones use the CSS fallback
    ========================================================= */
 import * as THREE from "three";
 import { VERT, FRAG } from "./shaders.js";
 
 const canvas = document.getElementById("resonance");
 const hero = document.querySelector(".hero");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+const narrow = matchMedia("(max-width: 780px)").matches;
+const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
+const saveData = Boolean(navigator.connection?.saveData);
+const lowMemory = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 2;
 
-/* ---------- bail out cleanly ---------- */
 function bail() {
-  // tell the stylesheet to show the static gradient
   hero?.classList.add("is-fallback");
+  hero?.classList.remove("is-immersive");
   canvas?.remove();
 }
 
 if (!canvas || !hero) {
-  // nothing to attach to; the hero still reads fine without it
-} else if (window.WebGLRenderingContext) {
+  // The content is independent of the decorative scene.
+} else if (!window.WebGLRenderingContext || (narrow && (saveData || lowMemory))) {
+  bail();
+} else {
   try {
     boot();
   } catch {
     bail();
   }
-} else {
-  bail();
 }
 
 function boot() {
-  /* ---------- palette, pulled from site.css so there is one source ---------- */
   const css = getComputedStyle(document.documentElement);
   const token = (name, fallback) => (css.getPropertyValue(name) || fallback).trim();
-  const INK = new THREE.Color(token("--ink", "#14110f"));
-  const ACCENT = new THREE.Color(token("--teal", "#0f5c56"));
+  const ink = new THREE.Color(token("--ink", "#14110f"));
+  const accent = new THREE.Color(token("--teal", "#0f5c56"));
+  const dprCap = narrow ? 1.25 : 1.75;
 
-  /* ---------- renderer ---------- */
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
-      alpha: true,          // paper shows through; clear alpha stays 0
-      powerPreference: "high-performance",
+      antialias: !narrow,
+      alpha: true,
+      powerPreference: narrow ? "low-power" : "high-performance",
     });
   } catch {
     bail();
     return;
   }
 
-  // Cap DPR at 2, then step down if the frame budget is being missed.
-  // Uncapped DPR is the usual reason "simple" 3D stutters on phones.
-  const CAP = 2;
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, CAP));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, dprCap));
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 70);
+  camera.position.set(0, 0, 5.2);
 
-  /* ---------- geometry ----------
-     Segments are the only real cost here: 1 mesh, no per-vertex objects.
-     Reduced on narrow screens where the extra tessellation buys nothing. */
-  const narrow = matchMedia("(max-width: 780px)").matches;
-  const SEG_X = narrow ? 110 : 190;
-  const SEG_Y = narrow ? 80 : 140;
-
-  const geo = new THREE.PlaneGeometry(1, 1, SEG_X, SEG_Y);
-
+  /* ---------- contour field backdrop ---------- */
+  const plane = new THREE.PlaneGeometry(1, 1, narrow ? 86 : 156, narrow ? 60 : 108);
   const uniforms = {
     uTime: { value: 0 },
-    uAmp: { value: 0.55 },
+    uAmp: { value: narrow ? 0.42 : 0.52 },
     uRipple: { value: new THREE.Vector2(0, 0) },
-    uInk: { value: INK },
-    uAccent: { value: ACCENT },
+    uInk: { value: ink },
+    uAccent: { value: accent },
     uRes: { value: new THREE.Vector2(1, 1) },
-    uBands: { value: 34.0 },
+    uBands: { value: narrow ? 25.0 : 32.0 },
   };
-
-  const material = new THREE.ShaderMaterial({
+  const fieldMaterial = new THREE.ShaderMaterial({
     vertexShader: VERT,
     fragmentShader: FRAG,
     uniforms,
@@ -93,180 +87,292 @@ function boot() {
     depthWrite: false,
     side: THREE.DoubleSide,
   });
+  const field = new THREE.Mesh(plane, fieldMaterial);
+  field.position.z = -0.8;
+  field.rotation.x = -0.28;
+  scene.add(field);
 
-  const mesh = new THREE.Mesh(geo, material);
-  // tilt the top edge away from the camera so the surface has a horizon
-  mesh.rotation.x = -0.30;
-  scene.add(mesh);
+  /* ---------- layered resonance sculpture ----------
+     Fine wire rings, a faceted core and a sparse orbit of nodes. No textures,
+     external assets, post-processing or extra scene dependencies are needed. */
+  const sculpture = new THREE.Group();
+  sculpture.scale.setScalar(narrow ? 0.62 : 1);
+  scene.add(sculpture);
 
-  /* ---------- layout ----------
-     Size the plane from the camera frustum so it always overfills the
-     viewport \u2014 no letterboxing when the window is resized or rotated. */
-  const Z = 4.2;
-  camera.position.set(0, 0, Z);
-  camera.lookAt(0, -0.12, 0);
+  const halo = new THREE.Mesh(
+    new THREE.CircleGeometry(1.35, 48),
+    new THREE.MeshBasicMaterial({
+      color: accent,
+      transparent: true,
+      opacity: 0.055,
+      depthWrite: false,
+    })
+  );
+  halo.position.z = -0.18;
+  sculpture.add(halo);
 
+  const core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.48, 2),
+    new THREE.MeshBasicMaterial({
+      color: accent,
+      transparent: true,
+      opacity: 0.38,
+      wireframe: true,
+      depthWrite: false,
+    })
+  );
+  sculpture.add(core);
+
+  const innerCore = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.31, 1),
+    new THREE.MeshBasicMaterial({
+      color: accent,
+      transparent: true,
+      opacity: 0.11,
+      depthWrite: false,
+    })
+  );
+  sculpture.add(innerCore);
+
+  const orbitMaterials = [
+    new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.48, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: ink, transparent: true, opacity: 0.18, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.27, depthWrite: false }),
+  ];
+  const orbitSpecs = [
+    { radius: 1.28, tube: 0.009, rot: [1.05, 0.16, 0.28] },
+    { radius: 1.02, tube: 0.008, rot: [0.66, 0.94, -0.58] },
+    { radius: 1.48, tube: 0.006, rot: [0.38, -0.28, 1.06] },
+  ];
+  const orbits = orbitSpecs.map((spec, index) => {
+    const mesh = new THREE.Mesh(
+      new THREE.TorusGeometry(spec.radius, spec.tube, 5, narrow ? 84 : 144),
+      orbitMaterials[index]
+    );
+    mesh.rotation.set(...spec.rot);
+    sculpture.add(mesh);
+    return mesh;
+  });
+
+  // Fibonacci-distributed points provide depth without allocating per-frame objects.
+  const pointCount = narrow ? 34 : 92;
+  const positions = new Float32Array(pointCount * 3);
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < pointCount; i += 1) {
+    const y = 1 - (i / Math.max(1, pointCount - 1)) * 2;
+    const radius = 1.28 + ((i % 5) * 0.055);
+    const ring = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = goldenAngle * i;
+    positions[i * 3] = Math.cos(theta) * ring * radius;
+    positions[i * 3 + 1] = y * radius;
+    positions[i * 3 + 2] = Math.sin(theta) * ring * radius;
+  }
+  const pointGeometry = new THREE.BufferGeometry();
+  pointGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  const pointMaterial = new THREE.PointsMaterial({
+    color: accent,
+    size: narrow ? 0.022 : 0.028,
+    transparent: true,
+    opacity: 0.58,
+    sizeAttenuation: true,
+    depthWrite: false,
+  });
+  const points = new THREE.Points(pointGeometry, pointMaterial);
+  sculpture.add(points);
+
+  /* ---------- responsive camera framing ---------- */
   function layout() {
-    const w = canvas.clientWidth || hero.clientWidth;
-    const h = canvas.clientHeight || hero.clientHeight;
-    if (!w || !h) return;
+    const width = canvas.clientWidth || hero.clientWidth;
+    const height = canvas.clientHeight || hero.clientHeight;
+    if (!width || !height) return;
 
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, CAP));
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, dprCap));
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
 
-    // gl_FragCoord is in device pixels, so the shader's screen-space
-    // falloffs need the drawing-buffer size, not the CSS size
-    const buf = renderer.getDrawingBufferSize(new THREE.Vector2());
-    uniforms.uRes.value.set(buf.x, buf.y);
+    const bufferSize = renderer.getDrawingBufferSize(new THREE.Vector2());
+    uniforms.uRes.value.set(bufferSize.x, bufferSize.y);
 
-    // fit at the far edge of the plane, where the tilt compresses it most
-    const vFov = (camera.fov * Math.PI) / 180;
-    const depth = Z * 1.34;
-    const height = 2 * Math.tan(vFov / 2) * depth;
-    const width = height * camera.aspect;
+    const fovRadians = (camera.fov * Math.PI) / 180;
+    const planeDepth = camera.position.z - field.position.z;
+    const visibleHeight = 2 * Math.tan(fovRadians / 2) * planeDepth;
+    const visibleWidth = visibleHeight * camera.aspect;
+    field.scale.set(visibleWidth * 1.28, visibleHeight * 1.34, 1);
 
-    mesh.scale.set(width * 1.25, height * 1.25, 1);
+    // Place the object in the negative-space column on desktop, and upper-right
+    // on mobile so the headline and actions remain easy to read.
+    const objectDepth = camera.position.z - sculpture.position.z;
+    const objectHeight = 2 * Math.tan(fovRadians / 2) * objectDepth;
+    const objectWidth = objectHeight * camera.aspect;
+    sculpture.position.x = objectWidth * (narrow ? 0.13 : 0.235);
+    sculpture.position.y = objectHeight * (narrow ? 0.29 : -0.015);
   }
 
-  /* ---------- pointer parallax (lerped, so it trails the cursor) ---------- */
-  const pointer = { x: 0, y: 0 };   // target
-  const eased = { x: 0, y: 0 };     // current
-
-  function onPointer(e) {
-    const nx = (e.clientX / innerWidth) * 2 - 1;
-    const ny = (e.clientY / innerHeight) * 2 - 1;
-    pointer.x = nx;
-    pointer.y = ny;
-    // ripple origin in plane-local space
-    uniforms.uRipple.value.set(nx * 1.5, -ny * 0.95);
+  /* ---------- restrained interaction ---------- */
+  const pointer = { x: 0, y: 0 };
+  const eased = { x: 0, y: 0 };
+  function onPointer(event) {
+    const rect = hero.getBoundingClientRect();
+    const nx = ((event.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
+    const ny = ((event.clientY - rect.top) / Math.max(1, rect.height)) * 2 - 1;
+    pointer.x = THREE.MathUtils.clamp(nx, -1, 1);
+    pointer.y = THREE.MathUtils.clamp(ny, -1, 1);
+    uniforms.uRipple.value.set(pointer.x * 1.35, -pointer.y * 0.85);
   }
-  addEventListener("pointermove", onPointer, { passive: true });
+  if (finePointer && !narrow) {
+    hero.addEventListener("pointermove", onPointer, { passive: true });
+    hero.addEventListener("pointerleave", () => {
+      pointer.x = 0;
+      pointer.y = 0;
+    }, { passive: true });
+  }
 
-  /* ---------- scroll-linked amplitude ----------
-     The field starts nearly flat and gains energy as the hero scrolls
-     away, so the motion is tied to reading progress rather than idling. */
-  let ampTarget = 0.55;
+  let ampTarget = uniforms.uAmp.value;
   function onScroll() {
-    const y = scrollY || 0;
-    const h = innerHeight || 1;
-    ampTarget = 0.55 + Math.min(y / h, 1) * 0.55;
+    const rect = hero.getBoundingClientRect();
+    const progress = THREE.MathUtils.clamp(-rect.top / Math.max(1, rect.height), 0, 1);
+    ampTarget = (narrow ? 0.38 : 0.48) + progress * 0.22;
   }
   addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  /* ---------- resize ---------- */
-  const ro = new ResizeObserver(layout);
-  ro.observe(canvas);
-  addEventListener("resize", layout);
+  const resizeObserver = new ResizeObserver(layout);
+  resizeObserver.observe(hero);
+  addEventListener("resize", layout, { passive: true });
   layout();
+  hero.classList.add("is-immersive");
+  hero.classList.remove("is-fallback");
+  canvas.dataset.renderMode = "immersive";
 
-  /* ---------- reduced motion: one static frame, then stop ---------- */
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-
+  /* ---------- visibility / reduced-motion aware render loop ---------- */
   let raf = 0;
+  let running = false;
+  let inView = true;
   let last = performance.now();
   let elapsed = 0;
-
-  // adaptive quality: if we average under ~45fps, shed pixel ratio once
-  let frames = 0;
-  let acc = 0;
+  let frameCount = 0;
+  let measuredSeconds = 0;
   let degraded = false;
 
-  function frame(now) {
-    raf = requestAnimationFrame(frame);
+  function renderStill() {
+    uniforms.uTime.value = 0.9;
+    uniforms.uAmp.value = ampTarget;
+    renderer.render(scene, camera);
+  }
 
-    // delta-time, never frame counts \u2014 the same motion at 60Hz and 120Hz
+  function frame(now) {
+    if (!running) return;
+    raf = requestAnimationFrame(frame);
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
     elapsed += dt;
 
-    eased.x += (pointer.x - eased.x) * Math.min(dt * 3.2, 1);
-    eased.y += (pointer.y - eased.y) * Math.min(dt * 3.2, 1);
-
+    eased.x += (pointer.x - eased.x) * Math.min(dt * 2.7, 1);
+    eased.y += (pointer.y - eased.y) * Math.min(dt * 2.7, 1);
     uniforms.uTime.value = elapsed;
-    uniforms.uAmp.value += (ampTarget - uniforms.uAmp.value) * Math.min(dt * 2.4, 1);
+    uniforms.uAmp.value += (ampTarget - uniforms.uAmp.value) * Math.min(dt * 1.8, 1);
 
-    // camera drifts against the pointer, plus a slow idle breath
-    camera.position.x = eased.x * 0.34;
-    camera.position.y = -eased.y * 0.22;
-    camera.lookAt(0, -0.12, 0);
+    sculpture.rotation.y += dt * (narrow ? 0.075 : 0.12);
+    sculpture.rotation.x = Math.sin(elapsed * 0.22) * (narrow ? 0.045 : 0.075) - eased.y * 0.055;
+    sculpture.rotation.z = Math.sin(elapsed * 0.18) * 0.035 + eased.x * 0.045;
+    core.rotation.x -= dt * 0.055;
+    core.rotation.y += dt * 0.08;
+    innerCore.rotation.y -= dt * 0.12;
+    orbits[0].rotation.z += dt * 0.045;
+    orbits[1].rotation.x -= dt * 0.035;
+    orbits[2].rotation.y += dt * 0.025;
+    points.rotation.y -= dt * 0.018;
 
+    camera.position.x = eased.x * (narrow ? 0.025 : 0.11);
+    camera.position.y = -eased.y * (narrow ? 0.02 : 0.065);
+    camera.lookAt(0, 0, 0);
     renderer.render(scene, camera);
 
     if (!degraded) {
-      frames += 1;
-      acc += dt;
-      if (acc > 2.5) {
-        if (frames / acc < 45) {
+      frameCount += 1;
+      measuredSeconds += dt;
+      if (measuredSeconds >= 2.5) {
+        if (frameCount / measuredSeconds < 42) {
           degraded = true;
-          renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25));
+          renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.0));
           layout();
         }
-        frames = 0;
-        acc = 0;
+        frameCount = 0;
+        measuredSeconds = 0;
       }
     }
   }
 
   function play() {
-    cancelAnimationFrame(raf);
+    if (running || reduced.matches || document.hidden || !inView) return;
+    running = true;
     last = performance.now();
     raf = requestAnimationFrame(frame);
   }
 
-  if (reduced.matches) {
-    const still = () => {
-      uniforms.uAmp.value = ampTarget;
-      uniforms.uTime.value = 12;
-      renderer.render(scene, camera);
-    };
-    still();
-
-    // Respect the setting changing mid-session without a reload: settle on a
-    // still frame, or resume if they switched it back off.
-    reduced.addEventListener?.("change", (e) => {
-      cancelAnimationFrame(raf);
-      if (e.matches) still();
-      else {
-        last = performance.now();
-        play();
-      }
-    });
-  } else {
-    play();
-  }
-
-  /* ---------- stop when off-screen ----------
-     A WebGL context that keeps rendering behind a long page is pure
-     battery cost. This is the single biggest win on mobile. */
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(
-      ([entry]) => {
-        if (reduced.matches) return;
-        entry.isIntersecting ? play() : cancelAnimationFrame(raf);
-      },
-      { threshold: 0 }
-    ).observe(canvas);
-  }
-
-  /* ---------- context loss ---------- */
-  canvas.addEventListener("webglcontextlost", (e) => {
-    e.preventDefault();
+  function pause() {
+    running = false;
     cancelAnimationFrame(raf);
+  }
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      if (inView) {
+        if (reduced.matches) renderStill();
+        else play();
+      } else {
+        pause();
+      }
+    }, { threshold: 0.01 }).observe(hero);
+  }
+
+  function onVisibilityChange() {
+    if (document.hidden) pause();
+    else if (reduced.matches) renderStill();
+    else play();
+  }
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  reduced.addEventListener?.("change", (event) => {
+    if (event.matches) {
+      pause();
+      renderStill();
+    } else {
+      play();
+    }
+  });
+
+  if (reduced.matches) renderStill();
+  else play();
+
+  canvas.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    pause();
     bail();
   });
 
-  /* ---------- teardown ---------- */
   addEventListener("pagehide", () => {
-    cancelAnimationFrame(raf);
-    ro.disconnect();
-    removeEventListener("pointermove", onPointer);
+    pause();
+    resizeObserver.disconnect();
     removeEventListener("scroll", onScroll);
     removeEventListener("resize", layout);
-    geo.dispose();
-    material.dispose();
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+    if (finePointer && !narrow) hero.removeEventListener("pointermove", onPointer);
+    plane.dispose();
+    fieldMaterial.dispose();
+    halo.geometry.dispose();
+    halo.material.dispose();
+    core.geometry.dispose();
+    core.material.dispose();
+    innerCore.geometry.dispose();
+    innerCore.material.dispose();
+    orbits.forEach((orbit) => {
+      orbit.geometry.dispose();
+      orbit.material.dispose();
+    });
+    pointGeometry.dispose();
+    pointMaterial.dispose();
     renderer.dispose();
   });
 }
