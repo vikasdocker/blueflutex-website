@@ -196,7 +196,7 @@
      Progressive enhancement: without JS this is a normal POST that lands on
      contact.php, which renders its own result. With JS we POST JSON and swap
      the status line in place so the page never navigates. */
-  const form = $("#contact");
+  const form = $("#contact-form");
 
   if (form) {
     const status = $("[data-status]", form);
@@ -289,7 +289,7 @@
         // this event. Cross-check against the contact_messages table before
         // treating the numbers as exact.
         track("generate_lead", {
-          form_id: "contact",
+          form_id: "contact-form",
           lead_type: "contact_form",
           budget: payload.budget || "unstated",
         });
