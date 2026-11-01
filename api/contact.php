@@ -50,9 +50,9 @@ define('DB_NAME', defined('BFX_DB_NAME') ? BFX_DB_NAME : '');
 define('DB_USER', defined('BFX_DB_USER') ? BFX_DB_USER : '');
 define('DB_PASS', defined('BFX_DB_PASS') ? BFX_DB_PASS : '');
 
-const MAIL_TO = 'vikasshu7@gmail.com';
+const MAIL_TO = 'support@blueflutex.in';
 
-define('SITE_ORIGIN', defined('BFX_SITE_ORIGIN') ? BFX_SITE_ORIGIN : 'https://blueflutex.gt.tc');
+define('SITE_ORIGIN', defined('BFX_SITE_ORIGIN') ? BFX_SITE_ORIGIN : 'https://blueflutex.in');
 
 const MAX_NAME    = 120;
 const MAX_EMAIL   = 200;
@@ -183,7 +183,7 @@ mysqli_report(MYSQLI_REPORT_OFF);
 $db = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($db->connect_errno) {
     error_log('[blueflutex] db connect failed: ' . $db->connect_error);
-    respond(false, 'We couldn’t send that just now. Please email vikasshu7@gmail.com.', [], 503);
+    respond(false, 'We couldn’t send that just now. Please email support@blueflutex.in.', [], 503);
 }
 $db->set_charset('utf8mb4');
 
@@ -200,7 +200,7 @@ $throttle = $db->prepare(
       WHERE ip_hash = ? AND created_at > (NOW() - INTERVAL ? SECOND)'
 );
 if ($throttle === false) {
-    respond(false, 'We couldn’t send that just now. Please email vikasshu7@gmail.com.', [], 503);
+    respond(false, 'We couldn’t send that just now. Please email support@blueflutex.in.', [], 503);
 }
 $throttle->bind_param('si', $ipHash, RATE_WINDOW);
 $throttle->execute();
@@ -226,14 +226,14 @@ $insert = $db->prepare(
 );
 if ($insert === false) {
     error_log('[blueflutex] insert prepare failed: ' . $db->error);
-    respond(false, 'We couldn’t send that just now. Please email vikasshu7@gmail.com.', [], 503);
+    respond(false, 'We couldn’t send that just now. Please email support@blueflutex.in.', [], 503);
 }
 
 $insert->bind_param('sssssss', $name, $email, $budget, $message, $ipHash, $ua, $refer);
 
 if (!$insert->execute()) {
     error_log('[blueflutex] insert failed: ' . $insert->error);
-    respond(false, 'We couldn’t send that just now. Please email vikasshu7@gmail.com.', [], 503);
+    respond(false, 'We couldn’t send that just now. Please email support@blueflutex.in.', [], 503);
 }
 $insert->close();
 
@@ -266,7 +266,7 @@ $body = "Name:    {$name}\n"
     $subject,
     $body,
     implode("\r\n", [
-        'From: BlueFluteX <no-reply@' . (parse_url(SITE_ORIGIN, PHP_URL_HOST) ?: 'blueflutex.com') . '>',
+        'From: BlueFluteX <no-reply@' . (parse_url(SITE_ORIGIN, PHP_URL_HOST) ?: 'blueflutex.in') . '>',
         'Content-Type: text/plain; charset=utf-8',
         'X-Mailer: BlueFluteX',
     ])

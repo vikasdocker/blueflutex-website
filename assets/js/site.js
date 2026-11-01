@@ -339,7 +339,7 @@
         });
       } catch (err) {
         say(
-          err.message + " You can also email us directly at vikasshu7@gmail.com.",
+          err.message + " You can also email us directly at support@blueflutex.in.",
           "bad"
         );
       } finally {

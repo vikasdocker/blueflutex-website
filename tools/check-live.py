@@ -13,7 +13,7 @@ import urllib.request
 
 import websocket
 
-BASE = sys.argv[1] if len(sys.argv) > 1 else "https://blueflutex.gt.tc"
+BASE = sys.argv[1] if len(sys.argv) > 1 else "https://blueflutex.in"
 PORT = 9334
 
 PATHS = [

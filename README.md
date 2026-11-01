@@ -198,7 +198,7 @@ the tracked file, if the local override stops being gitignored, or if
 
 ## Before launch
 
-- [x] Domain — `https://blueflutex.gt.tc` is set as canonical, `og:url` and
+- [x] Domain — `https://blueflutex.in` is set as canonical, `og:url` and
       `SITE_ORIGIN`
 - [ ] Create the two tables in phpMyAdmin
 - [ ] Add the `DB_NAME` / `DB_USER` / `DB_PASS` secrets, then push — the
@@ -211,7 +211,7 @@ the tracked file, if the local override stops being gitignored, or if
       It is no longer referenced anywhere, but it remains in git history and the
       old `increment_page_view` RPC was an unauthenticated write endpoint.
 - [ ] Configure the GA4 tag in the GTM UI (see Analytics above)
-- [ ] Add `robots.txt` and `sitemap.xml` for `blueflutex.gt.tc`
+- [ ] Add `robots.txt` and `sitemap.xml` for `blueflutex.in`
 
 ## Regenerating assets
 

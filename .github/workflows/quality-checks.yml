@@ -327,12 +327,12 @@ jobs:
             const sameOriginFailures = [];
             page.on("pageerror", (error) => errors.push(error.message));
             page.on("response", (response) => {
-              if (response.url().startsWith("https://blueflutex.gt.tc/") && response.status() >= 400) {
+              if (response.url().startsWith("https://blueflutex.in/") && response.status() >= 400) {
                 sameOriginFailures.push({ status: response.status(), url: response.url() });
               }
             });
 
-            const response = await page.goto("https://blueflutex.gt.tc/", {
+            const response = await page.goto("https://blueflutex.in/", {
               waitUntil: "domcontentloaded", timeout: 60000
             });
             assert.ok(response, "The live homepage must return a document response.");
@@ -392,12 +392,12 @@ jobs:
             const missingSameOrigin = [];
             page.on("pageerror", (error) => errors.push(error.message));
             page.on("response", (response) => {
-              if (response.url().startsWith("https://blueflutex.gt.tc/") && response.status() >= 400) {
+              if (response.url().startsWith("https://blueflutex.in/") && response.status() >= 400) {
                 missingSameOrigin.push({ status: response.status(), url: response.url() });
               }
             });
 
-            const response = await page.goto("https://blueflutex.gt.tc/", {
+            const response = await page.goto("https://blueflutex.in/", {
               waitUntil: "domcontentloaded", timeout: 60000
             });
             assert.ok(response, "The production homepage must return a document response.");
