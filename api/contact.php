@@ -54,6 +54,10 @@ const MAIL_TO = 'support@blueflutex.in';
 
 define('SITE_ORIGIN', defined('BFX_SITE_ORIGIN') ? BFX_SITE_ORIGIN : 'https://blueflutex.in');
 
+/* The old InfinityFree subdomain still resolves to this same deployment, so
+   submissions from it must not be blocked mid-transition. */
+const LEGACY_ORIGIN = 'https://blueflutex.gt.tc';
+
 const MAX_NAME    = 120;
 const MAX_EMAIL   = 200;
 const MAX_MESSAGE = 4000;
@@ -116,7 +120,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
    Browsers attach Origin on cross-site POSTs, so a mismatch is a strong
    signal the submission is not ours. */
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && !str_starts_with($origin, SITE_ORIGIN)) {
+if (
+    $origin !== ''
+    && !str_starts_with($origin, SITE_ORIGIN)
+    && !str_starts_with($origin, LEGACY_ORIGIN)
+) {
     respond(false, 'Request blocked.', [], 403);
 }
 
