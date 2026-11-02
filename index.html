@@ -14,8 +14,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <title>BlueFluteX &mdash; Software Studio, Pune</title>
 <meta name="description" content="BlueFluteX is a software studio in Pune, India. We design and engineer mobile, desktop and AI systems that are architected to be extended, not rewritten." />
-<meta name="theme-color" content="#faf8f4" />
-<meta name="color-scheme" content="light" />
+<meta name="theme-color" content="#080909" />
+<meta name="color-scheme" content="dark" />
 <link rel="canonical" href="https://blueflutex.in/" />
 
 <meta property="og:type" content="website" />
@@ -41,28 +41,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   document.documentElement.classList.add("js");
 </script>
 
-<!-- webp sources; the raster twins are kept in the repo for older browsers -->
-<link rel="preload" as="image" href="assets/img/blueflutex-mark.svg" type="image/svg+xml" />
+<!-- Self-hosted brand and type assets. -->
+<link rel="preload" as="image" href="assets/img/blueflutex-mark-light.svg" type="image/svg+xml" />
 <link rel="preload" href="assets/fonts/Inter-normal-100-900-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="preload" href="assets/fonts/InstrumentSerif-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="assets/fonts/InstrumentSerif-italic-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="assets/css/fonts.css" />
 <link rel="stylesheet" href="assets/css/site.css" />
+<link rel="stylesheet" href="assets/css/theme.css" />
 
-<!--
-  Three.js is resolved from a CDN via import map rather than bundled.
-  Two reasons: InfinityFree deletes any JS file over 1 MB, and the
-  documented no-bundler install path for three is an import map.
-  Version and CDN must stay in lockstep -- mixing sources can pull in two
-  copies of the library. The hero degrades to a CSS gradient if this never
-  loads; see README.md for how to self-host it instead.
--->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js"
-  }
-}
-</script>
 </head>
 
 <body>
@@ -75,34 +61,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="progress" aria-hidden="true"><span data-progress></span></div>
 
 <!-- ============================ NAV ============================ -->
-<header class="nav" data-nav>
+<header class="nav nav--scene" data-nav>
   <div class="wrap nav__in">
     <a class="brand" href="#top" aria-label="BlueFluteX, home">
-      <img class="brand__mark" src="assets/img/blueflutex-mark.svg" alt="" width="40" height="40" />
-      <span class="brand__word">BlueFlute<em>X</em></span>
+      <img class="brand__mark" src="assets/img/blueflutex-mark-light.svg" alt="" width="48" height="48" />
     </a>
-
+    <p class="nav__note"><span>Independent software studio</span>Code with harmony.</p>
+    <p class="nav__location"><span>Based in</span>Pune, India <time data-studio-time aria-label="Current time in Pune"></time></p>
     <nav class="nav__links" aria-label="Primary">
-      <a href="#services">Services</a>
-      <a href="#work">Work</a>
-      <a href="#process">Process</a>
-      <a href="#studio">Studio</a>
+      <span class="nav__label">Explore</span>
+      <div><a href="#work" data-panel="work">Selected work</a><span>, </span><a href="#services" data-panel="services">Services</a><span>, </span><a href="#studio" data-panel="studio">Studio</a><span>, </span><a href="#contact" data-panel="contact">Contact</a></div>
     </nav>
-
-    <a class="btn btn--ink nav__cta" href="#contact">Start a project</a>
-
-    <button class="burger" data-burger aria-label="Menu" aria-expanded="false" aria-controls="nav-drawer">
-      <i></i><i></i>
-    </button>
+    <button class="burger" data-burger aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer"><i></i><i></i></button>
   </div>
-
   <div class="drawer" id="nav-drawer" data-drawer hidden>
-    <a href="#services">Services</a>
-    <a href="#work">Work</a>
-    <a href="#process">Process</a>
-    <a href="#studio">Studio</a>
-    <a href="#contact">Contact</a>
-    <a class="btn btn--ink" href="#contact">Start a project</a>
+    <a href="#work" data-panel="work">Selected work</a>
+    <a href="#services" data-panel="services">Services</a>
+    <a href="#process" data-panel="process">Process</a>
+    <a href="#studio" data-panel="studio">Studio</a>
+    <a href="#contact" data-panel="contact">Start a project <span aria-hidden="true">&nearr;</span></a>
   </div>
 </header>
 
@@ -110,37 +87,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <span id="top"></span>
 
 <!-- ============================ HERO ============================ -->
-<section class="hero">
-  <!-- decorative; the copy is the content, not the canvas -->
-  <canvas id="resonance" class="hero__canvas" aria-hidden="true"></canvas>
-  <div class="hero__fallback" aria-hidden="true"></div>
-
-  <div class="wrap hero__in">
-    <p class="tag reveal" data-d="0">
-      <span class="dot" aria-hidden="true"></span>
-      Software studio
-    </p>
-
-    <h1 class="hero__h1" data-split>Code with <em>harmony</em>.</h1>
-
-    <p class="hero__lede reveal" data-d="2">
-      BlueFluteX designs and engineers software for teams who care how it feels
-      &mdash; and how it still holds up two years later. Mobile, desktop, and the
-      systems underneath them.
-    </p>
-
-    <div class="hero__cta reveal" data-d="3">
-      <a class="btn btn--ink btn--lg" href="#contact">Start a project</a>
-      <a class="btn btn--line btn--lg" href="#work">See our work</a>
-    </div>
-
-    <dl class="hero__facts reveal" data-d="4">
-      <div><dt>Focus</dt><dd>Mobile &middot; Desktop &middot; AI</dd></div>
-      <div><dt>Engagement</dt><dd>Project &amp; retainer</dd></div>
-    </dl>
+<section class="hero" aria-label="BlueFluteX software studio">
+  <div class="hero__scene" aria-hidden="true">
+    <canvas id="studio-field"></canvas>
+    <div class="scene-tiles" data-scene-tiles></div>
+    <div class="scene-orbit scene-orbit--one"></div>
+    <div class="scene-orbit scene-orbit--two"></div>
   </div>
-
-  <p class="hero__scroll" aria-hidden="true"><span>Scroll</span></p>
+  <a class="scene-feature" href="#work" data-panel="work" aria-label="Explore CleanBoost, our featured desktop project">
+    <span class="scene-feature__top"><span class="dot"></span> Selected project <span>01</span></span>
+    <img src="assets/img/work-cleaner-scan.webp" alt="CleanBoost Windows cleaner interface" width="1200" height="754" fetchpriority="high" />
+    <span class="scene-feature__bottom">CleanBoost <span>Windows desktop &nearr;</span></span>
+  </a>
+  <div class="hero__intro">
+    <p class="hero__eyebrow"><span class="dot" aria-hidden="true"></span> Software, thoughtfully composed.</p>
+    <p>We design and engineer mobile, desktop and AI systems for teams building something that matters. From the first idea to what comes next.</p>
+  </div>
+  <div class="hero__actions">
+    <a class="btn btn--line" href="#work">Explore our work <span class="btn__circle" aria-hidden="true">&darr;</span></a>
+    <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="false" hidden>Pause motion</button>
+  </div>
+  <h1 class="hero__wordmark">BlueFluteX</h1>
+  <div class="hero__bottom"><span>Mobile &middot; Desktop &middot; AI</span><span>Built in Pune. Made for everywhere.</span><a href="https://github.com/vikasdocker" target="_blank" rel="noopener noreferrer">GitHub &nearr;</a></div>
 </section>
 
 <!-- ============================ TICKER ============================ -->
@@ -187,7 +155,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <header class="head">
       <p class="tag reveal">What we build</p>
-      <h2 class="h2 reveal" data-d="1">Six disciplines, one standard.</h2>
+      <h2 class="h2 reveal" data-d="1">Different platforms. Same care.</h2>
     </header>
 
     <div class="svc">
@@ -267,10 +235,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <header class="head">
       <p class="tag reveal">Selected work · 01 public project</p>
-      <h2 class="h2 reveal" data-d="1">Real work. Open to inspection.</h2>
+      <h2 class="h2 reveal" data-d="1">A closer look at the work.</h2>
       <p class="head__lede reveal" data-d="2">
-        One public project, presented in detail rather than padded with mockups.
-        Explore the decisions behind the build.
+        Explore CleanBoost, our open-source Windows application, and the decisions behind the build.
       </p>
     </header>
 
@@ -411,7 +378,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <figure class="studio__art reveal" data-d="2">
-      <img class="studio__lockup" src="assets/img/blueflutex-lockup.svg" alt="BlueFluteX logo: a flute, flowing teal feather strokes and circuit nodes above the BlueFluteX wordmark and Code with Harmony tagline." width="760" height="549" loading="lazy" decoding="async" />
+      <img class="studio__lockup" src="assets/img/studio-resonance.svg" alt="Original abstract study of flowing waves, representing BlueFluteX: code with harmony." width="720" height="560" loading="lazy" decoding="async" />
     </figure>
   </div>
 </section>
@@ -436,16 +403,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <dt>Studio</dt>
           <dd>Pune, Maharashtra, India</dd>
         </div>
-        <!--
-          TODO(owner): replace with real profile URLs before launch. The
-          previous site shipped href="#" placeholders, which read as broken
-          to screen readers and to anyone clicking them.
-        -->
-        <div>
+<div>
           <dt>Elsewhere</dt>
           <dd class="contact__social">
-            <a href="#" data-todo-link aria-disabled="true">GitHub</a>
-            <a href="#" data-todo-link aria-disabled="true">LinkedIn</a>
+            <a href="https://github.com/vikasdocker" target="_blank" rel="noopener noreferrer">GitHub &nearr;</a>
           </dd>
         </div>
       </dl>
@@ -508,7 +469,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="foot__top">
       <div class="foot__brand">
         <a class="brand" href="#top" aria-label="BlueFluteX, back to top">
-          <img class="brand__mark" src="assets/img/blueflutex-mark.svg" alt="" width="40" height="40" />
+          <img class="brand__mark" src="assets/img/blueflutex-mark-light.svg" alt="" width="40" height="40" />
           <span class="brand__word">BlueFlute<em>X</em></span>
         </a>
         <p>A software studio in Pune. We build systems that stay legible after we leave.</p>
@@ -537,13 +498,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="foot__bot">
       <p>&copy; <span data-year>2026</span> BlueFluteX. All rights reserved.</p>
       <p class="foot__stack">
-        <span>Instrument Serif</span><span>Inter</span><span>JetBrains Mono</span><span>Lucide</span><span>three.js</span>
+        <span>Instrument Serif</span><span>Inter</span><span>JetBrains Mono</span><span>Lucide</span>
       </p>
     </div>
   </div>
 </footer>
 
 <script src="assets/js/site.js" defer></script>
-<script type="module" src="assets/js/hero3d.js"></script>
+<dialog class="panel" data-studio-panel aria-labelledby="panel-label">
+  <div class="panel__bar"><button class="panel__close" type="button" data-panel-close autofocus><span aria-hidden="true">&larr;</span> Close</button><span id="panel-label"></span></div>
+  <div class="panel__content" data-panel-content></div>
+</dialog>
+<script src="assets/js/scene.js" defer></script>
 </body>
 </html>

@@ -5,8 +5,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#faf8f4",
-  "theme_color": "#faf8f4",
+  "background_color": "#080909",
+  "theme_color": "#080909",
   "lang": "en",
   "icons": [
     { "src": "/assets/img/blueflutex-mark.svg", "sizes": "any", "type": "image/svg+xml" },

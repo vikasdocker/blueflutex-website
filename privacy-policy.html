@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#080909" />
+<meta name="color-scheme" content="dark" />
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -17,6 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="icon" type="image/png" href="/assets/img/favicon-32.png" sizes="32x32" />
 <link rel="stylesheet" href="/assets/css/fonts.css" />
 <link rel="stylesheet" href="/assets/css/site.css" />
+<link rel="stylesheet" href="/assets/css/theme.css" />
 <style>
   .pol { padding-block: calc(var(--nav-h) + 56px) 90px; }
   .pol__meta { margin-top: 20px; font-family: var(--f-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
@@ -39,9 +42,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <header class="nav is-stuck">
   <div class="wrap nav__in">
     <a class="brand" href="/" aria-label="BlueFluteX &mdash; home">
-      <img class="brand__mark" src="/assets/img/blueflutex-mark.svg" alt="" width="40" height="40" />
+      <img class="brand__mark" src="/assets/img/blueflutex-mark-light.svg" alt="" width="40" height="40" />
       <span class="brand__word">BlueFlute<em>X</em></span>
     </a>
+    <a class="nav__home" href="/">&larr; Back to the studio</a>
     <nav class="nav__links" aria-label="Primary">
       <a href="/#services">Services</a>
       <a href="/#work">Work</a>
@@ -56,7 +60,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="wrap">
     <p class="tag">Legal</p>
     <h1 class="h2">Privacy policy</h1>
-    <p class="pol__meta">Last updated 8 October 2026</p>
+    <p class="pol__meta">Last updated 2 November 2026</p>
 
     <div class="pol__body">
       <section>
@@ -172,20 +176,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
 
       <section>
-        <h2>Other third-party code</h2>
-        <div class="pol__note">
-          <p>
-            The 3D animation in the hero loads
-            <strong>three.js from jsDelivr</strong>. If your browser downloads
-            it, jsDelivr necessarily sees your IP address, as any content
-            delivery network must. No data is shared with them beyond the
-            ordinary mechanics of serving a file.
-          </p>
-          <p>
-            If you would rather we did not depend on an external network at all,
-            say so and we will self-host the library instead.
-          </p>
-        </div>
+        <h2>Site assets</h2>
+        <p>Fonts and visual assets are served from this website. The animated hero uses the browser canvas and has no external graphics dependency.</p>
       </section>
 
       <section>

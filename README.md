@@ -13,11 +13,13 @@ site.webmanifest
 api/contact.php          contact form -> MySQL
 
 assets/
-  css/site.css           design system
+  css/site.css           base layout and components
+  css/theme.css          dark theme and responsive layouts
   css/fonts.css          generated @font-face sheet
   js/site.js             DOM motion layer
-  js/hero3d.js           WebGL hero (ES module)
-  js/shaders.js          GLSL for the hero surface
+  js/scene.js            canvas field, CSS gallery, clock and overlays
+  js/hero3d.js           retained earlier hero source (not loaded)
+  js/shaders.js          retained earlier shaders (not loaded)
   fonts/*.woff2          self-hosted typefaces
   img/*                  logo, favicons, OG card, case study
 
@@ -31,8 +33,9 @@ python -m http.server 8811
 # http://127.0.0.1:8811
 ```
 
-A server is needed rather than opening `index.html` directly, because the hero
-is an ES module and module scripts do not load over `file://`.
+Use a local server so root-relative assets, navigation and the form action
+resolve correctly. Contact delivery requires a PHP host; the static preview
+can verify layout and client-side validation.
 
 ## Analytics
 
@@ -205,8 +208,6 @@ the tracked file, if the local override stops being gitignored, or if
       workflow rebuilds `api/contact.local.php` from them and uploads it
 - [ ] Add 2–3 real case studies — the `#work` section ships with one on purpose
       rather than filling the page with invented metrics
-- [ ] Replace the placeholder social links in the contact section (they carry
-      `data-todo-link` and render visibly inert)
 - [ ] **Rotate the Supabase anon key** from the previous version of this site.
       It is no longer referenced anywhere, but it remains in git history and the
       old `increment_page_view` RPC was an unauthenticated write endpoint.
@@ -242,63 +243,37 @@ variant the site actually loads is derived from them.
 
 ## Design notes
 
-**Palette.** Warm off-white ground (`#faf8f4`), ink type (`#14110f`), one deep
-teal accent (`#0f5c56`). Structure is done with hairline rules rather than
-shadows, which is what keeps it reading as print rather than as a dashboard.
+The Night Studio theme uses a near-black ground (`#080909`), off-white type and a soft teal accent. Instrument Serif italic sets the oversized hero wordmark and display headings; Inter and JetBrains Mono remain self-hosted.
 
-**Type.** Instrument Serif for display only (18 px and up — below that its
-quirks become friction). Inter for everything else, at zero letter-spacing
-because it is optically sized for it, with 1.65 line-height. JetBrains Mono for
-micro-labels. All OFL, all self-hosted: using Google's font API would transmit
-every visitor's IP address to Google, which a German court ruled unlawful in
-2022.
+The hero combines a small Canvas 2D particle field with 36 CSS perspective tiles. The six original SVG studies illustrate the studio's disciplines; they are decorative, not claims of additional client work. CleanBoost remains the single featured public project and uses its existing product screenshot. No graphics library or third-party CDN is loaded by the new hero.
 
-**The hero.** A subdivided plane displaced in the vertex shader, with the
-fragment pass drawing anti-aliased iso-height contours. That is the logo's own
-visual language — topographic line work — rendered in 3D. Lines are derived from
-`fwidth()` of the height field, so they hold a constant pixel width instead of
-aliasing into moiré at grazing angles.
+Selected Work, Services, Process (mobile menu), Studio and Contact open in one native `<dialog>`. The actual section content moves into the dialog and returns on close. This preserves unique IDs, tab state and contact form state. Native modal behavior supplies focus containment and Escape handling. The same sections remain accessible by normal page anchors and without JavaScript. Unsupported dialog implementations fall back to the original links.
 
-Guards, all of which matter more than the effect itself:
+Motion guards:
 
-- DPR capped at 2, dropped to 1.25 if the frame rate sits under 45 fps for 2.5 s
-- delta-time driven, so motion is identical at 60 Hz and 120 Hz
-- `IntersectionObserver` stops the render loop once the hero leaves the viewport
-- `prefers-reduced-motion` renders exactly one static frame
-- no WebGL, a failed CDN request, or a lost context falls back to a CSS gradient
-- full `dispose()` on `pagehide`
+- A visible Pause/Resume button stops both the canvas and CSS gallery.
+- `prefers-reduced-motion` renders a static scene and disables animation.
+- The field pauses outside the viewport and when the document is hidden.
+- Device pixel ratio is capped at 1.5; phones render fewer particles.
+- If Canvas 2D is unavailable, the CSS artwork and all site content still work.
+- Page lifecycle cleanup releases observers, frame requests and the clock timer.
 
-**Deliberately absent.** No scroll hijacking, no custom cursor, no cookie
-banner, no framework. Analytics are present and documented — see below.
+The Pune clock always uses `Asia/Kolkata`, regardless of the visitor's timezone. The light logo variant is `assets/img/blueflutex-mark-light.svg`; existing brand assets and licence notices are retained. The manifest and all four HTML pages share the dark theme.
 
-### Why three.js comes from a CDN
-
-InfinityFree deletes any JS file over 1 MB, and a local three.js bundle is
-around 700 KB — one edit away from being silently removed from the server. The
-import map in `index.html` is the install path the three.js manual documents
-for exactly this case.
-
-If you would rather have no third-party dependency at all, download
-`three.module.js` into `assets/js/vendor/`, repoint the import map at it, and
-delete the CDN disclosure from the privacy policy. It will be ~700 KB, which
-fits under the 1 MB cap.
-
-Keep the version and the CDN host in lockstep — mixing sources can pull in two
-copies of the library.
+Deployment stays on the existing InfinityFree workflow. Push a reviewed commit to `main` to deploy. The theme requires no dependency installation, build step, database migration or new secrets.
 
 ## Accessibility
 
 - Skip link, one `<main>` landmark, labelled form fields with `aria-describedby`
   error slots, `role="status"` live region on the submission result
 - Full keyboard support, visible focus rings, `Escape` closes the drawer
-- `prefers-reduced-motion` disables every animation and the 3D loop
-- Decorative layers (canvas, aurora, ticker) are `aria-hidden`
-- Placeholder links are `aria-disabled` and visibly dashed rather than silently
-  broken
+- `prefers-reduced-motion` disables animations and pauses the canvas
+- Decorative layers (canvas, background artwork, ticker copies) are `aria-hidden`
+- Native modal overlays contain focus, close with `Escape`, and restore content
 
 ## Known gaps
 
 - The `#work` section has one case study, not a portfolio. That is deliberate —
   see the checklist above.
-- Social links are placeholders.
+- The verified GitHub profile is linked; no unverified social profiles are shown.
 - No `robots.txt` / `sitemap.xml` until the domain is settled.
