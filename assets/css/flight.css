@@ -1,6 +1,6 @@
 /* A fixed image field: wheel and touch move the camera, never the page. */
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-.portrait-fallback { position:absolute; left:52%; top:50%; height:100%; aspect-ratio:.93418; transform:translate(-50%,-50%); background:url('../img/portrait-fallback.svg') center/contain no-repeat; opacity:.8; transition:opacity .5s; }
+.portrait-fallback { position:absolute; left:52%; top:50%; height:100%; aspect-ratio:.81757; transform:translate(-50%,-50%); background:url('../img/portrait-fallback.svg') center/contain no-repeat; opacity:.8; transition:opacity .5s; }
 .field-ready .portrait-fallback { opacity:0; }
 .opening-loader { display:none; }
 .js .opening-loader { position:fixed; inset:0; z-index:400; display:grid; place-items:center; background:#080909; pointer-events:auto; }

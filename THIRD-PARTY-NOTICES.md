@@ -185,10 +185,7 @@ Earlier versions of this site embedded a Supabase client and called a public
 rotate the Supabase anon key used by those builds, it is no longer referenced
 anywhere in this repository — but it remains in git history, so rotation is
 still the correct response.
-## Decorative portrait reference
+## Supplied portrait
 
-The decorative particle portrait coordinate layout and tonal weights are adapted
-from the visual reference supplied for this redesign, Vadim Carazan:
-https://vadimcarazan.com/ (public visual data at /data/cosmos.json).
-The rendered thumbnail tiles use the BlueFluteX collection. The source site's
-project catalogue, project images and application scripts are not distributed.
+The decorative portrait positions, tonal weights and colors are derived from
+the photograph supplied by the site owner for this website.
