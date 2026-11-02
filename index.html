@@ -48,6 +48,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="stylesheet" href="assets/css/fonts.css" />
 <link rel="stylesheet" href="assets/css/site.css" />
 <link rel="stylesheet" href="assets/css/theme.css" />
+<link rel="stylesheet" href="assets/css/flight.css" />
 
 </head>
 
@@ -69,13 +70,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="nav__note"><span>Independent software studio</span>Code with harmony.</p>
     <p class="nav__location"><span>Based in</span>Pune, India <time data-studio-time aria-label="Current time in Pune"></time></p>
     <nav class="nav__links" aria-label="Primary">
-      <span class="nav__label">Explore</span>
-      <div><a href="#work" data-panel="work">Selected work</a><span>, </span><a href="#services" data-panel="services">Services</a><span>, </span><a href="#studio" data-panel="studio">Studio</a><span>, </span><a href="#contact" data-panel="contact">Contact</a></div>
+      <span class="nav__label">Navigation</span>
+      <div><a href="#work" data-panel="work">Selected</a><span>, </span><a href="#work" data-enter-flight>Work</a><span>, </span><a href="#services" data-panel="services">Services</a><span>, </span><a href="#studio" data-panel="studio">Studio</a><span>, </span><a href="#contact" data-panel="contact">Contact</a></div>
     </nav>
     <button class="burger" data-burger aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer"><i></i><i></i></button>
   </div>
   <div class="drawer" id="nav-drawer" data-drawer hidden>
     <a href="#work" data-panel="work">Selected work</a>
+    <a href="#work" data-enter-flight>Fly through the collection</a>
     <a href="#services" data-panel="services">Services</a>
     <a href="#process" data-panel="process">Process</a>
     <a href="#studio" data-panel="studio">Studio</a>
@@ -87,28 +89,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <span id="top"></span>
 
 <!-- ============================ HERO ============================ -->
-<section class="hero" aria-label="BlueFluteX software studio">
+<section class="hero" aria-label="BlueFluteX software studio" aria-describedby="flight-instructions">
   <div class="hero__scene" aria-hidden="true">
+    <div class="home-mark"></div>
     <canvas id="studio-field"></canvas>
-    <div class="scene-tiles" data-scene-tiles></div>
-    <div class="scene-orbit scene-orbit--one"></div>
-    <div class="scene-orbit scene-orbit--two"></div>
   </div>
-  <a class="scene-feature" href="#work" data-panel="work" aria-label="Explore CleanBoost, our featured desktop project">
-    <span class="scene-feature__top"><span class="dot"></span> Selected project <span>01</span></span>
-    <img src="assets/img/work-cleaner-scan.webp" alt="CleanBoost Windows cleaner interface" width="1200" height="754" fetchpriority="high" />
-    <span class="scene-feature__bottom">CleanBoost <span>Windows desktop &nearr;</span></span>
-  </a>
-  <div class="hero__intro">
-    <p class="hero__eyebrow"><span class="dot" aria-hidden="true"></span> Software, thoughtfully composed.</p>
-    <p>We design and engineer mobile, desktop and AI systems for teams building something that matters. From the first idea to what comes next.</p>
+  <div class="flight-cards" data-flight-cards aria-label="Studio collection" hidden></div>
+  <canvas id="pointer-trail" aria-hidden="true"></canvas>
+  <div class="hero__intro" data-home-copy>
+    <p>We design and engineer mobile, desktop and AI systems for teams building something that matters. From the first idea to what comes next. Scroll to fly through the collection.</p>
   </div>
-  <div class="hero__actions">
-    <a class="btn btn--line" href="#work">Explore our work <span class="btn__circle" aria-hidden="true">&darr;</span></a>
+  <div class="hero__actions" data-home-copy>
+    <a class="btn btn--line" href="#work" data-enter-flight>Explore the work <span class="btn__circle" aria-hidden="true">&darr;</span></a>
     <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="false" hidden>Pause motion</button>
   </div>
-  <h1 class="hero__wordmark">BlueFluteX</h1>
-  <div class="hero__bottom"><span>Mobile &middot; Desktop &middot; AI</span><span>Built in Pune. Made for everywhere.</span><a href="https://github.com/vikasdocker" target="_blank" rel="noopener noreferrer">GitHub &nearr;</a></div>
+  <h1 class="hero__wordmark" data-home-copy>BlueFluteX</h1>
+  <div class="hero__bottom" data-home-copy><span>Mobile &middot; Desktop &middot; AI</span><span>Built in Pune. Made for everywhere.</span><a href="https://github.com/vikasdocker" target="_blank" rel="noopener noreferrer">GitHub &nearr;</a></div>
+  <div class="flight-hud" data-flight-hud hidden>
+    <button class="current-work" type="button" data-current-view aria-label="Open the current collection item">
+      <span class="current-work__number" data-current-number>001</span>
+      <span class="current-work__copy"><span data-current-name>CleanBoost</span><small data-current-kind>Windows desktop</small></span>
+    </button>
+    <div class="flight-hud__actions">
+      <button class="flight-pause" type="button" data-motion-toggle aria-pressed="false">Pause motion</button>
+      <span class="flight-count" data-flight-count aria-live="polite" aria-atomic="true">1 of 8 views</span>
+      <button class="back-home" type="button" data-flight-home><span aria-hidden="true">&#8634;</span> Back to home</button>
+    </div>
+  </div>
+  <p class="sr-only" id="flight-instructions">Scroll or swipe to fly through the collection. Use the arrow keys to move, or Home to return to the introduction. Select an image to explore it.</p>
 </section>
 
 <!-- ============================ TICKER ============================ -->
@@ -507,8 +515,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="assets/js/site.js" defer></script>
 <dialog class="panel" data-studio-panel aria-labelledby="panel-label">
   <div class="panel__bar"><button class="panel__close" type="button" data-panel-close autofocus><span aria-hidden="true">&larr;</span> Close</button><span id="panel-label"></span></div>
-  <div class="panel__content" data-panel-content></div>
+  <div class="panel__content" data-panel-content tabindex="0" role="region" aria-label="Studio details"></div>
+  <div class="panel__footer"><a href="privacy-policy.html">Privacy policy</a><a href="licenses.html">Licences</a></div>
 </dialog>
+<script src="assets/js/flight-math.js" defer></script>
+<script src="assets/js/flight-renderer.js" defer></script>
 <script src="assets/js/scene.js" defer></script>
 </body>
 </html>

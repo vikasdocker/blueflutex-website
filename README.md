@@ -15,9 +15,12 @@ api/contact.php          contact form -> MySQL
 assets/
   css/site.css           base layout and components
   css/theme.css          dark theme and responsive layouts
+  css/flight.css         fixed stage, gallery controls and motion layouts
   css/fonts.css          generated @font-face sheet
   js/site.js             DOM motion layer
-  js/scene.js            canvas field, CSS gallery, clock and overlays
+  js/scene.js            scroll/touch/keyboard controller, clock and overlays
+  js/flight-math.js      camera path and perspective projection
+  js/flight-renderer.js  instanced WebGL image field and Canvas 2D fallback
   js/hero3d.js           retained earlier hero source (not loaded)
   js/shaders.js          retained earlier shaders (not loaded)
   fonts/*.woff2          self-hosted typefaces
@@ -243,24 +246,27 @@ variant the site actually loads is derived from them.
 
 ## Design notes
 
-The Night Studio theme uses a near-black ground (`#080909`), off-white type and a soft teal accent. Instrument Serif italic sets the oversized hero wordmark and display headings; Inter and JetBrains Mono remain self-hosted.
+The Night Studio theme uses a near-black ground (`#080909`), off-white type and a soft teal accent. Instrument Serif italic sets the oversized wordmark and display headings. All typefaces and visual assets remain self-hosted.
 
-The hero combines a small Canvas 2D particle field with 36 CSS perspective tiles. The six original SVG studies illustrate the studio's disciplines; they are decorative, not claims of additional client work. CleanBoost remains the single featured public project and uses its existing product screenshot. No graphics library or third-party CDN is loaded by the new hero.
+The homepage is a fixed scene. Scrolling moves an eased camera through a dense image field; it does not move a long page. The introduction fades away as the gallery opens. Main images enlarge, leave the camera to either side, and give way to the next view. A live caption, numbered counter and Back to home control follow the current view. Mouse movement adds perspective response and a fading white trail.
 
-Selected Work, Services, Process (mobile menu), Studio and Contact open in one native `<dialog>`. The actual section content moves into the dialog and returns on close. This preserves unique IDs, tab state and contact form state. Native modal behavior supplies focus containment and Escape handling. The same sections remain accessible by normal page anchors and without JavaScript. Unsupported dialog implementations fall back to the original links.
+On the introduction, the image thumbnails form the BlueFluteX mark. The renderer uses a single instanced WebGL 2 draw for 3,200 billboards on desktop and 1,900 on phones, with a Canvas 2D fallback when WebGL is unavailable or its context is lost. No graphics CDN or package dependency is required. Camera damping uses elapsed time so slow frames do not stretch the transition duration.
 
-Motion guards:
+The eight gallery views include the actual CleanBoost screenshot and original artwork for the studio's disciplines. The UI calls these views, not eight completed client projects. CleanBoost remains the single public case study.
 
-- A visible Pause/Resume button stops both the canvas and CSS gallery.
-- `prefers-reduced-motion` renders a static scene and disables animation.
-- The field pauses outside the viewport and when the document is hidden.
-- Device pixel ratio is capped at 1.5; phones render fewer particles.
-- If Canvas 2D is unavailable, the CSS artwork and all site content still work.
-- Page lifecycle cleanup releases observers, frame requests and the clock timer.
+Controls:
 
-The Pune clock always uses `Asia/Kolkata`, regardless of the visitor's timezone. The light logo variant is `assets/img/blueflutex-mark-light.svg`; existing brand assets and licence notices are retained. The manifest and all four HTML pages share the dark theme.
+- Scroll, swipe, or use arrow keys to travel forward and backward.
+- Page Up/Down and Space move farther; End reaches the final view.
+- Back to home, Home, or Escape returns to the introduction.
+- Pause/Resume stops ambient motion and makes navigation immediate.
+- Reduced-motion preferences use static, immediate transitions.
 
-Deployment stays on the existing InfinityFree workflow. Push a reviewed commit to `main` to deploy. The theme requires no dependency installation, build step, database migration or new secrets.
+Selected Work, Services, Process, Studio and Contact use one native modal dialog. The actual section content moves into it and returns on close, preserving unique IDs, case-study tab state and contact form state. Panels retain their own scroll region, focus containment, Escape handling and links to legal pages. Without JavaScript, the original sections remain available as normal page content. Unsupported dialogs fall back to page navigation.
+
+The renderer caps device pixel ratio at 1.5, suspends frames in hidden documents and open dialogs, stops rendering settled gallery views, and cleans up resources on page exit. The Pune clock always uses `Asia/Kolkata`.
+
+Deployment stays on the existing InfinityFree workflow. Merge the reviewed commit to `main` to deploy. No new packages, database migrations or secrets are required.
 
 ## Accessibility
 
