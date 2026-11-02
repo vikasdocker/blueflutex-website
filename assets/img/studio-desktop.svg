@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="560" viewBox="0 0 720 560">
+  <defs><linearGradient id="a" x2="1" y2="1"><stop stop-color="#233b48"/><stop offset="1" stop-color="#101c26"/></linearGradient></defs>
+  <rect width="720" height="560" fill="#a2b7c2"/>
+  <g fill="#172e3b" font-family="Arial,sans-serif"><text x="40" y="52" font-size="15" letter-spacing="3">BLUEFLUTEX / STUDIO STUDY</text><text x="40" y="510" font-size="32">A bigger canvas.</text><text x="680" y="510" font-size="14" text-anchor="end">DESKTOP</text></g>
+  <rect x="94" y="118" width="532" height="310" rx="15" fill="#16212b" stroke="#d9e6e9" stroke-width="2"/>
+  <path d="M94 153h532" stroke="#596e7a"/>
+  <circle cx="114" cy="136" r="4" fill="#c08b82"/><circle cx="128" cy="136" r="4" fill="#c4b285"/><circle cx="142" cy="136" r="4" fill="#83b49d"/>
+  <path d="M200 154v274" stroke="#415965"/>
+  <g fill="#8099a4"><rect x="114" y="183" width="62" height="5" rx="2"/><rect x="114" y="209" width="45" height="5" rx="2"/><rect x="114" y="235" width="51" height="5" rx="2"/></g>
+  <rect x="222" y="178" width="379" height="224" rx="6" fill="url(#a)"/>
+  <g fill="none" stroke="#b4d7d9" stroke-width="1.5"><path d="M245 356c55-145 90 57 140-83s95-43 167-50"/><path d="M245 366c55-85 90 57 140-38s95-43 167-65" opacity=".4"/></g>
+  <g fill="#c7dde1"><rect x="244" y="199" width="106" height="7" rx="3"/><rect x="244" y="219" width="67" height="4" rx="2" opacity=".5"/></g>
+</svg>

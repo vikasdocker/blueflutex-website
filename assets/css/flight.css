@@ -1,0 +1,109 @@
+/* A fixed image field: wheel and touch move the camera, never the page. */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.portrait-fallback { position:absolute; left:52%; top:50%; height:100%; aspect-ratio:.81757; transform:translate(-50%,-50%); background:url('../img/portrait-fallback.svg') center/contain no-repeat; opacity:.8; transition:opacity .5s; }
+.field-ready .portrait-fallback { opacity:0; }
+.opening-loader { display:none; }
+.js .opening-loader { position:fixed; inset:0; z-index:400; display:grid; place-items:center; background:#080909; pointer-events:auto; }
+.opening-loader img { width:56px; height:56px; }
+.opening-pending .nav, .opening-pending [data-home-copy] { opacity:0 !important; pointer-events:none; }
+.flight-enabled .nav { opacity:var(--entry-opacity,0); }
+#studio-field { opacity:1; }
+#pointer-trail { position:absolute; inset:0; width:100%; height:100%; z-index:4; pointer-events:none; }
+.hero__scene::after { display:none; }
+.flight-enabled, .flight-enabled body { height:100%; overflow:hidden; overscroll-behavior:none; }
+.flight-enabled #main { height:var(--studio-height,100svh); }
+.flight-enabled #main > section:not(.hero), .flight-enabled .foot, .flight-enabled .progress { display:none; }
+.flight-enabled .hero { position:fixed; inset:0; width:100%; height:var(--studio-height,100svh); min-height:0; max-height:none; overflow:hidden; touch-action:pinch-zoom; }
+.flight-enabled .nav { border:0; }
+.flight-enabled .nav.is-stuck { background:none; backdrop-filter:none; }
+.flight-enabled [data-home-copy] { opacity:var(--home-opacity,1); transition:visibility .2s; }
+.flight-enabled .is-flight [data-home-copy] { pointer-events:none; }
+.flight-enabled .hero__intro { bottom:calc(17.2vw + 65px); max-width:445px; width:36vw; font-size:clamp(.85rem,1.25vw,1.08rem); line-height:1.55; }
+.flight-enabled .hero__actions { bottom:calc(17.2vw + 65px); }
+.flight-enabled .hero__wordmark { bottom:35px; font-size:21.5vw; width:79%; transform:scaleX(1.23); transform-origin:left bottom; }
+.flight-enabled .hero__bottom { bottom:13px; }
+.flight-cards { position:absolute; inset:0; z-index:3; pointer-events:none; }
+.flight-card {
+  position:absolute; left:0; top:0; width:390px; height:292.5px; border-radius:16px;
+  padding:0; overflow:hidden; border:1px solid rgba(255,255,255,.38); background:#101313;
+  transform-origin:center; pointer-events:none; will-change:transform,opacity; color:var(--ink);
+  box-shadow:0 10px 50px #0003;
+}
+.flight-card img { width:100%; height:100%; object-fit:cover; pointer-events:none; }
+.flight-card[data-cover="contain"] img { object-fit:contain; }
+.flight-card__name { position:absolute; left:12px; bottom:12px; padding:8px 13px; border-radius:99px; background:#070a09c9; color:#fff; font-size:12px; line-height:1; opacity:0; transform:translateY(4px); transition:opacity .2s,transform .2s; }
+.flight-card:hover .flight-card__name, .flight-card:focus-visible .flight-card__name { opacity:1; transform:none; }
+.flight-card:focus-visible { outline:3px solid var(--teal); outline-offset:6px; }
+.flight-hud { position:absolute; z-index:6; left:24px; right:24px; bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; opacity:var(--flight-opacity,0); pointer-events:none; }
+.flight-hud button { pointer-events:auto; }
+.current-work { display:flex; gap:12px; align-items:center; text-align:left; color:var(--ink); padding:0; max-width:55%; }
+.current-work__number { font-family:var(--f-display); font-style:italic; font-size:clamp(40px,4vw,64px); line-height:.85; letter-spacing:-.04em; }
+.current-work__copy { display:flex; flex-direction:column; gap:4px; }
+.current-work__copy > span { font-family:var(--f-display); font-style:italic; font-size:clamp(17px,1.6vw,25px); line-height:1.1; }
+.current-work__copy small { color:var(--muted); font-size:11px; }
+.flight-hud__actions { display:flex; align-items:center; gap:14px; }
+.flight-count { font-size:11px; color:var(--muted); white-space:nowrap; }
+.back-home { display:inline-flex; align-items:center; gap:8px; border-radius:99px; background:var(--ink); color:#161a17; font-size:11px; padding:11px 15px; white-space:nowrap; }
+.back-home:hover { background:var(--teal); }
+.back-home span { font-size:15px; line-height:1; }
+.flight-pause { color:var(--muted); font-size:10px; text-decoration:underline; text-underline-offset:3px; padding:9px 0; white-space:nowrap; }
+.panel__footer { flex:0 0 auto; display:flex; justify-content:flex-end; gap:18px; padding:10px 26px 16px; border-top:1px solid var(--rule); font-size:10px; color:var(--faint); }
+.panel__footer a:hover { color:var(--ink); }
+.flight-enabled .panel::backdrop { background:#0005; backdrop-filter:blur(10px); }
+@media (max-width:1080px) and (min-width:781px) {
+  .nav--scene .nav__in { grid-template-columns:.55fr 1fr auto; }
+}
+@media (max-width:780px) {
+  .portrait-fallback { height:68%; top:34%; }
+  .flight-enabled .hero__wordmark { bottom:55px; }
+  .flight-enabled .hero__intro { bottom:calc(17.2vw + 190px); left:24px; width:min(340px,80vw); font-size:.85rem; }
+  .flight-enabled .hero__actions { bottom:calc(17.2vw + 92px); left:24px; right:auto; display:flex; align-items:center; gap:10px; }
+  .flight-enabled .hero__bottom { bottom:20px; }
+  .flight-hud { left:20px; right:20px; bottom:24px; align-items:flex-end; gap:12px; }
+  .flight-hud__actions { gap:8px; flex-wrap:wrap; justify-content:flex-end; max-width:46%; }
+  .flight-pause { flex-basis:100%; text-align:right; padding:0; }
+  .flight-count { font-size:9px; }
+  .current-work__copy small { font-size:9px; }
+  .back-home { font-size:10px; padding:10px 12px; }
+}
+@media (max-width:480px) {
+  .flight-enabled .hero__wordmark { bottom:65px; }
+  .flight-enabled .hero__intro { bottom:calc(17.2vw + 205px); width:calc(100% - 48px); }
+  .flight-enabled .hero__actions { bottom:calc(17.2vw + 112px); }
+  .flight-hud { left:16px; right:16px; bottom:22px; }
+  .current-work { gap:8px; max-width:51%; }
+  .current-work__number { font-size:40px; }
+  .current-work__copy > span { font-size:17px; }
+  .flight-hud__actions { max-width:44%; gap:8px; }
+  .flight-count { display:block; width:100%; text-align:right; }
+  .flight-pause { display:none; }
+  .panel__footer { padding-inline:20px; }
+}
+@media (max-height:650px) and (min-width:781px) {
+  .flight-enabled .hero__wordmark { font-size:21.5vw; bottom:20px; }
+  .flight-enabled .hero__intro, .flight-enabled .hero__actions { bottom:calc(17.2vw + 45px); }
+}
+@media (max-height:700px) and (max-width:780px) {
+  .flight-enabled .hero__intro { bottom:calc(17.2vw + 155px); font-size:.8rem; }
+  .flight-enabled .hero__actions { bottom:calc(17.2vw + 75px); }
+  .flight-enabled .hero__wordmark { bottom:45px; }
+  .flight-enabled .hero__bottom { bottom:12px; }
+}
+@media (max-width:780px) and (orientation:landscape) {
+  .portrait-fallback { height:60%; top:30%; }
+}
+@media (max-height:500px) and (max-width:780px) {
+  .flight-enabled .hero__intro { bottom:calc(17.2vw + 70px); width:45vw; font-size:.72rem; line-height:1.4; }
+  .flight-enabled .hero__actions { bottom:calc(17.2vw + 70px); left:auto; right:24px; display:grid; justify-items:end; gap:5px; }
+  .flight-enabled .hero__wordmark { bottom:25px; }
+  .flight-enabled .hero__bottom { bottom:8px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #pointer-trail { display:none; }
+  .flight-card { will-change:auto; }
+}
+@media print {
+  .flight-enabled, .flight-enabled body { height:auto; overflow:visible; }
+  .flight-enabled #main { height:auto; }
+  .flight-enabled #main > section:not(.hero), .flight-enabled .foot { display:block; }
+}

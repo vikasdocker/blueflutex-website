@@ -111,7 +111,11 @@
      Motion itself is CSS; this only guarantees the content is wide enough. */
   $$("[data-marquee]").forEach((row) => {
     const set = $(".ticker__set", row);
-    if (set) row.appendChild(set.cloneNode(true));
+    if (set) {
+      const copy = set.cloneNode(true);
+      copy.setAttribute("aria-hidden", "true");
+      row.appendChild(copy);
+    }
   });
 
   /* ---------- card spotlight (pointer-fine only) ---------- */
