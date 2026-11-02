@@ -192,4 +192,3 @@ from the visual reference supplied for this redesign, Vadim Carazan:
 https://vadimcarazan.com/ (public visual data at /data/cosmos.json).
 The rendered thumbnail tiles use the BlueFluteX collection. The source site's
 project catalogue, project images and application scripts are not distributed.
-
