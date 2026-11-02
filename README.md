@@ -20,6 +20,7 @@ assets/
   js/site.js             DOM motion layer
   js/scene.js            scroll/touch/keyboard controller, clock and overlays
   js/flight-math.js      camera path and perspective projection
+  js/portrait-points.js  reference portrait coordinates and tonal weights
   js/flight-renderer.js  instanced WebGL image field and Canvas 2D fallback
   js/hero3d.js           retained earlier hero source (not loaded)
   js/shaders.js          retained earlier shaders (not loaded)
@@ -250,7 +251,9 @@ The Night Studio theme uses a near-black ground (`#080909`), off-white type and 
 
 The homepage is a fixed scene. Scrolling moves an eased camera through a dense image field; it does not move a long page. The introduction fades away as the gallery opens. Main images enlarge, leave the camera to either side, and give way to the next view. A live caption, numbered counter and Back to home control follow the current view. Mouse movement adds perspective response and a fading white trail.
 
-On the introduction, the image thumbnails form the BlueFluteX mark. The renderer uses a single instanced WebGL 2 draw for 3,200 billboards on desktop and 1,900 on phones, with a Canvas 2D fallback when WebGL is unavailable or its context is lost. No graphics CDN or package dependency is required. Camera damping uses elapsed time so slow frames do not stretch the transition duration.
+The opening follows the supplied recording: a small centered studio logo holds briefly, the header and large wordmark fade in, then scattered image tiles gather into the reference portrait. The oversized flute-shaped mosaic has been removed. The reveal starts at about 0.85 seconds, and the portrait resolves over about 1.05-3.95 seconds. Loading waits for visual assets, with bounded image requests and a startup failsafe. Reduced-motion preferences show the completed composition immediately.
+
+The portrait coordinates and tonal weights are adapted from the supplied Vadim Carazan reference and attributed in the licence notices. Its tiles use BlueFluteX's own collection. The renderer uses one instanced WebGL 2 draw for 8,532 billboards on desktop and 4,266 on phones, with a Canvas 2D fallback when WebGL is unavailable or its context is lost. No graphics CDN or package dependency is required. Camera damping uses elapsed time so slow frames do not stretch transitions. The stage follows the visible viewport height, including compact preview windows.
 
 The eight gallery views include the actual CleanBoost screenshot and original artwork for the studio's disciplines. The UI calls these views, not eight completed client projects. CleanBoost remains the single public case study.
 

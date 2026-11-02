@@ -13,13 +13,13 @@
     const point = path(index + 1);
     return { x: point.x + Math.sin(index * 1.9) * 90, y: point.y + Math.sin(index * 1.3) * 60, z: (index + 1) * spacing };
   };
-  const project = (point, cam, width, height, blend) => {
+  const project = (point, cam, width, height, blend, homeY = .5) => {
     const depth = point.z - cam.z;
     const focal = Math.min(width, height) * 1.12;
     return {
       depth, scale: focal / Math.max(depth, 1),
       x: width * (.52 - blend * .02) + (point.x - cam.x) * focal / Math.max(depth, 1),
-      y: height * (.42 + blend * .04) - (point.y - cam.y) * focal / Math.max(depth, 1),
+      y: height * (homeY + (.46-homeY)*blend) - (point.y - cam.y) * focal / Math.max(depth, 1),
     };
   };
   const api = { spacing, clamp, ease, path, camera, card, project };

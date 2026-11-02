@@ -4,7 +4,11 @@
   const $ = (selector,root=document) => root.querySelector(selector);
   const $$ = (selector,root=document) => Array.from(root.querySelectorAll(selector));
   const hero=$(".hero"), M=window.BlueFluteFlightMath;
-  if(!hero||!M||!window.BlueFluteField) return;
+  if(!hero||!M||!window.BlueFluteField||!window.BlueFlutePortrait) {
+    document.documentElement.classList.remove("opening-pending");
+    $("[data-opening-loader]")?.setAttribute("hidden","");
+    return;
+  }
   const reduced=matchMedia("(prefers-reduced-motion: reduce)");
   const entries=[
     {name:"CleanBoost",kind:"Windows desktop / Public project",image:"work-cleaner-scan.webp",panel:"work",contain:true},
@@ -20,11 +24,13 @@
   const cardsRoot=$("[data-flight-cards]"), hud=$("[data-flight-hud]");
   const toggles=$$("[data-motion-toggle]");
   const homeCopy=$$("[data-home-copy]");
+  const loader=$("[data-opening-loader]"),nav=$(".nav");
   const trailCanvas=$("#pointer-trail"), trailCtx=trailCanvas?.getContext("2d");
   let renderer=null, frame=0, previous=0, elapsed=0, destroyed=false;
   let width=0,height=0,dpr=1,progress=0,target=0,blend=0,blendTarget=0;
   let pointerX=0,pointerY=0,smoothedX=0,smoothedY=0,userPaused=false,modalOpen=false;
   let active=-1,trail=[],touchY=null,pendingHomeFocus=false,activeContent=null,placeholder=null;
+  let openingTime=0,assetsReady=false;
   const maxProgress=entries.length-1+.62;
   const cards=entries.map((entry,index)=>{
     const button=document.createElement("button");button.type="button";button.className="flight-card";button.tabIndex=-1;
@@ -59,11 +65,11 @@
   function drawTrail(now) {
     if(!trailCtx) return;
     trailCtx.setTransform(dpr,0,0,dpr,0,0);trailCtx.clearRect(0,0,width,height);
-    trail=trail.filter(point=>now-point.time<1.25);
+    trail=trail.filter(point=>now-point.time<6);
     if(reduced.matches||userPaused) {trail=[];return;}
     for(let i=2;i<trail.length;i++) {
       const before=trail[i-2], point=trail[i-1], next=trail[i];
-      const life=M.clamp(1-(now-point.time)/1.25);
+      const life=M.clamp(1-(now-point.time)/6);
       trailCtx.beginPath();trailCtx.moveTo((before.x+point.x)/2,(before.y+point.y)/2);
       trailCtx.quadraticCurveTo(point.x,point.y,(point.x+next.x)/2,(point.y+next.y)/2);
       trailCtx.lineWidth=.6+life*1.2;trailCtx.strokeStyle=`rgba(228,233,228,${life*.48})`;
@@ -73,19 +79,32 @@
   function paint(now) {
     const b=M.ease(blend);
     const camera=M.camera(progress,b,smoothedX,smoothedY);
-    renderer?.draw({width,height,camera,blend:b,time:elapsed,pointerX:smoothedX,pointerY:smoothedY});
-    const homeOpacity=1-M.ease(M.clamp(blend*1.55));
+    const portraitOnPhone=width<780,compact=portraitOnPhone&&height<width;
+    const homeY=compact?.30:portraitOnPhone?.34:.5;
+    const span=compact?height*.6:portraitOnPhone?Math.min(height*.68,width*1.45):height;
+    const homeScale=span/Math.max(1,Math.min(width,height));
+    const assembly=reduced.matches||blendTarget?1:M.ease((openingTime-1.05)/2.9);
+    const entryOpacity=reduced.matches?1:M.ease((openingTime-.85)/.7);
+    document.documentElement.style.setProperty("--entry-opacity",String(entryOpacity));
+    if(entryOpacity>.01) document.documentElement.classList.remove("opening-pending");
+    if(nav) nav.inert=entryOpacity<.8;
+    if(loader) {
+      loader.style.opacity=String(1-M.ease((openingTime-.82)/.52));
+      loader.hidden=reduced.matches||openingTime>1.35;
+    }
+    renderer?.draw({width,height,camera,blend:b,time:elapsed,pointerX:smoothedX,pointerY:smoothedY,homeY,homeScale,assembly});
+    const homeOpacity=(1-M.ease(M.clamp(blend*1.55)))*entryOpacity;
     hero.style.setProperty("--home-opacity",String(homeOpacity));
     hero.style.setProperty("--flight-opacity",String(M.ease((blend-.12)/.6)));
     hero.classList.toggle("is-flight",blendTarget>0||blend>.1);
-    homeCopy.forEach(element=>{element.inert=homeOpacity<.05;});
+    homeCopy.forEach(element=>{element.inert=homeOpacity<.05||entryOpacity<.8;});
     hud.hidden=blend<.08;cardsRoot.hidden=blend<.02;
     const index=M.clamp(Math.floor(progress+.025),0,entries.length-1);setActive(index);
     cards.forEach(({button,point},i)=>{
-      const first=M.project(point,camera,width,height,b);
+      const first=M.project(point,camera,width,height,b,homeY);
       const exit=M.clamp((900-first.depth)/800);
       const side=i%2?1:-1;
-      const p=M.project({x:point.x+side*exit*exit*420,y:point.y+exit*exit*75,z:point.z},camera,width,height,b);
+      const p=M.project({x:point.x+side*exit*exit*420,y:point.y+exit*exit*75,z:point.z},camera,width,height,b,homeY);
       const visible=p.depth>100&&p.depth<5800&&blend>.02;
       button.hidden=!visible;
       button.tabIndex=visible&&i===index&&blend>.8?0:-1;
@@ -98,6 +117,8 @@
     });
     hero.dataset.flightProgress=progress.toFixed(3);
     hero.dataset.flightMode=blendTarget?"flight":"home";
+    hero.dataset.openingPhase=openingTime<.85?"loader":openingTime<1.55?"reveal":assembly<1?"assemble":"ready";
+    hero.dataset.openingTime=openingTime.toFixed(2);
     drawTrail(now);
     if(pendingHomeFocus&&blend<.015) {
       pendingHomeFocus=false;$("[data-enter-flight]",$(".hero__actions"))?.focus({preventScroll:true});
@@ -107,6 +128,8 @@
     frame=0;if(destroyed||modalOpen||document.hidden) return;
     const now=timestamp/1000,dt=previous?Math.max(0,now-previous):1/60;previous=now;
     const still=userPaused||reduced.matches;
+    if(reduced.matches) openingTime=5;
+    else if(!userPaused) openingTime+=assetsReady?dt:Math.min(dt,Math.max(0,.85-openingTime));
     if(still) {progress=target;blend=blendTarget;smoothedX=pointerX;smoothedY=pointerY;}
     else {
       const follow=1-Math.exp(-dt*6.5),enter=1-Math.exp(-dt*5.5);
@@ -120,7 +143,9 @@
     if(!still&&(blendTarget===0||moving||trail.length)) requestTick();
   }
   function resize() {
-    width=hero.clientWidth;height=hero.clientHeight;dpr=Math.min(devicePixelRatio||1,1.5);
+    const visibleHeight=window.visualViewport?.height||innerHeight;
+    document.documentElement.style.setProperty("--studio-height",`${visibleHeight}px`);
+    width=hero.clientWidth;height=visibleHeight;dpr=Math.min(devicePixelRatio||1,1.5);
     renderer?.resize(width,height,dpr);
     if(trailCanvas){trailCanvas.width=Math.round(width*dpr);trailCanvas.height=Math.round(height*dpr);}
     requestTick();
@@ -137,7 +162,7 @@
     $("[data-burger]")?.setAttribute("aria-expanded","false");
   }
   function enter(index) {
-    closeDrawer();blendTarget=1;pendingHomeFocus=false;
+    closeDrawer();blendTarget=1;pendingHomeFocus=false;openingTime=Math.max(openingTime,4.3);
     if(typeof index==="number") target=M.clamp(index+.12,0,maxProgress);
     else if(!target) target=.12;
     requestTick();
@@ -146,7 +171,7 @@
     closeDrawer();target=0;blendTarget=0;pendingHomeFocus=focus;requestTick();
   }
   function move(delta) {
-    if(!blendTarget) {blendTarget=1;target=0;}
+    if(!blendTarget) {blendTarget=1;target=0;openingTime=Math.max(openingTime,4.3);}
     target=M.clamp(target+delta,-.4,maxProgress);
     if(target<=-.32) home(false);
     requestTick();
@@ -159,6 +184,7 @@
   function openPanel(id) {
     const section=document.getElementById(id),inner=section?.querySelector(":scope > .wrap");
     if(!inner||panel?.open) return;
+    if(openingTime<4.3) {openingTime=4.3;paint(performance.now()/1000);}
     if(!panel||typeof panel.showModal!=="function") {
       document.documentElement.classList.remove("flight-enabled");section.scrollIntoView();return;
     }
@@ -231,19 +257,25 @@
   });
   const ro="ResizeObserver" in window?new ResizeObserver(resize):null;
   ro?.observe(hero);if(!ro) addEventListener("resize",resize);
+  window.visualViewport?.addEventListener("resize",resize);
   document.addEventListener("visibilitychange",()=>{
     if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else {previous=0;requestTick();}
   });
   reduced.addEventListener("change",syncToggles);
   resize();syncToggles();setActive(0);
+  function settleAssets() {
+    const now=performance.now()/1000;
+    if(!assetsReady&&openingTime<.85&&previous) openingTime=Math.min(.85,openingTime+Math.max(0,now-previous));
+    assetsReady=true;previous=now;
+  }
   function prepareField(force2d=false) {
     window.BlueFluteField.create($("#studio-field"),entries.map(entry=>"assets/img/"+entry.image),{force2d}).then(result=>{
       if(destroyed){result.destroy();return;}
-      renderer=result;hero.dataset.fieldRenderer=result.type;hero.classList.add("field-ready");resize();
+      renderer=result;settleAssets();hero.dataset.fieldRenderer=result.type;hero.classList.add("field-ready");resize();
       result.canvas.addEventListener("field-unavailable",()=>{
         renderer?.destroy();hero.classList.remove("field-ready");prepareField(true);
       },{once:true});
-    }).catch(()=>{hero.dataset.fieldRenderer="static";});
+    }).catch(()=>{settleAssets();hero.dataset.fieldRenderer="static";requestTick();});
   }
   prepareField();
   const hash=location.hash.slice(1);
@@ -251,7 +283,7 @@
   addEventListener("pagehide",event=>{
     if(frame) cancelAnimationFrame(frame);frame=0;
     if(event.persisted) return;
-    destroyed=true;clearInterval(clockTimer);ro?.disconnect();renderer?.destroy();
+    destroyed=true;clearInterval(clockTimer);ro?.disconnect();window.visualViewport?.removeEventListener("resize",resize);renderer?.destroy();
   });
   addEventListener("pageshow",event=>{if(event.persisted){previous=0;updateClock();resize();requestTick();}});
 })();

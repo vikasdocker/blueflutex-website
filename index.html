@@ -38,7 +38,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   /* Set before first paint. The reveal animation starts from opacity:0, so
      without this gate a visitor with JS disabled would get a blank page
      rather than a unanimated one. */
-  document.documentElement.classList.add("js");
+  document.documentElement.classList.add("js", "opening-pending");
+  setTimeout(() => {
+    if (!document.documentElement.classList.contains("opening-pending")) return;
+    document.documentElement.classList.remove("opening-pending", "js");
+    document.querySelector("[data-opening-loader]")?.setAttribute("hidden", "");
+    document.documentElement.style.setProperty("--entry-opacity", "1");
+  }, 6500);
 </script>
 
 <!-- Self-hosted brand and type assets. -->
@@ -58,6 +64,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <a class="skip" href="#main">Skip to content</a>
+
+<div class="opening-loader" data-opening-loader role="status" aria-label="Loading BlueFluteX">
+  <img src="assets/img/blueflutex-mark-light.svg" alt="" width="56" height="56" />
+</div>
 
 <div class="progress" aria-hidden="true"><span data-progress></span></div>
 
@@ -91,7 +101,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ============================ HERO ============================ -->
 <section class="hero" aria-label="BlueFluteX software studio" aria-describedby="flight-instructions">
   <div class="hero__scene" aria-hidden="true">
-    <div class="home-mark"></div>
+    <div class="portrait-fallback"></div>
     <canvas id="studio-field"></canvas>
   </div>
   <div class="flight-cards" data-flight-cards aria-label="Studio collection" hidden></div>
@@ -519,6 +529,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="panel__footer"><a href="privacy-policy.html">Privacy policy</a><a href="licenses.html">Licences</a></div>
 </dialog>
 <script src="assets/js/flight-math.js" defer></script>
+<script src="assets/js/portrait-points.js" defer></script>
 <script src="assets/js/flight-renderer.js" defer></script>
 <script src="assets/js/scene.js" defer></script>
 </body>

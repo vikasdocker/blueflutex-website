@@ -1,8 +1,7 @@
 # Third-party notices
 
-Components used by the BlueFluteX website, and the terms they are used under.
-This file satisfies the attribution conditions of each licence below; the
-human-readable version lives at `/licenses.html`.
+Software licence texts and decorative visual-reference attributions for the
+BlueFluteX website. The human-readable version lives at `/licenses.html`.
 
 ---
 
@@ -12,7 +11,7 @@ human-readable version lives at `/licenses.html`.
 - **Version:** 0.186.1 (pinned)
 - **Source:** https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js
 - **Licence:** MIT
-- **Use:** hero WebGL renderer
+- **Use:** retained earlier hero source; not loaded by the current homepage
 
 ```
 The MIT License
@@ -186,3 +185,11 @@ Earlier versions of this site embedded a Supabase client and called a public
 rotate the Supabase anon key used by those builds, it is no longer referenced
 anywhere in this repository — but it remains in git history, so rotation is
 still the correct response.
+## Decorative portrait reference
+
+The decorative particle portrait coordinate layout and tonal weights are adapted
+from the visual reference supplied for this redesign, Vadim Carazan:
+https://vadimcarazan.com/ (public visual data at /data/cosmos.json).
+The rendered thumbnail tiles use the BlueFluteX collection. The source site's
+project catalogue, project images and application scripts are not distributed.
+
